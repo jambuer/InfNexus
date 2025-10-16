@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 9c836e442a72d6c40b322a352728d5f7
+ScriptedImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 2
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+  script: {fileID: 12385, guid: 0000000000000000e000000000000000, type: 0}
+  disableValidation: 0
+AssetOrigin:
+  serializedVersion: 1
+  productId: 283656
+  packageName: Inventory Framework (UI Toolkit)
+  packageVersion: 1.7
+  assetPath: Assets/GDS/Examples/Minimal/Resources/Minimal/MinimalStyles.uss
+  uploadId: 782641

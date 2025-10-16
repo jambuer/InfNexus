@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1859bc826bd9c904f970d3401dde0f06, type: 3}
+  m_Name: OldHabitsQuest
+  m_EditorClassIdentifier: 
+  questName: "ilk g\xF6rev"
+  questIcon: {fileID: 21300000, guid: 2f1eaeeaad36ee5469eff7ff158f37ba, type: 3}
+  description: "ilk g\xF6revi buradan yapacaks\u0131n!!!!!"
+  difficultySettings:
+  - difficultyLevel: 0
+    requiredEnergy: 1
+    experienceReward: 0
+    minGoldReward: 0
+    maxGoldReward: 0
+  - difficultyLevel: 1
+    requiredEnergy: 5
+    experienceReward: 0
+    minGoldReward: 0
+    maxGoldReward: 0
+  - difficultyLevel: 2
+    requiredEnergy: 15
+    experienceReward: 0
+    minGoldReward: 0
+    maxGoldReward: 0
+  - difficultyLevel: 3
+    requiredEnergy: 45
+    experienceReward: 0
+    minGoldReward: 0
+    maxGoldReward: 0
+  - difficultyLevel: 4
+    requiredEnergy: 100
+    experienceReward: 0
+    minGoldReward: 0
+    maxGoldReward: 0

@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 3e964c43cd2d2f848842a43afc403979
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 283656
+  packageName: Inventory Framework (UI Toolkit)
+  packageVersion: 1.7
+  assetPath: Assets/GDS/Demos/Basic/Inventory/CompilerFix.cs
+  uploadId: 782641

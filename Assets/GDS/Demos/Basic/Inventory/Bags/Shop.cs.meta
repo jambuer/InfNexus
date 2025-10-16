@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: c2358cf41e6367e4e8c580c75a0fb5a5
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 283656
+  packageName: Inventory Framework (UI Toolkit)
+  packageVersion: 1.7
+  assetPath: Assets/GDS/Demos/Basic/Inventory/Bags/Shop.cs
+  uploadId: 782641

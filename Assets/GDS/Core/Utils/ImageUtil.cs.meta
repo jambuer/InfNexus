@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 73f51b8d0d37a45499313118564f8981
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 283656
+  packageName: Inventory Framework (UI Toolkit)
+  packageVersion: 1.7
+  assetPath: Assets/GDS/Core/Utils/ImageUtil.cs
+  uploadId: 782641

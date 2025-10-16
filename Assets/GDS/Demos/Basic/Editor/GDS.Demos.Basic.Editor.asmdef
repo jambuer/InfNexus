@@ -1,0 +1,20 @@
+{
+    "name": "GDS.Demos.Basic.Editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:ff9bf2d567161c345a53abf8da297551",
+        "GUID:06692e27565dff24e97bc99378321c1d",
+        "GUID:602e154ec19a6fb46b5e318b4ee84b78"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

@@ -1,0 +1,18 @@
+{
+    "name": "GDS.Core.Editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:06692e27565dff24e97bc99378321c1d"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 4bf4a43eff5d8ea41b7e6b529018dc03
+TextScriptImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 283656
+  packageName: Inventory Framework (UI Toolkit)
+  packageVersion: 1.7
+  assetPath: Assets/GDS/README.MD
+  uploadId: 782641

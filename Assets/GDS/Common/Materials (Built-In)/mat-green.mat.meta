@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 473c1d4c965e9584fb588d95d6036e2f
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 283656
+  packageName: Inventory Framework (UI Toolkit)
+  packageVersion: 1.7
+  assetPath: Assets/GDS/Common/Materials (Built-In)/mat-green.mat
+  uploadId: 782641

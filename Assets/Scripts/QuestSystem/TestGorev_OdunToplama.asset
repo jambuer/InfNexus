@@ -1,0 +1,58 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a7feed0eadc0aa4890709c750d291d5, type: 3}
+  m_Name: TestGorev_OdunToplama
+  m_EditorClassIdentifier: 
+  questID: 3f17f788-60b4-4cee-943a-6448d422005e
+  questName: New Quest
+  description: A detailed description of the quest objectives.
+  questIcon: {fileID: 0}
+  baseCompletionTime: 10
+  mainTag: 0
+  subTag: 0
+  completionLimit: 0
+  masteryID: 
+  requirements:
+    requiredLevel: 1
+    requiredHealth: 0
+    requiredEnergy: 0
+    requiredMana: 0
+    requiredGold: 0
+    requiredNexusCoin: 0
+    baseCompletionTimeCost: 0
+    requiredPhysical: 0
+    requiredMental: 0
+    requiredPerception: 0
+    requiredSpiritual: 0
+    requiredLuck: 0
+    requiredSocial: 0
+  goldRewardTiers: []
+  nexusCoinRewardTiers: []
+  itemRewards: []
+  automationData:
+    canBeAutomated: 0
+    unlockRequirements:
+      requiredLevel: 1
+      requiredHealth: 0
+      requiredEnergy: 0
+      requiredMana: 0
+      requiredGold: 0
+      requiredNexusCoin: 0
+      baseCompletionTimeCost: 0
+      requiredPhysical: 0
+      requiredMental: 0
+      requiredPerception: 0
+      requiredSpiritual: 0
+      requiredLuck: 0
+      requiredSocial: 0
+    totalCompletionsToUnlock: 0
+    automationTiers: []

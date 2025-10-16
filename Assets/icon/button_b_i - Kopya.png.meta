@@ -1,0 +1,2457 @@
+fileFormatVersion: 2
+guid: 2edcf480170f6ca4cac477073ecbea77
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -6649457111334444998
+    second: button_b_i - Kopya_0
+  - first:
+      213: 864165994757552775
+    second: button_b_i - Kopya_1
+  - first:
+      213: 2291537027105947529
+    second: button_b_i - Kopya_2
+  - first:
+      213: 8714330301566310487
+    second: button_b_i - Kopya_3
+  - first:
+      213: 6276480532112016630
+    second: button_b_i - Kopya_4
+  - first:
+      213: 8136820060126758621
+    second: button_b_i - Kopya_5
+  - first:
+      213: -2188898024265963335
+    second: button_b_i - Kopya_6
+  - first:
+      213: -878831203148781014
+    second: button_b_i - Kopya_7
+  - first:
+      213: 4896215411241344332
+    second: button_b_i - Kopya_8
+  - first:
+      213: 1764069944895374612
+    second: button_b_i - Kopya_9
+  - first:
+      213: 6847105091653105700
+    second: button_b_i - Kopya_10
+  - first:
+      213: -7412243196430946046
+    second: button_b_i - Kopya_11
+  - first:
+      213: 4645625421244032196
+    second: button_b_i - Kopya_12
+  - first:
+      213: -1603385708248504807
+    second: button_b_i - Kopya_13
+  - first:
+      213: 511033962374311870
+    second: button_b_i - Kopya_14
+  - first:
+      213: -3976116069371654357
+    second: button_b_i - Kopya_15
+  - first:
+      213: -6841108636692815598
+    second: button_b_i - Kopya_16
+  - first:
+      213: -3729016500288624078
+    second: button_b_i - Kopya_17
+  - first:
+      213: -1268214101499031837
+    second: button_b_i - Kopya_18
+  - first:
+      213: -329168279162519262
+    second: button_b_i - Kopya_19
+  - first:
+      213: -2046168668805220229
+    second: button_b_i - Kopya_20
+  - first:
+      213: -6900516111594705604
+    second: button_b_i - Kopya_21
+  - first:
+      213: 2502047784419740123
+    second: button_b_i - Kopya_22
+  - first:
+      213: -1157187329774186612
+    second: button_b_i - Kopya_23
+  - first:
+      213: -916230751722841133
+    second: button_b_i - Kopya_24
+  - first:
+      213: 8892470430634328051
+    second: button_b_i - Kopya_25
+  - first:
+      213: 8442691072343317556
+    second: button_b_i - Kopya_26
+  - first:
+      213: 7654059168071853329
+    second: button_b_i - Kopya_27
+  - first:
+      213: -8104315982819321509
+    second: button_b_i - Kopya_28
+  - first:
+      213: -2587416472826553449
+    second: button_b_i - Kopya_29
+  - first:
+      213: -3742688866727981836
+    second: button_b_i - Kopya_30
+  - first:
+      213: -3430580901478058579
+    second: button_b_i - Kopya_31
+  - first:
+      213: -2168487645611324289
+    second: button_b_i - Kopya_32
+  - first:
+      213: 3424164450906603103
+    second: button_b_i - Kopya_33
+  - first:
+      213: -8813062605103810968
+    second: button_b_i - Kopya_34
+  - first:
+      213: 4587476849346738457
+    second: button_b_i - Kopya_35
+  - first:
+      213: -1536159323396862710
+    second: button_b_i - Kopya_36
+  - first:
+      213: -7623534299583226557
+    second: button_b_i - Kopya_37
+  - first:
+      213: 8218439611660867767
+    second: button_b_i - Kopya_38
+  - first:
+      213: 3855519839983481753
+    second: button_b_i - Kopya_39
+  - first:
+      213: -2666536599133931050
+    second: button_b_i - Kopya_40
+  - first:
+      213: -5539910309984998930
+    second: button_b_i - Kopya_41
+  - first:
+      213: -220872274497691048
+    second: button_b_i - Kopya_42
+  - first:
+      213: -7353959268065887022
+    second: button_b_i - Kopya_43
+  - first:
+      213: 855956877965170960
+    second: button_b_i - Kopya_44
+  - first:
+      213: 4166054954587323891
+    second: button_b_i - Kopya_45
+  - first:
+      213: 98525654353984798
+    second: button_b_i - Kopya_46
+  - first:
+      213: 4014783098033780709
+    second: button_b_i - Kopya_47
+  - first:
+      213: 8758982121021971997
+    second: button_b_i - Kopya_48
+  - first:
+      213: -6497499054490318162
+    second: button_b_i - Kopya_49
+  - first:
+      213: 5932688177938962754
+    second: button_b_i - Kopya_50
+  - first:
+      213: 2209913414187638024
+    second: button_b_i - Kopya_51
+  - first:
+      213: -5283032920551013606
+    second: button_b_i - Kopya_52
+  - first:
+      213: 3053450921572835004
+    second: button_b_i - Kopya_53
+  - first:
+      213: 3903016992691846476
+    second: button_b_i - Kopya_54
+  - first:
+      213: -3964702222342919130
+    second: button_b_i - Kopya_55
+  - first:
+      213: 3300067325880833098
+    second: button_b_i - Kopya_56
+  - first:
+      213: 1214249010806250620
+    second: button_b_i - Kopya_57
+  - first:
+      213: 4410781294059037422
+    second: button_b_i - Kopya_58
+  - first:
+      213: -1834329489586997205
+    second: button_b_i - Kopya_59
+  - first:
+      213: 1125806936208188162
+    second: button_b_i - Kopya_60
+  - first:
+      213: 362304465254840778
+    second: button_b_i - Kopya_61
+  - first:
+      213: -4912908267865992167
+    second: button_b_i - Kopya_62
+  - first:
+      213: 3549434149323035291
+    second: button_b_i - Kopya_63
+  - first:
+      213: -938850774228243097
+    second: button_b_i - Kopya_64
+  - first:
+      213: 39284529406265938
+    second: button_b_i - Kopya_65
+  - first:
+      213: -4683354708194444828
+    second: button_b_i - Kopya_66
+  - first:
+      213: -8867750504238891547
+    second: button_b_i - Kopya_67
+  - first:
+      213: 3595750859874666813
+    second: button_b_i - Kopya_68
+  - first:
+      213: -5280322122790697209
+    second: button_b_i - Kopya_69
+  - first:
+      213: -7636633798908767482
+    second: button_b_i - Kopya_70
+  - first:
+      213: 6853452527875117216
+    second: button_b_i - Kopya_71
+  - first:
+      213: -3549347914093362021
+    second: button_b_i - Kopya_72
+  - first:
+      213: -3573387726859945585
+    second: button_b_i - Kopya_73
+  - first:
+      213: 3374345124770612589
+    second: button_b_i - Kopya_74
+  - first:
+      213: -3208203218270583285
+    second: button_b_i - Kopya_75
+  - first:
+      213: -4917616313303626811
+    second: button_b_i - Kopya_76
+  - first:
+      213: -4243085135781481112
+    second: button_b_i - Kopya_77
+  - first:
+      213: 456730966683715760
+    second: button_b_i - Kopya_78
+  - first:
+      213: 1702252077940565664
+    second: button_b_i - Kopya_79
+  - first:
+      213: -4846137232272910150
+    second: button_b_i - Kopya_80
+  - first:
+      213: -1898114341824360978
+    second: button_b_i - Kopya_81
+  - first:
+      213: -2051243342194219299
+    second: button_b_i - Kopya_82
+  - first:
+      213: 3584571613516085239
+    second: button_b_i - Kopya_83
+  - first:
+      213: 4095489016816215835
+    second: button_b_i - Kopya_84
+  - first:
+      213: 8004639716499237319
+    second: button_b_i - Kopya_85
+  - first:
+      213: 8982813008857100801
+    second: button_b_i - Kopya_86
+  - first:
+      213: -3696519516813651975
+    second: button_b_i - Kopya_87
+  - first:
+      213: -2567571189391737583
+    second: button_b_i - Kopya_88
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: button_b_i - Kopya_0
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 113
+        height: 1024
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a3027b1dcf168b3a0800000000000000
+      internalID: -6649457111334444998
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: button_b_i - Kopya_1
+      rect:
+        serializedVersion: 2
+        x: 123
+        y: 0
+        width: 1413
+        height: 1024
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 78afe78c4622efb00800000000000000
+      internalID: 864165994757552775
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: button_b_i - Kopya_2
+      rect:
+        serializedVersion: 2
+        x: 926
+        y: 1008
+        width: 74
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 98ffd4af8cc2dcf10800000000000000
+      internalID: 2291537027105947529
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: button_b_i - Kopya_3
+      rect:
+        serializedVersion: 2
+        x: 995
+        y: 1016
+        width: 194
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 75858402d358fe870800000000000000
+      internalID: 8714330301566310487
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: button_b_i - Kopya_4
+      rect:
+        serializedVersion: 2
+        x: 995
+        y: 994
+        width: 6
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6f4013c2ac98a1750800000000000000
+      internalID: 6276480532112016630
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: button_b_i - Kopya_5
+      rect:
+        serializedVersion: 2
+        x: 995
+        y: 986
+        width: 6
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dd6c025ebbacbe070800000000000000
+      internalID: 8136820060126758621
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: button_b_i - Kopya_6
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 956
+        width: 8
+        height: 27
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9b8a21e18d87f91e0800000000000000
+      internalID: -2188898024265963335
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: button_b_i - Kopya_7
+      rect:
+        serializedVersion: 2
+        x: 994
+        y: 952
+        width: 7
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a2aa9ce4da3cdc3f0800000000000000
+      internalID: -878831203148781014
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: button_b_i - Kopya_8
+      rect:
+        serializedVersion: 2
+        x: 1041
+        y: 872
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c4d55daa9f9d2f340800000000000000
+      internalID: 4896215411241344332
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: button_b_i - Kopya_9
+      rect:
+        serializedVersion: 2
+        x: 1041
+        y: 864
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4158e68b44c3b7810800000000000000
+      internalID: 1764069944895374612
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: button_b_i - Kopya_10
+      rect:
+        serializedVersion: 2
+        x: 82
+        y: 828
+        width: 7
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 42870c7adcdc50f50800000000000000
+      internalID: 6847105091653105700
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: button_b_i - Kopya_11
+      rect:
+        serializedVersion: 2
+        x: 82
+        y: 822
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2017de7a51c622990800000000000000
+      internalID: -7412243196430946046
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: button_b_i - Kopya_12
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 797
+        width: 8
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4c466c005b3987040800000000000000
+      internalID: 4645625421244032196
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: button_b_i - Kopya_13
+      rect:
+        serializedVersion: 2
+        x: 1040
+        y: 800
+        width: 7
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 916e8e58131afb9e0800000000000000
+      internalID: -1603385708248504807
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: button_b_i - Kopya_14
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 779
+        width: 8
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ebf2b736eae871700800000000000000
+      internalID: 511033962374311870
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: button_b_i - Kopya_15
+      rect:
+        serializedVersion: 2
+        x: 82
+        y: 774
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b2f4163508ff1d8c0800000000000000
+      internalID: -3976116069371654357
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: button_b_i - Kopya_16
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 768
+        width: 8
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2116110d0ff7f01a0800000000000000
+      internalID: -6841108636692815598
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: button_b_i - Kopya_17
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 756
+        width: 8
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 23ae9ba004fdf3cc0800000000000000
+      internalID: -3729016500288624078
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: button_b_i - Kopya_18
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 750
+        width: 8
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3ee42057ef5666ee0800000000000000
+      internalID: -1268214101499031837
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: button_b_i - Kopya_19
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 742
+        width: 8
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2210131b13f8e6bf0800000000000000
+      internalID: -329168279162519262
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: button_b_i - Kopya_20
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 733
+        width: 8
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b78b451df6c8a93e0800000000000000
+      internalID: -2046168668805220229
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: button_b_i - Kopya_21
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 727
+        width: 8
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c3da98138217c30a0800000000000000
+      internalID: -6900516111594705604
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: button_b_i - Kopya_22
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 715
+        width: 8
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bd94469143f09b220800000000000000
+      internalID: 2502047784419740123
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: button_b_i - Kopya_23
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 710
+        width: 8
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c8f0a3e2148d0ffe0800000000000000
+      internalID: -1157187329774186612
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: button_b_i - Kopya_24
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 702
+        width: 8
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3db55475cf4e843f0800000000000000
+      internalID: -916230751722841133
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: button_b_i - Kopya_25
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 685
+        width: 8
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3ffbf990eb6686b70800000000000000
+      internalID: 8892470430634328051
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: button_b_i - Kopya_26
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 675
+        width: 8
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 43c926b8cc67a2570800000000000000
+      internalID: 8442691072343317556
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: button_b_i - Kopya_27
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 668
+        width: 8
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 115aebaa24ea83a60800000000000000
+      internalID: 7654059168071853329
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: button_b_i - Kopya_28
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 660
+        width: 8
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b5998885d8fa78f80800000000000000
+      internalID: -8104315982819321509
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: button_b_i - Kopya_29
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 654
+        width: 8
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 79bdd2b3d66a71cd0800000000000000
+      internalID: -2587416472826553449
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: button_b_i - Kopya_30
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 644
+        width: 8
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4fc8ed92e4c4f0cc0800000000000000
+      internalID: -3742688866727981836
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: button_b_i - Kopya_31
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 628
+        width: 8
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: da5392a98d02460d0800000000000000
+      internalID: -3430580901478058579
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: button_b_i - Kopya_32
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 620
+        width: 8
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f7c8387b9fbf7e1e0800000000000000
+      internalID: -2168487645611324289
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: button_b_i - Kopya_33
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 612
+        width: 8
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f5efec41d63158f20800000000000000
+      internalID: 3424164450906603103
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: button_b_i - Kopya_34
+      rect:
+        serializedVersion: 2
+        x: 82
+        y: 606
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 86632871146b1b580800000000000000
+      internalID: -8813062605103810968
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: button_b_i - Kopya_35
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 582
+        width: 8
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 919f3a493edf9af30800000000000000
+      internalID: 4587476849346738457
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: button_b_i - Kopya_36
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 572
+        width: 8
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a0d868afb377eaae0800000000000000
+      internalID: -1536159323396862710
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: button_b_i - Kopya_37
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 543
+        width: 8
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 34dd55c12f3c33690800000000000000
+      internalID: -7623534299583226557
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: button_b_i - Kopya_38
+      rect:
+        serializedVersion: 2
+        x: 82
+        y: 551
+        width: 7
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7b89b0d9843cd0270800000000000000
+      internalID: 8218439611660867767
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: button_b_i - Kopya_39
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 532
+        width: 8
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 993bfa6fdde818530800000000000000
+      internalID: 3855519839983481753
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: button_b_i - Kopya_40
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 526
+        width: 8
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6d93b0c471f8efad0800000000000000
+      internalID: -2666536599133931050
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: button_b_i - Kopya_41
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 511
+        width: 8
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ee9e1ddbce84e13b0800000000000000
+      internalID: -5539910309984998930
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: button_b_i - Kopya_42
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 492
+        width: 8
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 85225d926dd4fecf0800000000000000
+      internalID: -220872274497691048
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: button_b_i - Kopya_43
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 486
+        width: 8
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2dcbd36320d71f990800000000000000
+      internalID: -7353959268065887022
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: button_b_i - Kopya_44
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 476
+        width: 8
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0199a26de38f0eb00800000000000000
+      internalID: 855956877965170960
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: button_b_i - Kopya_45
+      rect:
+        serializedVersion: 2
+        x: 82
+        y: 470
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3fdfee298ecc0d930800000000000000
+      internalID: 4166054954587323891
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: button_b_i - Kopya_46
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 460
+        width: 8
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e1d38058f880e5100800000000000000
+      internalID: 98525654353984798
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: button_b_i - Kopya_47
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 454
+        width: 8
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5e7bb88d4ff57b730800000000000000
+      internalID: 4014783098033780709
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: button_b_i - Kopya_48
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 445
+        width: 8
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d1e138df4d72e8970800000000000000
+      internalID: 8758982121021971997
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: button_b_i - Kopya_49
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 436
+        width: 8
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: eaa0ba0090f34d5a0800000000000000
+      internalID: -6497499054490318162
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: button_b_i - Kopya_50
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 430
+        width: 8
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 24916311774255250800000000000000
+      internalID: 5932688177938962754
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: button_b_i - Kopya_51
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 420
+        width: 8
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 80d5605aa803bae10800000000000000
+      internalID: 2209913414187638024
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: button_b_i - Kopya_52
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 411
+        width: 8
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a13ccd9ac85eea6b0800000000000000
+      internalID: -5283032920551013606
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: button_b_i - Kopya_53
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 405
+        width: 8
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cbe107f6f69006a20800000000000000
+      internalID: 3053450921572835004
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: button_b_i - Kopya_54
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 398
+        width: 8
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c4df5b9964d4a2630800000000000000
+      internalID: 3903016992691846476
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: button_b_i - Kopya_55
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 390
+        width: 8
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 62c6c0da55c8af8c0800000000000000
+      internalID: -3964702222342919130
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: button_b_i - Kopya_56
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 380
+        width: 8
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a4410069fb13ccd20800000000000000
+      internalID: 3300067325880833098
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: button_b_i - Kopya_57
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 374
+        width: 8
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c7cd9fdba01e9d010800000000000000
+      internalID: 1214249010806250620
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: button_b_i - Kopya_58
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 364
+        width: 8
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ee2a356b73e363d30800000000000000
+      internalID: 4410781294059037422
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: button_b_i - Kopya_59
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 356
+        width: 8
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b28b4244c072b86e0800000000000000
+      internalID: -1834329489586997205
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: button_b_i - Kopya_60
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 348
+        width: 8
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2032c56917baf9f00800000000000000
+      internalID: 1125806936208188162
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: button_b_i - Kopya_61
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 341
+        width: 8
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ac97d08ddf9270500800000000000000
+      internalID: 362304465254840778
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: button_b_i - Kopya_62
+      rect:
+        serializedVersion: 2
+        x: 79
+        y: 323
+        width: 10
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 91494c7c5f7d1dbb0800000000000000
+      internalID: -4912908267865992167
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: button_b_i - Kopya_63
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 316
+        width: 8
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b925a089d8f124130800000000000000
+      internalID: 3549434149323035291
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: button_b_i - Kopya_64
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 310
+        width: 8
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 76d6601f13888f2f0800000000000000
+      internalID: -938850774228243097
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: button_b_i - Kopya_65
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 301
+        width: 8
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 25acd6442119b8000800000000000000
+      internalID: 39284529406265938
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: button_b_i - Kopya_66
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 292
+        width: 8
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4e9bae4d4b1610fb0800000000000000
+      internalID: -4683354708194444828
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: button_b_i - Kopya_67
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 286
+        width: 8
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5edbc0656eb6fe480800000000000000
+      internalID: -8867750504238891547
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: button_b_i - Kopya_68
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 279
+        width: 8
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d3982af1b5ca6e130800000000000000
+      internalID: 3595750859874666813
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: button_b_i - Kopya_69
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 271
+        width: 8
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7078c63710788b6b0800000000000000
+      internalID: -5280322122790697209
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: button_b_i - Kopya_70
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 254
+        width: 8
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6031d40450a350690800000000000000
+      internalID: -7636633798908767482
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: button_b_i - Kopya_71
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 245
+        width: 8
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0a0dff053ca5c1f50800000000000000
+      internalID: 6853452527875117216
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: button_b_i - Kopya_72
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 238
+        width: 8
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b94013c90ee2ebec0800000000000000
+      internalID: -3549347914093362021
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: button_b_i - Kopya_73
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 229
+        width: 8
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f89b5c78bc6c86ec0800000000000000
+      internalID: -3573387726859945585
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: button_b_i - Kopya_74
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 220
+        width: 8
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d65068f430514de20800000000000000
+      internalID: 3374345124770612589
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: button_b_i - Kopya_75
+      rect:
+        serializedVersion: 2
+        x: 993
+        y: 192
+        width: 8
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b0687b7bb2c2a73d0800000000000000
+      internalID: -3208203218270583285
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: button_b_i - Kopya_76
+      rect:
+        serializedVersion: 2
+        x: 994
+        y: 184
+        width: 7
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5cb0fd7840e11cbb0800000000000000
+      internalID: -4917616313303626811
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: button_b_i - Kopya_77
+      rect:
+        serializedVersion: 2
+        x: 994
+        y: 176
+        width: 7
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8653102cc888d15c0800000000000000
+      internalID: -4243085135781481112
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: button_b_i - Kopya_78
+      rect:
+        serializedVersion: 2
+        x: 994
+        y: 152
+        width: 7
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0b88a13f462a65600800000000000000
+      internalID: 456730966683715760
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: button_b_i - Kopya_79
+      rect:
+        serializedVersion: 2
+        x: 994
+        y: 144
+        width: 7
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0a661d7fe3d9f9710800000000000000
+      internalID: 1702252077940565664
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: button_b_i - Kopya_80
+      rect:
+        serializedVersion: 2
+        x: 82
+        y: 116
+        width: 7
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ab81499fcdf0fbcb0800000000000000
+      internalID: -4846137232272910150
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: button_b_i - Kopya_81
+      rect:
+        serializedVersion: 2
+        x: 82
+        y: 94
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: eed0c70101b88a5e0800000000000000
+      internalID: -1898114341824360978
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: button_b_i - Kopya_82
+      rect:
+        serializedVersion: 2
+        x: 994
+        y: 96
+        width: 7
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dd6e0a85c058883e0800000000000000
+      internalID: -2051243342194219299
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: button_b_i - Kopya_83
+      rect:
+        serializedVersion: 2
+        x: 82
+        y: 55
+        width: 7
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7f7339ff3e4feb130800000000000000
+      internalID: 3584571613516085239
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: button_b_i - Kopya_84
+      rect:
+        serializedVersion: 2
+        x: 82
+        y: 39
+        width: 7
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b1728dcdf8916d830800000000000000
+      internalID: 4095489016816215835
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: button_b_i - Kopya_85
+      rect:
+        serializedVersion: 2
+        x: 82
+        y: 31
+        width: 7
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7c9abe86961361f60800000000000000
+      internalID: 8004639716499237319
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: button_b_i - Kopya_86
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 19
+        width: 8
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1027faca6dc59ac70800000000000000
+      internalID: 8982813008857100801
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: button_b_i - Kopya_87
+      rect:
+        serializedVersion: 2
+        x: 994
+        y: 24
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9ff060f951353bcc0800000000000000
+      internalID: -3696519516813651975
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: button_b_i - Kopya_88
+      rect:
+        serializedVersion: 2
+        x: 82
+        y: 0
+        width: 7
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 11d37c85b972e5cd0800000000000000
+      internalID: -2567571189391737583
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      button_b_i - Kopya_0: -6649457111334444998
+      button_b_i - Kopya_1: 864165994757552775
+      button_b_i - Kopya_10: 6847105091653105700
+      button_b_i - Kopya_11: -7412243196430946046
+      button_b_i - Kopya_12: 4645625421244032196
+      button_b_i - Kopya_13: -1603385708248504807
+      button_b_i - Kopya_14: 511033962374311870
+      button_b_i - Kopya_15: -3976116069371654357
+      button_b_i - Kopya_16: -6841108636692815598
+      button_b_i - Kopya_17: -3729016500288624078
+      button_b_i - Kopya_18: -1268214101499031837
+      button_b_i - Kopya_19: -329168279162519262
+      button_b_i - Kopya_2: 2291537027105947529
+      button_b_i - Kopya_20: -2046168668805220229
+      button_b_i - Kopya_21: -6900516111594705604
+      button_b_i - Kopya_22: 2502047784419740123
+      button_b_i - Kopya_23: -1157187329774186612
+      button_b_i - Kopya_24: -916230751722841133
+      button_b_i - Kopya_25: 8892470430634328051
+      button_b_i - Kopya_26: 8442691072343317556
+      button_b_i - Kopya_27: 7654059168071853329
+      button_b_i - Kopya_28: -8104315982819321509
+      button_b_i - Kopya_29: -2587416472826553449
+      button_b_i - Kopya_3: 8714330301566310487
+      button_b_i - Kopya_30: -3742688866727981836
+      button_b_i - Kopya_31: -3430580901478058579
+      button_b_i - Kopya_32: -2168487645611324289
+      button_b_i - Kopya_33: 3424164450906603103
+      button_b_i - Kopya_34: -8813062605103810968
+      button_b_i - Kopya_35: 4587476849346738457
+      button_b_i - Kopya_36: -1536159323396862710
+      button_b_i - Kopya_37: -7623534299583226557
+      button_b_i - Kopya_38: 8218439611660867767
+      button_b_i - Kopya_39: 3855519839983481753
+      button_b_i - Kopya_4: 6276480532112016630
+      button_b_i - Kopya_40: -2666536599133931050
+      button_b_i - Kopya_41: -5539910309984998930
+      button_b_i - Kopya_42: -220872274497691048
+      button_b_i - Kopya_43: -7353959268065887022
+      button_b_i - Kopya_44: 855956877965170960
+      button_b_i - Kopya_45: 4166054954587323891
+      button_b_i - Kopya_46: 98525654353984798
+      button_b_i - Kopya_47: 4014783098033780709
+      button_b_i - Kopya_48: 8758982121021971997
+      button_b_i - Kopya_49: -6497499054490318162
+      button_b_i - Kopya_5: 8136820060126758621
+      button_b_i - Kopya_50: 5932688177938962754
+      button_b_i - Kopya_51: 2209913414187638024
+      button_b_i - Kopya_52: -5283032920551013606
+      button_b_i - Kopya_53: 3053450921572835004
+      button_b_i - Kopya_54: 3903016992691846476
+      button_b_i - Kopya_55: -3964702222342919130
+      button_b_i - Kopya_56: 3300067325880833098
+      button_b_i - Kopya_57: 1214249010806250620
+      button_b_i - Kopya_58: 4410781294059037422
+      button_b_i - Kopya_59: -1834329489586997205
+      button_b_i - Kopya_6: -2188898024265963335
+      button_b_i - Kopya_60: 1125806936208188162
+      button_b_i - Kopya_61: 362304465254840778
+      button_b_i - Kopya_62: -4912908267865992167
+      button_b_i - Kopya_63: 3549434149323035291
+      button_b_i - Kopya_64: -938850774228243097
+      button_b_i - Kopya_65: 39284529406265938
+      button_b_i - Kopya_66: -4683354708194444828
+      button_b_i - Kopya_67: -8867750504238891547
+      button_b_i - Kopya_68: 3595750859874666813
+      button_b_i - Kopya_69: -5280322122790697209
+      button_b_i - Kopya_7: -878831203148781014
+      button_b_i - Kopya_70: -7636633798908767482
+      button_b_i - Kopya_71: 6853452527875117216
+      button_b_i - Kopya_72: -3549347914093362021
+      button_b_i - Kopya_73: -3573387726859945585
+      button_b_i - Kopya_74: 3374345124770612589
+      button_b_i - Kopya_75: -3208203218270583285
+      button_b_i - Kopya_76: -4917616313303626811
+      button_b_i - Kopya_77: -4243085135781481112
+      button_b_i - Kopya_78: 456730966683715760
+      button_b_i - Kopya_79: 1702252077940565664
+      button_b_i - Kopya_8: 4896215411241344332
+      button_b_i - Kopya_80: -4846137232272910150
+      button_b_i - Kopya_81: -1898114341824360978
+      button_b_i - Kopya_82: -2051243342194219299
+      button_b_i - Kopya_83: 3584571613516085239
+      button_b_i - Kopya_84: 4095489016816215835
+      button_b_i - Kopya_85: 8004639716499237319
+      button_b_i - Kopya_86: 8982813008857100801
+      button_b_i - Kopya_87: -3696519516813651975
+      button_b_i - Kopya_88: -2567571189391737583
+      button_b_i - Kopya_9: 1764069944895374612
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

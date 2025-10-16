@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: a6055d973d19d704fb1db477e8db9fca
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 283656
+  packageName: Inventory Framework (UI Toolkit)
+  packageVersion: 1.7
+  assetPath: Assets/GDS/Demos/Basic/Inventory/Bags/CraftingBench.cs
+  uploadId: 782641

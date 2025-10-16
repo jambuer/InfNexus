@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 602e154ec19a6fb46b5e318b4ee84b78
+AssemblyDefinitionImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 283656
+  packageName: Inventory Framework (UI Toolkit)
+  packageVersion: 1.7
+  assetPath: Assets/GDS/Common/GDS.Common.asmdef
+  uploadId: 782641
