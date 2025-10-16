@@ -13,14 +13,15 @@ MonoBehaviour:
   m_Name: TestGorev_OdunToplama
   m_EditorClassIdentifier: 
   questID: 3f17f788-60b4-4cee-943a-6448d422005e
-  questName: New Quest
-  description: A detailed description of the quest objectives.
-  questIcon: {fileID: 0}
-  baseCompletionTime: 10
-  mainTag: 0
-  subTag: 0
+  questName: Odun Toplama
+  description: "Test i\xE7in odun topla ve yerle\u015Ftir. Bakal\u0131m \xC7al\u0131\u015F\u0131yor
+    mu"
+  questIcon: {fileID: -7746137333364553569, guid: 17404caad449674468ea376aa79b56a4, type: 3}
+  baseCompletionTime: 3
+  mainTag: 1
+  subTag: 3
   completionLimit: 0
-  masteryID: 
+  masteryID: woodcutting_mastery
   requirements:
     requiredLevel: 1
     requiredHealth: 0

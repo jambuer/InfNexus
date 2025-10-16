@@ -1,0 +1,19 @@
+Unity Projenizi Kapatın: Projeyi paylaşmadan önce Unity Editor'u kapatın.
+
+Gerekli Klasörleri Seçin: Projenizin ana klasörüne gidin. Burada aşağıdaki klasörleri ve dosyaları bulacaksınız:
+
+Assets/ (ZORUNLU)
+
+ProjectSettings/ (ZORUNLU)
+
+Packages/ (Çoğu zaman dahil edilmesi iyi olur)
+
+YOUR_PROJECT_NAME.sln (Visual Studio çözüm dosyası, isteğe bağlı ama önerilir)
+
+YOUR_PROJECT_NAME.csproj (Visual Studio proje dosyası, isteğe bağlı ama önerilir)
+
+Assembly-CSharp.csproj vb. (Diğer C# proje dosyaları, isteğe bağlı ama önerilir)
+
+Bu Klasörleri RAR/ZIP'leyin: SADECE yukarıdaki listedeki klasörleri ve dosyaları seçip RAR/ZIP yapın.
+
+Library/, Temp/, obj/, Logs/ gibi diğer klasörleri KESİNLİKLE dahil etmeyin. Bunlar yeni bilgisayarda Unity tarafından otomatik olarak yeniden oluşturulur.

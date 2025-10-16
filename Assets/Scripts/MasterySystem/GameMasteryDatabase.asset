@@ -12,4 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7867ca6a77f02f5449eb17a31ad44e92, type: 3}
   m_Name: GameMasteryDatabase
   m_EditorClassIdentifier: 
-  allMasteryPaths: []
+  allMasteryPaths:
+  - {fileID: 11400000, guid: 5550ad0b2bfc3c149b1dbbb3ae3162ab, type: 2}
