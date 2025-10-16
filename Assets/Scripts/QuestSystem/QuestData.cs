@@ -35,6 +35,8 @@ public class QuestData : ScriptableObject
     public QuestRequirements requirements;
 
     [Header("Ödüller")]
+    /// <summary>Görevin tamamlanmasıyla kazanılacak temel tecrübe puanı.</summary>
+    public double experienceReward;
     /// <summary>Görevin tamamlanmasıyla kazanılacak altın ödülü dilimleri.</summary>
     public List<RewardTier> goldRewardTiers;
     /// <summary>Görevin tamamlanmasıyla kazanılacak Nexus Coin ödülü dilimleri.</summary>

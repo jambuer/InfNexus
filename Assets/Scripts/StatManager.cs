@@ -39,6 +39,40 @@ public class StatManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Gelen stat ismine göre ilgili statı kalıcı olarak artırır.
+    /// QuestManager gibi sistemlerden gelen genel stat ödüllerini dağıtmak için kullanılır.
+    /// </summary>
+    /// <param name="statName">Artırılacak statın adı (Physical, Mental, vb.).</param>
+    /// <param name="amount">Eklenecek miktar.</param>
+    public void AddStat(string statName, double amount)
+    {
+        switch (statName)
+        {
+            case "Physical":
+                AddPhysical(amount, true);
+                break;
+            case "Mental":
+                AddMental(amount, true);
+                break;
+            case "Perception":
+                AddPerception(amount, true);
+                break;
+            case "Spiritual":
+                AddSpiritual(amount, true);
+                break;
+            case "Luck":
+                AddLuck(amount, true);
+                break;
+            case "Social":
+                AddSocial(amount, true);
+                break;
+            default:
+                Debug.LogWarning($"AddStat: Bilinmeyen stat adı: {statName}");
+                break;
+        }
+    }
+
     public void Addstatpoint(string statName, int points)
     {
         switch (statName.ToLower())

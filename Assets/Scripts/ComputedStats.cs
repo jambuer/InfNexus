@@ -32,7 +32,6 @@ public class ComputedStats
     public double ExpBonus;
     public double SkillExpBonus;
     public double NexusCoinBonus;
-    public double CooldownReduction; // Yüzde olarak (örn: 0.76)
     public double ResourceCostReduction; // Yüzde olarak
     public double LuckyInvestmentChance; // Yüzde olarak
 }

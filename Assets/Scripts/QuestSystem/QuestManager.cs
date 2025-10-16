@@ -12,20 +12,18 @@ public class QuestManager : MonoBehaviour
 {
     public static QuestManager Instance { get; private set; }
 
-    // Aktif olarak ilerleyen görevleri takip etmek için.
-    // Key: QuestData'nın benzersiz questID'si
-    // Value: Görevin ilerlemesini içeren Coroutine
     private Dictionary<string, Coroutine> _activeQuests = new Dictionary<string, Coroutine>();
-
-    // Oyuncunun her görevi kaç kez tamamladığını tutan veri.
-    // Key: QuestData'nın benzersiz questID'si, Value: Tamamlama sayısı
     private Dictionary<string, int> _questCompletionCounts = new Dictionary<string, int>();
 
-    /// <summary>
-    /// Bir görev tamamlandığında veya ilerlediğinde tetiklenir. UI güncellemeleri için kullanılır.
-    /// Parametreler: QuestData, yeni tamamlama sayısı
-    /// </summary>
     public event Action<QuestData, int> OnQuestProgress;
+
+    // --- YENİ EKLENEN EVENT ---
+    /// <summary>
+    /// Bir görevin ilerlemesi güncellendiğinde tetiklenir.
+    /// Parametreler: questID (string), progress (float, 0.0-1.0 arası)
+    /// </summary>
+    public event Action<string, float> OnQuestProgressUpdate;
+    // --- BİTTİ ---
 
     // ====================================================================================================
     // SINGLETON VE BAŞLANGIÇ
@@ -37,7 +35,7 @@ public class QuestManager : MonoBehaviour
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
-            LoadQuestProgress(); // Kaydedilmiş görev ilerlemesini yükle
+            LoadQuestProgress();
         }
         else
         {
@@ -49,71 +47,134 @@ public class QuestManager : MonoBehaviour
     // GÖREV BAŞLATMA VE İŞLEME
     // ====================================================================================================
 
-    /// <summary>
-    /// Belirtilen görevi başlatmaya çalışır. Gereksinimleri kontrol eder ve kaynakları tüketir.
-    /// </summary>
-    /// <param name="quest">Başlatılacak QuestData.</param>
     public void StartQuest(QuestData quest)
     {
-        if (quest == null)
-        {
-            Debug.LogError("StartQuest: Başlatılacak görev verisi (QuestData) null.");
-            return;
-        }
-
-        // 1. Görev zaten aktif mi kontrol et
-        if (_activeQuests.ContainsKey(quest.questID))
-        {
-            Debug.Log($"Görev '{quest.questName}' zaten aktif.");
-            return;
-        }
-
-        // 2. Tamamlama limitini kontrol et
+        if (quest == null) return;
+        if (_activeQuests.ContainsKey(quest.questID)) return;
         int currentCompletions = GetCompletionCount(quest.questID);
-        if (quest.completionLimit > 0 && currentCompletions >= quest.completionLimit)
-        {
-            Debug.Log($"Görev '{quest.questName}' tamamlama limitine ulaştı.");
-            return;
-        }
+        if (quest.completionLimit > 0 && currentCompletions >= quest.completionLimit) return;
 
-        // 3. Ustalık Sisteminden bonusları sorgula
-        float costModifier = 1.0f; // %10 indirim = 0.90
-        float timeModifier = 1.0f; // %10 hızlanma = 0.90
+        ComputedStats stats = StatCalculator.Instance.currentStats;
+        float masteryCostBonus = 0f, masteryTimeBonus = 0f;
         if (MasteryManager.Instance != null && !string.IsNullOrEmpty(quest.masteryID))
         {
-            costModifier -= MasteryManager.Instance.GetTotalBonusFor(quest.masteryID, MasteryRewardType.ReduceActionCostPercent);
-            timeModifier -= MasteryManager.Instance.GetTotalBonusFor(quest.masteryID, MasteryRewardType.ReduceActionTimePercent);
+            masteryCostBonus = MasteryManager.Instance.GetTotalBonusFor(quest.masteryID, MasteryRewardType.ReduceActionCostPercent);
+            masteryTimeBonus = MasteryManager.Instance.GetTotalBonusFor(quest.masteryID, MasteryRewardType.ReduceActionTimePercent);
         }
-        
-        // 4. Nihai Gereksinimleri Hesapla ve Kontrol Et
-        double finalEnergyCost = quest.requirements.requiredEnergy * costModifier;
+
+        double totalCostReductionPercent = stats.ResourceCostReduction + masteryCostBonus;
+        double finalEnergyCost = quest.requirements.requiredEnergy * (1 - totalCostReductionPercent);
+        if (finalEnergyCost < 0) finalEnergyCost = 0;
+
         if (ResourceManager.Instance.currentEnergy < finalEnergyCost)
         {
-            Debug.Log($"Yetersiz Enerji! Gereken: {finalEnergyCost:F0}, Mevcut: {ResourceManager.Instance.currentEnergy:F0}");
+            Debug.Log($"Yetersiz Enerji! Gereken: {finalEnergyCost:F1}, Mevcut: {ResourceManager.Instance.currentEnergy:F0}");
+            return;
+        }
+
+        ResourceManager.Instance.ModifyEnergy(-(float)finalEnergyCost);
+
+        float baseDuration = quest.baseCompletionTime;
+        float totalPercentCooldown = (float)stats.PercentCooldownReduction + masteryTimeBonus;
+        float flatCooldown = (float)stats.FlatCooldownReduction;
+        float durationAfterFlat = baseDuration - flatCooldown;
+        if (durationAfterFlat < 0) durationAfterFlat = 0;
+        float finalCompletionTime = durationAfterFlat / (1 + totalPercentCooldown);
+        if (finalCompletionTime < 0.2f) finalCompletionTime = 0.2f;
+
+        Coroutine questCoroutine = StartCoroutine(ProcessQuestCoroutine(quest, finalCompletionTime));
+        _activeQuests.Add(quest.questID, questCoroutine);
+
+        Debug.Log($"Görev '{quest.questName}' başlatıldı. Süre: {finalCompletionTime:F1}s, Maliyet: {finalEnergyCost:F1} Enerji.");
+    }
+    
+    /// <summary>
+    /// Belirtilen görevin aktif olup olmadığını kontrol eder.
+    /// </summary>
+    public bool IsQuestActive(string questID)
+    {
+        return _activeQuests.ContainsKey(questID);
+    }
+
+    /// <summary>
+    /// Aktif bir görevi iptal eder ve progress bar'ını sıfırlar.
+    /// </summary>
+    public void CancelQuest(string questID)
+    {
+        if (_activeQuests.TryGetValue(questID, out Coroutine coroutine))
+        {
+            StopCoroutine(coroutine);
+            _activeQuests.Remove(questID);
+            OnQuestProgressUpdate?.Invoke(questID, 0f); // UI'a progress bar'ı sıfırlamasını söyle
+            Debug.Log($"Görev iptal edildi: {questID}");
+            // Not: İptal edilen görevin maliyeti iade edilmiyor. Bu bir tasarım kararıdır.
+        }
+    }
+
+        // --- STAT & MASTERY BONUSLARI ENTEGRASYONU (GÜNCELLENDİ) ---
+
+        // StatCalculator'dan genel bonusları al
+        ComputedStats stats = StatCalculator.Instance.currentStats;
+        
+        // Ustalık Sistemi'nden göreve özel bonusları al
+        float masteryCostBonus = 0f;
+        float masteryTimeBonus = 0f;
+        if (MasteryManager.Instance != null && !string.IsNullOrEmpty(quest.masteryID))
+        {
+            masteryCostBonus = MasteryManager.Instance.GetTotalBonusFor(quest.masteryID, MasteryRewardType.ReduceActionCostPercent);
+            masteryTimeBonus = MasteryManager.Instance.GetTotalBonusFor(quest.masteryID, MasteryRewardType.ReduceActionTimePercent);
+        }
+        
+        // 1. Nihai Maliyet Hesabı ve Kontrolü
+        double totalCostReductionPercent = stats.ResourceCostReduction + masteryCostBonus;
+        double finalEnergyCost = quest.requirements.requiredEnergy * (1 - totalCostReductionPercent);
+        if (finalEnergyCost < 0) finalEnergyCost = 0; // Maliyet eksiye düşemez
+
+        if (ResourceManager.Instance.currentEnergy < finalEnergyCost)
+        {
+            Debug.Log($"Yetersiz Enerji! Gereken: {finalEnergyCost:F1}, Mevcut: {ResourceManager.Instance.currentEnergy:F0}");
             return;
         }
         // TODO: Diğer gereksinimleri de (stat, level vb.) burada kontrol et.
 
-        // 5. Kaynakları Tüket
-        ResourceManager.Instance.ModifyEnergy(- (float)finalEnergyCost);
+        // 2. Kaynakları Tüket
+        ResourceManager.Instance.ModifyEnergy(-(float)finalEnergyCost);
 
-        // 6. Görevi başlat
-        float finalCompletionTime = quest.baseCompletionTime * timeModifier;
+        // 3. Nihai Süre Hesabı ve Görevi Başlatma
+        float baseDuration = quest.baseCompletionTime;
+        float totalPercentCooldown = (float)stats.PercentCooldownReduction + masteryTimeBonus;
+        float flatCooldown = (float)stats.FlatCooldownReduction;
+
+        // Önce düz saniye düşüşünü uygula
+        float durationAfterFlat = baseDuration - flatCooldown;
+        if (durationAfterFlat < 0) durationAfterFlat = 0; // Süre eksiye düşemez
+        
+        // Sonra kalan süreye yüzdesel indirimi uygula (Formül: Yeni Süre = Süre / (1 + Bonus))
+        float finalCompletionTime = durationAfterFlat / (1 + totalPercentCooldown);
+        
+        if (finalCompletionTime < 0.2f) finalCompletionTime = 0.2f; // Minimum süre sınırı
+
         Coroutine questCoroutine = StartCoroutine(ProcessQuestCoroutine(quest, finalCompletionTime));
         _activeQuests.Add(quest.questID, questCoroutine);
 
-        Debug.Log($"Görev '{quest.questName}' başlatıldı. Süre: {finalCompletionTime:F1}s, Maliyet: {finalEnergyCost:F0} Enerji.");
+        Debug.Log($"Görev '{quest.questName}' başlatıldı. Süre: {finalCompletionTime:F1}s, Maliyet: {finalEnergyCost:F1} Enerji.");
     }
 
     /// <summary>
-    /// Görevin zamanlayıcısını yöneten Coroutine.
+    /// Görevin zamanlayıcısını yöneten ve anlık ilerleme bildiren Coroutine. (TAMAMEN YENİLENDİ)
     /// </summary>
     private IEnumerator ProcessQuestCoroutine(QuestData quest, float duration)
     {
-        // TODO: Bu kısım, UI'daki progress bar'ı güncellemek için event'ler yayabilir.
-        yield return new WaitForSeconds(duration);
+        float timer = 0f;
+        while (timer < duration)
+        {
+            timer += Time.deltaTime;
+            float progress = Mathf.Clamp01(timer / duration); // 0 ile 1 arasında bir değer
+            OnQuestProgressUpdate?.Invoke(quest.questID, progress); // İlerlemeyi anons et
+            yield return null; // Bir sonraki frame'e kadar bekle
+        }
 
-        // Görev tamamlandı
+        OnQuestProgressUpdate?.Invoke(quest.questID, 1f); // Tamamlandığından emin ol
         CompleteQuest(quest);
     }
 
@@ -121,15 +182,10 @@ public class QuestManager : MonoBehaviour
     // GÖREV TAMAMLAMA VE ÖDÜLLER
     // ====================================================================================================
 
-    /// <summary>
-    /// Bir görevi tamamlar, ödülleri dağıtır ve ustalık ilerlemesini kaydeder.
-    /// </summary>
     private void CompleteQuest(QuestData quest)
     {
-        // Aktif görevler listesinden çıkar
         _activeQuests.Remove(quest.questID);
 
-        // 1. Tamamlama sayısını artır
         if (!_questCompletionCounts.ContainsKey(quest.questID))
         {
             _questCompletionCounts[quest.questID] = 0;
@@ -137,49 +193,79 @@ public class QuestManager : MonoBehaviour
         _questCompletionCounts[quest.questID]++;
         int newCompletionCount = _questCompletionCounts[quest.questID];
 
-        // 2. Ustalık Sisteminden bonusları sorgula
-        float yieldBonus = 0;
-        if (MasteryManager.Instance != null && !string.IsNullOrEmpty(quest.masteryID))
-        {
-            yieldBonus = MasteryManager.Instance.GetTotalBonusFor(quest.masteryID, MasteryRewardType.IncreaseYieldFlat);
-        }
+        DistributeRewards(quest);
 
-        // 3. Ödülleri Dağıt
-        DistributeRewards(quest, yieldBonus);
-
-        // 4. Ustalık Sistemini İlerlet
         if (MasteryManager.Instance != null && !string.IsNullOrEmpty(quest.masteryID))
         {
             MasteryManager.Instance.ProgressMastery(quest.masteryID);
         }
 
-        // 5. UI ve diğer sistemleri bilgilendir
         OnQuestProgress?.Invoke(quest, newCompletionCount);
-        SaveQuestProgress(); // Her tamamlamada ilerlemeyi kaydet
+        SaveQuestProgress();
 
         Debug.Log($"Görev '{quest.questName}' tamamlandı! Toplam tamamlama: {newCompletionCount}.");
     }
 
     /// <summary>
-    /// Görev ödüllerini hesaplar ve ilgili yöneticilere gönderir.
+    /// Görev ödüllerini hesaplar ve ilgili yöneticilere gönderir. (GÜNCELLENDİ)
     /// </summary>
-    private void DistributeRewards(QuestData quest, float yieldBonus)
+    private void DistributeRewards(QuestData quest)
     {
+        // Bonusları al
+        ComputedStats stats = StatCalculator.Instance.currentStats;
+        float masteryYieldBonus = 0;
+        if (MasteryManager.Instance != null && !string.IsNullOrEmpty(quest.masteryID))
+        {
+            masteryYieldBonus = MasteryManager.Instance.GetTotalBonusFor(quest.masteryID, MasteryRewardType.IncreaseYieldFlat);
+        }
+
+        // Tecrübe Ödülü
+        if (quest.experienceReward > 0) 
+        {
+            double finalExp = quest.experienceReward * (1 + stats.ExpBonus);
+            LevelManager.Instance.AddXP(finalExp);
+        }
+
         // Altın Ödülü
         if (quest.goldRewardTiers != null && quest.goldRewardTiers.Count > 0)
         {
-            double goldAmount = GetWeightedReward(quest.goldRewardTiers) + yieldBonus;
-            CurrencyManager.Instance.AddGold(goldAmount);
+            double baseGold = GetWeightedReward(quest.goldRewardTiers);
+            double finalGold = (baseGold + masteryYieldBonus) * (1 + stats.GoldBonus); // Önce düz bonus, sonra yüzde
+            if(finalGold > 0) CurrencyManager.Instance.AddGold(finalGold);
         }
-        // TODO: Nexus Coin, Eşya ve Stat ödüllerini de benzer şekilde dağıt.
+        
+        // Nexus Coin Ödülü
+        if (quest.nexusCoinRewardTiers != null && quest.nexusCoinRewardTiers.Count > 0)
+        {
+            double baseNexus = GetWeightedReward(quest.nexusCoinRewardTiers);
+            double finalNexus = (baseNexus + masteryYieldBonus) * (1 + stats.NexusCoinBonus);
+            if(finalNexus > 0) CurrencyManager.Instance.AddNexusCoin(finalNexus);
+        }
+        
+        // Eşya Ödülleri
+        if (quest.itemRewards != null)
+        {
+            foreach (var itemDrop in quest.itemRewards)
+            {
+                // TODO: Item drop mantığını buraya ekle (stats.DropRate'i kullanarak)
+            }
+        }
+        
+        // Stat Ödülleri
+        if (quest.statRewards != null)
+        {
+            foreach (var statReward in quest.statRewards)
+            {
+                StatManager.Instance.AddStat(statReward.statToReward.ToString(), statReward.amount);
+            }
+        }
     }
 
-    /// <summary>
-    /// Ağırlıklı olasılığa sahip ödül dilimlerinden birini seçer ve rastgele bir miktar döndürür.
-    /// </summary>
     private double GetWeightedReward(List<RewardTier> tiers)
     {
         float totalWeight = tiers.Sum(tier => tier.probabilityWeight);
+        if (totalWeight <= 0) return 0;
+        
         float randomPoint = UnityEngine.Random.Range(0, totalWeight);
 
         foreach (var tier in tiers)
@@ -190,16 +276,13 @@ public class QuestManager : MonoBehaviour
             }
             randomPoint -= tier.probabilityWeight;
         }
-        return tiers.Last().GetRandomAmount(); // Hata durumunda sonuncuyu döndür
+        return tiers.Last().GetRandomAmount();
     }
     
     // ====================================================================================================
     // YARDIMCI VE KAYIT METOTLARI
     // ====================================================================================================
 
-    /// <summary>
-    /// Bir görevin toplam tamamlama sayısını döndürür.
-    /// </summary>
     public int GetCompletionCount(string questID)
     {
         return _questCompletionCounts.ContainsKey(questID) ? _questCompletionCounts[questID] : 0;

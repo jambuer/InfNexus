@@ -25,7 +25,7 @@ MonoBehaviour:
   requirements:
     requiredLevel: 1
     requiredHealth: 0
-    requiredEnergy: 0
+    requiredEnergy: 10
     requiredMana: 0
     requiredGold: 0
     requiredNexusCoin: 0
@@ -36,9 +36,13 @@ MonoBehaviour:
     requiredSpiritual: 0
     requiredLuck: 0
     requiredSocial: 0
-  goldRewardTiers: []
+  goldRewardTiers:
+  - minAmount: 100
+    maxAmount: 200
+    probabilityWeight: 18.9
   nexusCoinRewardTiers: []
   itemRewards: []
+  statRewards: []
   automationData:
     canBeAutomated: 0
     unlockRequirements:
