@@ -73,8 +73,8 @@ public class StatUI : MonoBehaviour
         UpdateAllStats();
         UpdateAllButtonsInteractable();
     }
-    
-        void SetSpendAmount(int amount)
+
+    void SetSpendAmount(int amount)
     {
         spendAmount = amount;
         spendMax = false;
@@ -82,7 +82,9 @@ public class StatUI : MonoBehaviour
         // Miktar değiştiğinde butonların durumunu tekrar kontrol et
         UpdateAllButtonsInteractable();
     }
-
+    
+    
+ 
     void SetSpendAmountToMax()
     {
         spendMax = true;

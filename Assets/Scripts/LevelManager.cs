@@ -5,7 +5,6 @@ using JetBrains.Annotations; // Event'ler için bu satır gerekli
 public class LevelManager : MonoBehaviour
 {
     public static LevelManager Instance;
-
     [Header("Seviye Bilgileri")]
     public int currentLevel = 1;
     public double currentXP = 0;
@@ -27,7 +26,7 @@ public class LevelManager : MonoBehaviour
     {
         if (Instance == null)
         {
-            Instance = this;
+            Instance = this; 
             DontDestroyOnLoad(gameObject); // Sahne değişse bile bu obje kalıcı olsun
         }
         else

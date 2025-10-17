@@ -17,13 +17,11 @@ public class QuestManager : MonoBehaviour
 
     public event Action<QuestData, int> OnQuestProgress;
 
-    // --- YENİ EKLENEN EVENT ---
     /// <summary>
     /// Bir görevin ilerlemesi güncellendiğinde tetiklenir.
     /// Parametreler: questID (string), progress (float, 0.0-1.0 arası)
     /// </summary>
     public event Action<string, float> OnQuestProgressUpdate;
-    // --- BİTTİ ---
 
     // ====================================================================================================
     // SINGLETON VE BAŞLANGIÇ
@@ -34,7 +32,7 @@ public class QuestManager : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject);
+            DontDestroyOnLoad(gameObject); // Sahne değişse bile bu obje kalıcı olsun diye
             LoadQuestProgress();
         }
         else
@@ -47,47 +45,81 @@ public class QuestManager : MonoBehaviour
     // GÖREV BAŞLATMA VE İŞLEME
     // ====================================================================================================
 
+    /// <summary>
+    /// Belirtilen görevi, stat ve ustalık bonuslarını hesaplayarak başlatır.
+    /// </summary>
     public void StartQuest(QuestData quest)
     {
-        if (quest == null) return;
-        if (_activeQuests.ContainsKey(quest.questID)) return;
-        int currentCompletions = GetCompletionCount(quest.questID);
-        if (quest.completionLimit > 0 && currentCompletions >= quest.completionLimit) return;
+        if (quest == null)
+        {
+            Debug.LogError("Başlatılmaya çalışılan quest verisi null!");
+            return;
+        }
 
+        if (_activeQuests.ContainsKey(quest.questID))
+        {
+            Debug.LogWarning($"Görev '{quest.questName}' zaten aktif.");
+            return;
+        }
+
+        int currentCompletions = GetCompletionCount(quest.questID);
+        if (quest.completionLimit > 0 && currentCompletions >= quest.completionLimit)
+        {
+            Debug.Log($"Görev '{quest.questName}' tamamlanma limitine ulaştı.");
+            return;
+        }
+
+        // --- STAT & MASTERY BONUSLARI ENTEGRASYONU ---
+
+        // StatCalculator'dan ve MasteryManager'dan anlık bonusları al
         ComputedStats stats = StatCalculator.Instance.currentStats;
-        float masteryCostBonus = 0f, masteryTimeBonus = 0f;
+        float masteryCostBonus = 0f;
+        float masteryTimeBonus = 0f;
+
         if (MasteryManager.Instance != null && !string.IsNullOrEmpty(quest.masteryID))
         {
             masteryCostBonus = MasteryManager.Instance.GetTotalBonusFor(quest.masteryID, MasteryRewardType.ReduceActionCostPercent);
             masteryTimeBonus = MasteryManager.Instance.GetTotalBonusFor(quest.masteryID, MasteryRewardType.ReduceActionTimePercent);
         }
 
+        // 1. Nihai Maliyet Hesabı ve Kontrolü
         double totalCostReductionPercent = stats.ResourceCostReduction + masteryCostBonus;
         double finalEnergyCost = quest.requirements.requiredEnergy * (1 - totalCostReductionPercent);
-        if (finalEnergyCost < 0) finalEnergyCost = 0;
+        if (finalEnergyCost < 0) finalEnergyCost = 0; // Maliyet eksiye düşemez
 
         if (ResourceManager.Instance.currentEnergy < finalEnergyCost)
         {
             Debug.Log($"Yetersiz Enerji! Gereken: {finalEnergyCost:F1}, Mevcut: {ResourceManager.Instance.currentEnergy:F0}");
             return;
         }
+        // TODO: Diğer gereksinimleri de (stat, level vb.) burada kontrol et.
 
+        // 2. Kaynakları Tüket
         ResourceManager.Instance.ModifyEnergy(-(float)finalEnergyCost);
 
+        // 3. Nihai Süre Hesabı
         float baseDuration = quest.baseCompletionTime;
+        // StatCalculator'dan gelen bonusları al (Yüzdesel ve Düz)
         float totalPercentCooldown = (float)stats.PercentCooldownReduction + masteryTimeBonus;
         float flatCooldown = (float)stats.FlatCooldownReduction;
+
+        // Önce düz saniye düşüşünü uygula
         float durationAfterFlat = baseDuration - flatCooldown;
-        if (durationAfterFlat < 0) durationAfterFlat = 0;
+        if (durationAfterFlat < 0) durationAfterFlat = 0; // Süre eksiye düşemez
+
+        // Sonra kalan süreye yüzdesel indirimi uygula (Formül: Yeni Süre = Süre / (1 + Bonus))
         float finalCompletionTime = durationAfterFlat / (1 + totalPercentCooldown);
+
+        // Minimum süre sınırı
         if (finalCompletionTime < 0.2f) finalCompletionTime = 0.2f;
 
+        // 4. Görevi Coroutine olarak başlat
         Coroutine questCoroutine = StartCoroutine(ProcessQuestCoroutine(quest, finalCompletionTime));
         _activeQuests.Add(quest.questID, questCoroutine);
 
         Debug.Log($"Görev '{quest.questName}' başlatıldı. Süre: {finalCompletionTime:F1}s, Maliyet: {finalEnergyCost:F1} Enerji.");
     }
-    
+
     /// <summary>
     /// Belirtilen görevin aktif olup olmadığını kontrol eder.
     /// </summary>
@@ -111,57 +143,9 @@ public class QuestManager : MonoBehaviour
         }
     }
 
-        // --- STAT & MASTERY BONUSLARI ENTEGRASYONU (GÜNCELLENDİ) ---
-
-        // StatCalculator'dan genel bonusları al
-        ComputedStats stats = StatCalculator.Instance.currentStats;
-        
-        // Ustalık Sistemi'nden göreve özel bonusları al
-        float masteryCostBonus = 0f;
-        float masteryTimeBonus = 0f;
-        if (MasteryManager.Instance != null && !string.IsNullOrEmpty(quest.masteryID))
-        {
-            masteryCostBonus = MasteryManager.Instance.GetTotalBonusFor(quest.masteryID, MasteryRewardType.ReduceActionCostPercent);
-            masteryTimeBonus = MasteryManager.Instance.GetTotalBonusFor(quest.masteryID, MasteryRewardType.ReduceActionTimePercent);
-        }
-        
-        // 1. Nihai Maliyet Hesabı ve Kontrolü
-        double totalCostReductionPercent = stats.ResourceCostReduction + masteryCostBonus;
-        double finalEnergyCost = quest.requirements.requiredEnergy * (1 - totalCostReductionPercent);
-        if (finalEnergyCost < 0) finalEnergyCost = 0; // Maliyet eksiye düşemez
-
-        if (ResourceManager.Instance.currentEnergy < finalEnergyCost)
-        {
-            Debug.Log($"Yetersiz Enerji! Gereken: {finalEnergyCost:F1}, Mevcut: {ResourceManager.Instance.currentEnergy:F0}");
-            return;
-        }
-        // TODO: Diğer gereksinimleri de (stat, level vb.) burada kontrol et.
-
-        // 2. Kaynakları Tüket
-        ResourceManager.Instance.ModifyEnergy(-(float)finalEnergyCost);
-
-        // 3. Nihai Süre Hesabı ve Görevi Başlatma
-        float baseDuration = quest.baseCompletionTime;
-        float totalPercentCooldown = (float)stats.PercentCooldownReduction + masteryTimeBonus;
-        float flatCooldown = (float)stats.FlatCooldownReduction;
-
-        // Önce düz saniye düşüşünü uygula
-        float durationAfterFlat = baseDuration - flatCooldown;
-        if (durationAfterFlat < 0) durationAfterFlat = 0; // Süre eksiye düşemez
-        
-        // Sonra kalan süreye yüzdesel indirimi uygula (Formül: Yeni Süre = Süre / (1 + Bonus))
-        float finalCompletionTime = durationAfterFlat / (1 + totalPercentCooldown);
-        
-        if (finalCompletionTime < 0.2f) finalCompletionTime = 0.2f; // Minimum süre sınırı
-
-        Coroutine questCoroutine = StartCoroutine(ProcessQuestCoroutine(quest, finalCompletionTime));
-        _activeQuests.Add(quest.questID, questCoroutine);
-
-        Debug.Log($"Görev '{quest.questName}' başlatıldı. Süre: {finalCompletionTime:F1}s, Maliyet: {finalEnergyCost:F1} Enerji.");
-    }
 
     /// <summary>
-    /// Görevin zamanlayıcısını yöneten ve anlık ilerleme bildiren Coroutine. (TAMAMEN YENİLENDİ)
+    /// Görevin zamanlayıcısını yöneten ve anlık ilerleme bildiren Coroutine.
     /// </summary>
     private IEnumerator ProcessQuestCoroutine(QuestData quest, float duration)
     {
@@ -169,9 +153,9 @@ public class QuestManager : MonoBehaviour
         while (timer < duration)
         {
             timer += Time.deltaTime;
-            float progress = Mathf.Clamp01(timer / duration); // 0 ile 1 arasında bir değer
-            OnQuestProgressUpdate?.Invoke(quest.questID, progress); // İlerlemeyi anons et
-            yield return null; // Bir sonraki frame'e kadar bekle
+            float progress = Mathf.Clamp01(timer / duration);
+            OnQuestProgressUpdate?.Invoke(quest.questID, progress);
+            yield return null;
         }
 
         OnQuestProgressUpdate?.Invoke(quest.questID, 1f); // Tamamlandığından emin ol
@@ -184,13 +168,11 @@ public class QuestManager : MonoBehaviour
 
     private void CompleteQuest(QuestData quest)
     {
+        if (!_activeQuests.ContainsKey(quest.questID)) return; // Eğer görev zaten iptal edildiyse, tamamlama.
+
         _activeQuests.Remove(quest.questID);
 
-        if (!_questCompletionCounts.ContainsKey(quest.questID))
-        {
-            _questCompletionCounts[quest.questID] = 0;
-        }
-        _questCompletionCounts[quest.questID]++;
+        _questCompletionCounts[quest.questID] = GetCompletionCount(quest.questID) + 1;
         int newCompletionCount = _questCompletionCounts[quest.questID];
 
         DistributeRewards(quest);
@@ -207,11 +189,11 @@ public class QuestManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Görev ödüllerini hesaplar ve ilgili yöneticilere gönderir. (GÜNCELLENDİ)
+    /// Görev ödüllerini Stat ve Ustalık bonuslarını hesaba katarak dağıtır.
     /// </summary>
     private void DistributeRewards(QuestData quest)
     {
-        // Bonusları al
+        // StatCalculator ve MasteryManager'dan anlık bonusları al
         ComputedStats stats = StatCalculator.Instance.currentStats;
         float masteryYieldBonus = 0;
         if (MasteryManager.Instance != null && !string.IsNullOrEmpty(quest.masteryID))
@@ -220,7 +202,7 @@ public class QuestManager : MonoBehaviour
         }
 
         // Tecrübe Ödülü
-        if (quest.experienceReward > 0) 
+        if (quest.experienceReward > 0)
         {
             double finalExp = quest.experienceReward * (1 + stats.ExpBonus);
             LevelManager.Instance.AddXP(finalExp);
@@ -230,27 +212,30 @@ public class QuestManager : MonoBehaviour
         if (quest.goldRewardTiers != null && quest.goldRewardTiers.Count > 0)
         {
             double baseGold = GetWeightedReward(quest.goldRewardTiers);
-            double finalGold = (baseGold + masteryYieldBonus) * (1 + stats.GoldBonus); // Önce düz bonus, sonra yüzde
-            if(finalGold > 0) CurrencyManager.Instance.AddGold(finalGold);
+            // Önce düz bonuslar (mastery vb.), sonra yüzdesel bonuslar uygulanır
+            double finalGold = (baseGold + masteryYieldBonus) * (1 + stats.GoldBonus);
+            if (finalGold > 0) CurrencyManager.Instance.AddGold(finalGold);
         }
-        
+
         // Nexus Coin Ödülü
         if (quest.nexusCoinRewardTiers != null && quest.nexusCoinRewardTiers.Count > 0)
         {
             double baseNexus = GetWeightedReward(quest.nexusCoinRewardTiers);
+            // Önce düz bonuslar, sonra yüzdesel bonuslar
             double finalNexus = (baseNexus + masteryYieldBonus) * (1 + stats.NexusCoinBonus);
-            if(finalNexus > 0) CurrencyManager.Instance.AddNexusCoin(finalNexus);
+            if (finalNexus > 0) CurrencyManager.Instance.AddNexusCoin(finalNexus);
         }
-        
+
         // Eşya Ödülleri
         if (quest.itemRewards != null)
         {
             foreach (var itemDrop in quest.itemRewards)
             {
                 // TODO: Item drop mantığını buraya ekle (stats.DropRate'i kullanarak)
+                // Örnek: if (Random.value < itemDrop.dropChance * (1 + stats.DropRate)) { ... }
             }
         }
-        
+
         // Stat Ödülleri
         if (quest.statRewards != null)
         {
@@ -261,11 +246,16 @@ public class QuestManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Olasılık ağırlıklarına göre rastgele bir ödül miktarı seçer.
+    /// </summary>
     private double GetWeightedReward(List<RewardTier> tiers)
     {
+        if (tiers == null || tiers.Count == 0) return 0;
+
         float totalWeight = tiers.Sum(tier => tier.probabilityWeight);
-        if (totalWeight <= 0) return 0;
-        
+        if (totalWeight <= 0) return tiers.LastOrDefault()?.GetRandomAmount() ?? 0;
+
         float randomPoint = UnityEngine.Random.Range(0, totalWeight);
 
         foreach (var tier in tiers)
@@ -276,27 +266,32 @@ public class QuestManager : MonoBehaviour
             }
             randomPoint -= tier.probabilityWeight;
         }
+        // Eğer bir hata olursa son tier'ı döndür
         return tiers.Last().GetRandomAmount();
     }
-    
+
     // ====================================================================================================
     // YARDIMCI VE KAYIT METOTLARI
     // ====================================================================================================
 
     public int GetCompletionCount(string questID)
     {
-        return _questCompletionCounts.ContainsKey(questID) ? _questCompletionCounts[questID] : 0;
+        return _questCompletionCounts.TryGetValue(questID, out int count) ? count : 0;
     }
-    
+
     [Serializable]
     private class QuestSaveData
     {
-        public List<string> questIDs;
-        public List<int> completionCounts;
+        public List<string> questIDs = new List<string>();
+        public List<int> completionCounts = new List<int>();
+
         public QuestSaveData(Dictionary<string, int> counts)
         {
-            questIDs = counts.Keys.ToList();
-            completionCounts = counts.Values.ToList();
+            if (counts != null)
+            {
+                questIDs = counts.Keys.ToList();
+                completionCounts = counts.Values.ToList();
+            }
         }
     }
 
@@ -305,6 +300,7 @@ public class QuestManager : MonoBehaviour
         QuestSaveData saveData = new QuestSaveData(_questCompletionCounts);
         string jsonData = JsonUtility.ToJson(saveData);
         PlayerPrefs.SetString("QuestProgress", jsonData);
+        PlayerPrefs.Save(); // Değişikliklerin diske yazıldığından emin ol
     }
 
     public void LoadQuestProgress()
@@ -312,12 +308,18 @@ public class QuestManager : MonoBehaviour
         if (PlayerPrefs.HasKey("QuestProgress"))
         {
             string jsonData = PlayerPrefs.GetString("QuestProgress");
+            if (string.IsNullOrEmpty(jsonData)) return;
+
             QuestSaveData saveData = JsonUtility.FromJson<QuestSaveData>(jsonData);
             _questCompletionCounts.Clear();
-            for (int i = 0; i < saveData.questIDs.Count; i++)
+            if (saveData != null && saveData.questIDs != null)
             {
-                _questCompletionCounts[saveData.questIDs[i]] = saveData.completionCounts[i];
+                for (int i = 0; i < saveData.questIDs.Count; i++)
+                {
+                    _questCompletionCounts[saveData.questIDs[i]] = saveData.completionCounts[i];
+                }
             }
         }
     }
 }
+

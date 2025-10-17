@@ -23,23 +23,24 @@ MonoBehaviour:
   completionLimit: 0
   masteryID: woodcutting_mastery
   requirements:
-    requiredLevel: 1
+    requiredLevel: 3
     requiredHealth: 0
-    requiredEnergy: 10
-    requiredMana: 0
+    requiredEnergy: 5
+    requiredMana: 1
     requiredGold: 0
     requiredNexusCoin: 0
     baseCompletionTimeCost: 0
-    requiredPhysical: 0
-    requiredMental: 0
+    requiredPhysical: 20
+    requiredMental: 10
     requiredPerception: 0
     requiredSpiritual: 0
     requiredLuck: 0
     requiredSocial: 0
+  experienceReward: 10
   goldRewardTiers:
-  - minAmount: 100
-    maxAmount: 200
-    probabilityWeight: 18.9
+  - minAmount: 1
+    maxAmount: 3
+    probabilityWeight: 0.1
   nexusCoinRewardTiers: []
   itemRewards: []
   statRewards: []

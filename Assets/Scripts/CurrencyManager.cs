@@ -2,8 +2,18 @@ using UnityEngine;
 using TMPro;
 using System;
 
+// Bu enum tanımı, CurrencyType hatasını çözer.
+public enum CurrencyType 
+{
+    Gold,
+    NexusCoin,
+    PremiumCoin,
+    People
+}
+
 public class CurrencyManager : MonoBehaviour
 {
+    public event Action<CurrencyType, double> OnCurrencyChanged;
     public static CurrencyManager Instance; // Singleton - her yerden erişim için
 
     [Header("Currency Values")]
@@ -22,7 +32,7 @@ public class CurrencyManager : MonoBehaviour
     private double lastCalculatedPrestige = 0;
     private double lastCalculatedPremiumFromThresholds = 0;
     private double lastCalculatedPeopleFromSocial = 0;
-    
+
     void Awake()
     {
         // Singleton pattern
@@ -62,18 +72,18 @@ public class CurrencyManager : MonoBehaviour
     }
 
 
-        private void UpdatePeopleFromSocial() // BU FONKSİYONU GÜNCELLEYİN
+    private void UpdatePeopleFromSocial() // BU FONKSİYONU GÜNCELLEYİN
     {
         if (StatManager.Instance == null) return;
 
         double totalSocial = StatManager.Instance.GetTotalSocial();
-        
+
         // Social stattan gelen People hesaplaması:
         // Her 1 Social için 1 People
         // Her 1000 Social için 100 People
-        double calculatedPeopleFromSocial = totalSocial * 1; 
+        double calculatedPeopleFromSocial = totalSocial * 1;
         calculatedPeopleFromSocial += Math.Floor(totalSocial / 1000) * 100;
-        
+
         // Yüzdesel People bonusu: Her 100 Social için %5 People artışı (şimdiki toplam social'dan)
         // Bu bonusun kendisi katlanma yapmamalı, sadece social'ın mevcut değerine göre hesaplanmalı
         calculatedPeopleFromSocial += totalSocial * (Math.Floor(totalSocial / 100) * 0.05);
@@ -92,19 +102,19 @@ public class CurrencyManager : MonoBehaviour
         //     double difference = lastCalculatedPeopleFromSocial - calculatedPeopleFromSocial;
         //     SpendPeople(difference); // Veya benzeri bir azaltma mantığı
         // }
-        
+
         lastCalculatedPeopleFromSocial = calculatedPeopleFromSocial;
         UpdateAllCurrencyUI(); // UI'ı güncelle
     }
-    
-        // YENİ FONKSİYON: Stat eşiklerinden gelen ödülleri akıllıca verir
+
+    // YENİ FONKSİYON: Stat eşiklerinden gelen ödülleri akıllıca verir
     private void GrantThresholdRewards()
     {
         if (StatCalculator.Instance == null) return;
 
         // StatCalculator'dan en son hesaplanan değerleri al
         ComputedStats stats = StatCalculator.Instance.currentStats;
-        
+
         // 1. Premium Coin Ödülleri
         double totalPremiumFromStats = 0;
         if (StatManager.Instance != null)
@@ -119,7 +129,7 @@ public class CurrencyManager : MonoBehaviour
 
 
         }
-        
+
         if (totalPremiumFromStats > lastCalculatedPremiumFromThresholds)
         {
             double difference = totalPremiumFromStats - lastCalculatedPremiumFromThresholds;
@@ -164,13 +174,15 @@ public class CurrencyManager : MonoBehaviour
             AddPeople(100);
             Debug.Log("People eklendi: " + people);
         }
-    */}
+    */
+    }
 
     // Para ekle/çıkar fonksiyonları
     public bool AddGold(double amount)
     {
         gold += amount;
         UpdateCurrencyUI(goldText, gold);
+        OnCurrencyChanged?.Invoke(CurrencyType.Gold, gold);
         return true;
     }
 
@@ -181,6 +193,7 @@ public class CurrencyManager : MonoBehaviour
         {
             gold -= amount;
             UpdateCurrencyUI(goldText, gold);
+            OnCurrencyChanged?.Invoke(CurrencyType.Gold, gold);
             return true;
         }
         return false; // Yeterli altın yok
@@ -190,6 +203,7 @@ public class CurrencyManager : MonoBehaviour
     {
         nexusCoin += amount;
         UpdateCurrencyUI(nexusText, nexusCoin);
+        OnCurrencyChanged?.Invoke(CurrencyType.Gold, gold);
         return true;
     }
 
@@ -199,6 +213,7 @@ public class CurrencyManager : MonoBehaviour
         {
             nexusCoin -= amount;
             UpdateCurrencyUI(nexusText, nexusCoin);
+            OnCurrencyChanged?.Invoke(CurrencyType.Gold, gold);
             return true;
         }
         return false;
@@ -208,6 +223,7 @@ public class CurrencyManager : MonoBehaviour
     {
         premiumCoin += amount;
         UpdateCurrencyUI(premiumText, premiumCoin);
+        OnCurrencyChanged?.Invoke(CurrencyType.Gold, gold);
         return true;
     }
 
@@ -217,6 +233,7 @@ public class CurrencyManager : MonoBehaviour
         {
             premiumCoin -= amount;
             UpdateCurrencyUI(premiumText, premiumCoin);
+            OnCurrencyChanged?.Invoke(CurrencyType.Gold, gold);
             return true;
         }
         return false;
@@ -226,6 +243,7 @@ public class CurrencyManager : MonoBehaviour
     {
         people += amount;
         UpdateCurrencyUI(peopleText, people);
+        OnCurrencyChanged?.Invoke(CurrencyType.Gold, gold);
         return true;
     }
 
@@ -235,6 +253,7 @@ public class CurrencyManager : MonoBehaviour
         {
             people -= amount;
             UpdateCurrencyUI(peopleText, people);
+            OnCurrencyChanged?.Invoke(CurrencyType.Gold, gold);
             return true;
         }
         return false;
@@ -242,7 +261,7 @@ public class CurrencyManager : MonoBehaviour
 
     // Tüm UI'ları güncelle
 
-    
+
     public void UpdateAllCurrencyUI()
     {
         UpdateCurrencyUI(goldText, gold);
