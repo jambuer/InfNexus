@@ -23,10 +23,10 @@ MonoBehaviour:
   completionLimit: 0
   masteryID: woodcutting_mastery
   requirements:
-    requiredLevel: 3
-    requiredHealth: 0
-    requiredEnergy: 5
-    requiredMana: 1
+    requiredLevel: 1
+    requiredHealth: 10
+    requiredEnergy: 10
+    requiredMana: 10
     requiredGold: 0
     requiredNexusCoin: 0
     baseCompletionTimeCost: 0

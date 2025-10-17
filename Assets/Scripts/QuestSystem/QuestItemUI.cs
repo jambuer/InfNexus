@@ -149,9 +149,24 @@ public class QuestItemUI : MonoBehaviour
         if (req.requiredGold > 0)
         {
             bool isMet = CurrencyManager.Instance.gold >= req.requiredGold;
-            sb.AppendLine($"<color=#{ (isMet ? _metColorHex : _notMetColorHex) }>- Gold {req.requiredGold:F0}</color>");
+            sb.AppendLine($"<color=#{(isMet ? _metColorHex : _notMetColorHex)}>- Gold {req.requiredGold:F0}</color>");
             hasRequirements = true;
         }
+
+        if (req.requiredMana > 0)
+        {
+            bool isMet = ResourceManager.Instance.currentMana >= req.requiredMana;
+            sb.AppendLine($"<color=#{(isMet ? _metColorHex : _notMetColorHex)}>- Mana {req.requiredMana:F0}</color>");
+            hasRequirements = true;
+        }
+        
+        if (req.requiredNexusCoin > 0)
+        {
+            bool isMet = CurrencyManager.Instance.nexusCoin >= req.requiredNexusCoin;
+            sb.AppendLine($"<color=#{(isMet ? _metColorHex : _notMetColorHex)}>- Nexus Coin {req.requiredNexusCoin:F0}</color>");
+            hasRequirements = true;
+        }
+
 
         if (hasRequirements)
         {

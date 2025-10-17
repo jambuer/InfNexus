@@ -2,204 +2,189 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System.Collections.Generic;
+using System.Linq;
 
 public class ChapterManager : MonoBehaviour
 {
-    [Header("UI References")]
+    [Header("UI Referansları")]
     public Button previousButton;
     public Button nextButton;
     public TextMeshProUGUI chapterNumberText;
-    public GameObject lockPanel; // Siyah yarı saydam panel
-    public TextMeshProUGUI lockRequirementsText;
 
-    [Header("Chapter Contents")]
-    public GameObject[] chapterContents; // Her chapter'ın içeriği
+    [Header("Chapter İçerikleri")]
+    public List<ChapterContent> chapters;
 
-    [Header("Chapter Settings")]
-    public int currentChapter = 1;
-    public int totalChapters = 3;
+    private int currentChapterIndex = 0;
 
-    // Chapter kilitleme durumları
-    private bool[] chapterUnlocked;
-
-    // Chapter gereksinimleri (test için - sonra değiştirebiliriz)
+    // Gereksinimlerin daha esnek ve Inspector'dan yönetilebilir olması için yeni class yapısı
     [System.Serializable]
     public class ChapterRequirement
     {
-        public int chapterNumber;
-        public string requirementText;
-        public bool isMet; // Gereksinim karşılandı mı?
+        public int requiredLevel = 0;
+        public double requiredGold = 0;
+        public double requiredPhysical = 0;
+        public double requiredMental = 0;
+        public double requiredHealth = 0;
+        public double requiredMana = 0;
+        public double requiredEnergy = 0;
+        public double requiredNexusCoin = 0;
+        public double requiredLuck = 0;
+        public double requiredSocial = 0;
+        public double requiredPerception = 0;
+        public double requiredSpiritual = 0;
+        // Buraya diğer stat gereksinimlerini de ekleyebilirsin
+        public List<QuestData> requiredQuests; // Tamamlanması gereken görevler
     }
 
-    public List<ChapterRequirement> chapterRequirements = new List<ChapterRequirement>();
+    [System.Serializable]
+    public class ChapterContent
+    {
+        public string chapterName;
+        public GameObject contentPanel;
+        public GameObject lockPanel;
+        public TextMeshProUGUI lockRequirementsText;
+        public bool isUnlocked = false;
+        public ChapterRequirement requirements;
+    }
 
     void Start()
     {
+        // İlk chapter her zaman açık
+        if (chapters.Count > 0)
+        {
+            chapters[0].isUnlocked = true;
+        }
 
-        // previousButton.onClick.AddListener(GoToPreviousChapter);
-        // nextButton.onClick.AddListener(GoToNextChapter);
-         
-        // Chapter kilitleme array'ini oluştur
-        chapterUnlocked = new bool[totalChapters + 1]; // +1 çünkü 0. index kullanmıyoruz
-        chapterUnlocked[1] = true; // Chapter 1 her zaman açık
-
-        // Test gereksinimleri ekle
-        InitializeRequirements();
-
-        // Butonlara fonksiyon bağla
         previousButton.onClick.AddListener(GoToPreviousChapter);
         nextButton.onClick.AddListener(GoToNextChapter);
 
-        // İlk chapter'ı göster
         UpdateChapterDisplay();
-    }
-
-    void InitializeRequirements()
-    {
-        // Chapter 2 gereksinimleri
-        chapterRequirements.Add(new ChapterRequirement
-        {
-            chapterNumber = 2,
-            requirementText = "• Physical: 10 veya üzeri\n• 1000 Altın",
-            isMet = false
-        });
-
-        // Chapter 3 gereksinimleri
-        chapterRequirements.Add(new ChapterRequirement
-        {
-            chapterNumber = 3,
-            requirementText = "• Mental: 15 veya üzeri\n• Chapter 2'deki tüm görevleri tamamla\n• 5000 Altın",
-            isMet = false
-        });
     }
 
     public void GoToPreviousChapter()
     {
-        if (currentChapter > 1)
+        if (currentChapterIndex > 0)
         {
-            currentChapter--;
+            currentChapterIndex--;
             UpdateChapterDisplay();
         }
     }
 
     public void GoToNextChapter()
     {
-        if (currentChapter < totalChapters)
+        if (currentChapterIndex < chapters.Count - 1)
         {
-            currentChapter++;
+            currentChapterIndex++;
             UpdateChapterDisplay();
         }
     }
 
     void UpdateChapterDisplay()
     {
-        // Sayfa numarasını güncelle
-        chapterNumberText.text = $"{currentChapter} / {totalChapters}";
+        chapterNumberText.text = $"{currentChapterIndex + 1} / {chapters.Count}";
 
-        // Butonları aktif/pasif yap
-        previousButton.interactable = currentChapter > 1;
-        nextButton.interactable = currentChapter < totalChapters;
+        previousButton.interactable = currentChapterIndex > 0;
+        nextButton.interactable = currentChapterIndex < chapters.Count - 1;
 
-        // Chapter içeriklerini göster/gizle
-        for (int i = 0; i < chapterContents.Length; i++)
+        for (int i = 0; i < chapters.Count; i++)
         {
-            if (chapterContents[i] != null)
+            if (i == currentChapterIndex)
             {
-                chapterContents[i].SetActive(i == currentChapter - 1);
-            }
-        }
-
-        // Kilit kontrolü
-        CheckChapterLock();
-    }
-
-    void CheckChapterLock()
-    {
-        // Chapter 1 ise kilit yok
-        if (currentChapter == 1)
-        {
-            lockPanel.SetActive(false);
-            return;
-        }
-
-        // Chapter kilidi kontrol et
-        if (!chapterUnlocked[currentChapter])
-        {
-            // Gereksinimleri kontrol et
-            bool requirementsMet = CheckRequirements(currentChapter);
-
-            if (requirementsMet)
-            {
-                // Gereksanimler karşılandı, kilidi aç
-                UnlockChapter(currentChapter);
-                lockPanel.SetActive(false);
+                // Mevcut chapter'ı göster ve kilidini kontrol et
+                chapters[i].contentPanel.SetActive(true);
+                CheckChapterLock(chapters[i]);
             }
             else
             {
-                // Kilidi göster
-                ShowLockPanel(currentChapter);
+                // Diğer chapter'ları gizle
+                chapters[i].contentPanel.SetActive(false);
+                if (chapters[i].lockPanel != null)
+                {
+                    chapters[i].lockPanel.SetActive(false);
+                }
             }
         }
-        else
-        {
-            // Chapter zaten açık
-            lockPanel.SetActive(false);
-        }
     }
 
-    bool CheckRequirements(int chapter)
+    void CheckChapterLock(ChapterContent chapter)
     {
-        // İlgili chapter'ın gereksinimlerini bul
-        ChapterRequirement req = chapterRequirements.Find(r => r.chapterNumber == chapter);
-        
-        if (req != null)
+        if (chapter.isUnlocked)
         {
-            // Burada gerçek kontroller yapılacak
-            // Şimdilik test için false döndürüyoruz
-            return req.isMet;
+            if (chapter.lockPanel != null)
+                chapter.lockPanel.SetActive(false);
+            return;
         }
 
-        return false; // Gereksinim bulunamadı
-    }
+        bool requirementsMet = AreRequirementsMet(chapter.requirements);
 
-    void ShowLockPanel(int chapter)
-    {
-        lockPanel.SetActive(true);
-
-        // Gereksinimleri bul ve göster
-        ChapterRequirement req = chapterRequirements.Find(r => r.chapterNumber == chapter);
-        
-        if (req != null)
+        if (requirementsMet)
         {
-            lockRequirementsText.text = $"Chapter {chapter} Gereksinimleri:\n\n{req.requirementText}";
+            chapter.isUnlocked = true;
+            if (chapter.lockPanel != null)
+                chapter.lockPanel.SetActive(false);
+            Debug.Log($"Chapter '{chapter.chapterName}' kilidi açıldı!");
         }
         else
         {
-            lockRequirementsText.text = $"Chapter {chapter} kilitli.";
+            if (chapter.lockPanel != null)
+            {
+                chapter.lockPanel.SetActive(true);
+                // Gereksinim metnini dinamik olarak oluştur
+                if (chapter.lockRequirementsText != null)
+                {
+                    chapter.lockRequirementsText.text = GetRequirementsText(chapter.requirements);
+                }
+            }
         }
     }
 
-    public void UnlockChapter(int chapter)
+    bool AreRequirementsMet(ChapterRequirement req)
     {
-        if (chapter > 0 && chapter <= totalChapters)
+        // Gerçek oyun verilerini kontrol et
+        if (LevelManager.Instance.currentLevel < req.requiredLevel) return false;
+        if (CurrencyManager.Instance.gold < req.requiredGold) return false;
+        if (StatManager.Instance.GetTotalPhysical() < req.requiredPhysical) return false;
+        if (StatManager.Instance.GetTotalMental() < req.requiredMental) return false;
+
+        // Gerekli görevlerin tamamlanıp tamamlanmadığını kontrol et
+        if (req.requiredQuests != null && req.requiredQuests.Count > 0)
         {
-            chapterUnlocked[chapter] = true;
-            Debug.Log($"Chapter {chapter} açıldı!");
+            foreach (var quest in req.requiredQuests)
+            {
+                if (QuestManager.Instance.GetCompletionCount(quest.questID) <= 0)
+                {
+                    return false; // Gerekli görevlerden biri bile tamamlanmamışsa
+                }
+            }
         }
+        
+        return true;
     }
 
-    // Test için - Inspector'dan çağrılabilir
-    public void TestUnlockChapter2()
+    string GetRequirementsText(ChapterRequirement req)
     {
-        chapterRequirements.Find(r => r.chapterNumber == 2).isMet = true;
-        UnlockChapter(2);
-        UpdateChapterDisplay();
-    }
+        string text = "Kilitli! Gereksinimler:\n\n";
+        if (req.requiredLevel > 0) text += $"- Seviye: {req.requiredLevel}\n";
+        if (req.requiredGold > 0) text += $"- Altın: {req.requiredGold}\n";
+        if (req.requiredPhysical > 0) text += $"- Physical Stat: {req.requiredPhysical}\n";
+        if (req.requiredMental > 0) text += $"- Mental Stat: {req.requiredMental}\n";
+        if (req.requiredQuests != null && req.requiredQuests.Count > 0)
+        if (req.requiredLuck > 0) text += $"- Luck Stat: {req.requiredLuck}\n";
+        if (req.requiredSocial > 0) text += $"- Social Stat: {req.requiredSocial}\n";
+        if (req.requiredPerception > 0) text += $"- Perception Stat: {req.requiredPerception}\n";
+        if (req.requiredSpiritual > 0) text += $"- Spiritual Stat: {req.requiredSpiritual}\n";
+        if (req.requiredHealth > 0) text += $"- Health: {req.requiredHealth}\n";
+        if (req.requiredMana > 0) text += $"- Mana: {req.requiredMana}\n";
+        if (req.requiredEnergy > 0) text += $"- Energy: {req.requiredEnergy}\n";
+        if (req.requiredNexusCoin > 0) text += $"- Nexus Coin: {req.requiredNexusCoin}\n";
 
-    public void TestUnlockChapter3()
-    {
-        chapterRequirements.Find(r => r.chapterNumber == 3).isMet = true;
-        UnlockChapter(3);
-        UpdateChapterDisplay();
+        {
+            text += "- Görevleri Tamamla:\n";
+            foreach (var quest in req.requiredQuests)
+            {
+                text += $"  • {quest.questName}\n";
+            }
+        }
+        return text;
     }
 }

@@ -92,10 +92,62 @@ public class QuestManager : MonoBehaviour
             Debug.Log($"Yetersiz Enerji! Gereken: {finalEnergyCost:F1}, Mevcut: {ResourceManager.Instance.currentEnergy:F0}");
             return;
         }
+
+        if (LevelManager.Instance.currentLevel < quest.requirements.requiredLevel)
+        {
+            Debug.Log($"Yetersiz Seviye! Gereken: {quest.requirements.requiredLevel}, Mevcut: {LevelManager.Instance.currentLevel}");
+            return;
+        }
+
+        if (ResourceManager.Instance.currentHealth < quest.requirements.requiredHealth)
+        {
+            Debug.Log($"Yetersiz Can! Gereken: {quest.requirements.requiredHealth}, Mevcut: {ResourceManager.Instance.currentHealth:F0}");
+            return;
+        }
+
+        // Altın Kontrolü (Maliyet olarak)
+        if (CurrencyManager.Instance.gold < quest.requirements.requiredGold)
+        {
+            Debug.Log($"Yetersiz Altın! Gereken: {quest.requirements.requiredGold}, Mevcut: {CurrencyManager.Instance.gold:F0}");
+            return;
+        }
+
+        if (ResourceManager.Instance.currentMana < quest.requirements.requiredMana)
+        {
+            Debug.Log($"Yetersiz Mana! Gereken: {quest.requirements.requiredMana}, Mevcut: {ResourceManager.Instance.currentMana:F0}");
+            return;
+        }
+
+        if (CurrencyManager.Instance.nexusCoin < quest.requirements.requiredNexusCoin)
+        {
+            Debug.Log($"Yetersiz Nexus Coin! Gereken: {quest.requirements.requiredNexusCoin}, Mevcut: {CurrencyManager.Instance.nexusCoin:F0}");
+            return;
+        }
         // TODO: Diğer gereksinimleri de (stat, level vb.) burada kontrol et.
 
         // 2. Kaynakları Tüket
         ResourceManager.Instance.ModifyEnergy(-(float)finalEnergyCost);
+
+        if (quest.requirements.requiredHealth > 0)
+        {
+            ResourceManager.Instance.ModifyHealth(-(float)quest.requirements.requiredHealth);
+        }
+        if (quest.requirements.requiredGold > 0)
+        {
+            CurrencyManager.Instance.SpendGold(quest.requirements.requiredGold);
+        }
+
+        if (quest.requirements.requiredMana > 0)
+        {
+            ResourceManager.Instance.ModifyMana(-(float)quest.requirements.requiredMana);
+        }
+
+        if (quest.requirements.requiredNexusCoin > 0)
+        {
+            CurrencyManager.Instance.SpendNexusCoin(quest.requirements.requiredNexusCoin);
+        }
+
+        
 
         // 3. Nihai Süre Hesabı
         float baseDuration = quest.baseCompletionTime;
