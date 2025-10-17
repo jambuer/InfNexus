@@ -97,3 +97,18 @@ InitTestScene*.unity*
 
 # Auto-generated scenes by play mode tests
 /[Aa]ssets/[Ii]nit[Tt]est[Ss]cene*.unity*
+
+icon/
+GDS/
+Gentleland/
+GUI_Parts/
+_HeathenEngineering/
+_Heathen Engineering/
+
+
+/icon/
+/GDS/
+/Gentleland/
+/GUI_Parts/
+/_HeathenEngineering/
+/_Heathen Engineering/
