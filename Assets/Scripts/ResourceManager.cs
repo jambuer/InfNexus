@@ -46,7 +46,7 @@ public class ResourceManager : MonoBehaviour
         currentHealth = maxHealth;
         currentEnergy = maxEnergy;
         currentMana = maxMana;
-        
+
         UpdateAllBars();
 
         if (StatCalculator.Instance != null)
@@ -54,7 +54,7 @@ public class ResourceManager : MonoBehaviour
             StatCalculator.Instance.OnStatsRecalculated += UpdateMaxStats;
         }
     }
-    
+
     void OnDestroy()
     {
         if (StatCalculator.Instance != null)
@@ -97,7 +97,7 @@ public class ResourceManager : MonoBehaviour
         currentHealth = Mathf.Min(currentHealth, maxHealth);
         currentEnergy = Mathf.Min(currentEnergy, maxEnergy);
         currentMana = Mathf.Min(currentMana, maxMana);
-        
+
         UpdateAllBars();
         OnValuesChanged?.Invoke(); // Max statlar değiştiğinde de haber ver
     }
@@ -112,24 +112,24 @@ public class ResourceManager : MonoBehaviour
     void UpdateBar(Image fillImage, TextMeshProUGUI text, float current, float max)
     {
         if (fillImage == null || text == null) return;
-        
+
         float percentage = (max > 0) ? Mathf.Clamp01(current / max) : 0;
-        
+
         RectTransform fillRect = fillImage.GetComponent<RectTransform>();
         RectTransform parentRect = fillRect.parent.GetComponent<RectTransform>();
         if (parentRect == null) return;
-        
+
         float parentWidth = parentRect.rect.width;
-        float originalLeft = 10f;
-        float originalRight = 12f;
+        float originalLeft = 7f;
+        float originalRight = 8.1f;
         float rightOffset = -((parentWidth - originalLeft - originalRight) * (1f - percentage) + originalRight);
-        
+
         fillRect.offsetMin = new Vector2(originalLeft, fillRect.offsetMin.y);
         fillRect.offsetMax = new Vector2(rightOffset, fillRect.offsetMax.y);
-        
+
         text.text = Mathf.RoundToInt(current) + " / " + Mathf.RoundToInt(max);
     }
-    
+
     public void ModifyHealth(float amount)
     {
         currentHealth = Mathf.Clamp(currentHealth + amount, 0, maxHealth);
@@ -151,3 +151,4 @@ public class ResourceManager : MonoBehaviour
         OnValuesChanged?.Invoke();
     }
 }
+

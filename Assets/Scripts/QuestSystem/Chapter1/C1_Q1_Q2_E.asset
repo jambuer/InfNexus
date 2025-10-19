@@ -10,23 +10,23 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9a7feed0eadc0aa4890709c750d291d5, type: 3}
-  m_Name: C1_Q1_Q1_N
+  m_Name: C1_Q1_Q2_E
   m_EditorClassIdentifier: 
   questID: 3f17f788-60b4-4cee-943a-6448d422005e
-  questName: SIRADAN BIR IS GUNU DAHA
-  description: "S\u0131radan bir g\xFCn. Kiralar\u0131n icin ise gidip cal\u0131sman
-    gerekiyor..."
-  questIcon: {fileID: -7746137333364553569, guid: 17404caad449674468ea376aa79b56a4, type: 3}
+  questName: YENILENMIS ENERJI
+  description: "Son 1 haftad\u0131r sen ve etraf\u0131ndakiler kendinizi daha enerji
+    hissediyorsunuz. Daha fazla \xE7al\u0131\u015Fmal\u0131s\u0131n\u0131z!!"
+  questIcon: {fileID: -5072819460815143412, guid: de19cc9b106772b4f8e6c620ed44c15c, type: 3}
   baseCompletionTime: 3
   mainTag: 1
   subTag: 3
   completionLimit: 0
-  masteryID: woodcutting_mastery
+  masteryID: 
   requirements:
-    requiredLevel: 5
-    requiredHealth: 10
-    requiredEnergy: 15
-    requiredMana: 10
+    requiredLevel: 1
+    requiredHealth: 0
+    requiredEnergy: 3
+    requiredMana: 0
     requiredGold: 0
     requiredNexusCoin: 0
     baseCompletionTimeCost: 0
@@ -36,11 +36,11 @@ MonoBehaviour:
     requiredSpiritual: 0
     requiredLuck: 0
     requiredSocial: 0
-  experienceReward: 30
+  experienceReward: 3
   goldRewardTiers:
-  - minAmount: 10
-    maxAmount: 25
-    probabilityWeight: 0.1
+  - minAmount: 2
+    maxAmount: 3
+    probabilityWeight: 5
   nexusCoinRewardTiers: []
   itemRewards: []
   statRewards: []

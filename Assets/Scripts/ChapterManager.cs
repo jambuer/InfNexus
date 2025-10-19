@@ -58,7 +58,44 @@ public class ChapterManager : MonoBehaviour
         previousButton.onClick.AddListener(GoToPreviousChapter);
         nextButton.onClick.AddListener(GoToNextChapter);
 
+
+
+
+        LoadChapterUnlocks();
+
         UpdateChapterDisplay();
+    }
+
+    // --- BURADAN İTİBAREN EKLE ---
+    void LoadChapterUnlocks()
+    {
+        for (int i = 0; i < chapters.Count; i++)
+        {
+            // PlayerPrefs'ten ilgili chapter'ın kilidinin açık olup olmadığını kontrol et.
+            // Anahtar olarak "ChapterUnlocked_" + chapter index'ini kullanıyoruz.
+            // Eğer anahtar yoksa veya değeri 0 ise, kilitli kabul ediyoruz (varsayılan değer 0).
+            int unlockedState = PlayerPrefs.GetInt("ChapterUnlocked_" + i, 0);
+            chapters[i].isUnlocked = (unlockedState == 1); // 1 ise açık, 0 ise kilitli
+
+            // İlk chapter her zaman açık olmalı, bunu tekrar garantileyelim.
+            if (i == 0)
+            {
+                chapters[i].isUnlocked = true;
+            }
+        }
+        Debug.Log("Chapter kilit durumları PlayerPrefs'ten yüklendi.");
+    }
+    
+    // --- BURADAN İTİBAREN EKLE ---
+    void SaveChapterUnlocks()
+    {
+        for (int i = 0; i < chapters.Count; i++)
+        {
+            // Chapter'ın kilit durumunu (açıksa 1, kilitliyse 0) PlayerPrefs'e kaydet.
+            PlayerPrefs.SetInt("ChapterUnlocked_" + i, chapters[i].isUnlocked ? 1 : 0);
+        }
+        PlayerPrefs.Save(); // Değişikliklerin diske yazıldığından emin ol.
+        Debug.Log("Chapter kilit durumları PlayerPrefs'e kaydedildi.");
     }
 
     public void GoToPreviousChapter()
@@ -120,6 +157,7 @@ public class ChapterManager : MonoBehaviour
         if (requirementsMet)
         {
             chapter.isUnlocked = true;
+            SaveChapterUnlocks(); // Kilit açıldığında durumu kaydet
             if (chapter.lockPanel != null)
                 chapter.lockPanel.SetActive(false);
             Debug.Log($"Chapter '{chapter.chapterName}' kilidi açıldı!");
