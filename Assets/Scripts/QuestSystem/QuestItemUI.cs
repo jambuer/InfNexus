@@ -159,11 +159,48 @@ public class QuestItemUI : MonoBehaviour
             sb.AppendLine($"<color=#{(isMet ? _metColorHex : _notMetColorHex)}>- Mana {req.requiredMana:F0}</color>");
             hasRequirements = true;
         }
-        
+
         if (req.requiredNexusCoin > 0)
         {
             bool isMet = CurrencyManager.Instance.nexusCoin >= req.requiredNexusCoin;
             sb.AppendLine($"<color=#{(isMet ? _metColorHex : _notMetColorHex)}>- Nexus Coin {req.requiredNexusCoin:F0}</color>");
+            hasRequirements = true;
+        }
+        
+        if (req.requiredPhysical > 0)
+        {
+            bool isMet = StatManager.Instance.GetTotalPhysical() >= req.requiredPhysical;
+            sb.AppendLine($"<color=#{ (isMet ? _metColorHex : _notMetColorHex) }>- Physical: {req.requiredPhysical:F0}</color>");
+            hasRequirements = true;
+        }
+        if (req.requiredMental > 0)
+        {
+            bool isMet = StatManager.Instance.GetTotalMental() >= req.requiredMental;
+            sb.AppendLine($"<color=#{ (isMet ? _metColorHex : _notMetColorHex) }>- Mental: {req.requiredMental:F0}</color>");
+            hasRequirements = true;
+        }
+        if (req.requiredSpiritual > 0)
+        {
+            bool isMet = StatManager.Instance.GetTotalSpiritual() >= req.requiredSpiritual;
+            sb.AppendLine($"<color=#{ (isMet ? _metColorHex : _notMetColorHex) }>- Spiritual: {req.requiredSpiritual:F0}</color>");
+            hasRequirements = true;
+        }
+        if (req.requiredPerception > 0)
+        {
+            bool isMet = StatManager.Instance.GetTotalPerception() >= req.requiredPerception;
+            sb.AppendLine($"<color=#{ (isMet ? _metColorHex : _notMetColorHex) }>- Perception: {req.requiredPerception:F0}</color>");
+            hasRequirements = true;
+        }
+        if (req.requiredLuck > 0)
+        {
+            bool isMet = StatManager.Instance.GetTotalLuck() >= req.requiredLuck;
+            sb.AppendLine($"<color=#{ (isMet ? _metColorHex : _notMetColorHex) }>- Luck: {req.requiredLuck:F0}</color>");
+            hasRequirements = true;
+        }
+        if (req.requiredSocial > 0)
+        {
+            bool isMet = StatManager.Instance.GetTotalSocial() >= req.requiredSocial;
+            sb.AppendLine($"<color=#{ (isMet ? _metColorHex : _notMetColorHex) }>- Social: {req.requiredSocial:F0}</color>");
             hasRequirements = true;
         }
 

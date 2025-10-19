@@ -123,6 +123,37 @@ public class QuestManager : MonoBehaviour
             Debug.Log($"Yetersiz Nexus Coin! Gereken: {quest.requirements.requiredNexusCoin}, Mevcut: {CurrencyManager.Instance.nexusCoin:F0}");
             return;
         }
+
+        if (StatManager.Instance.GetTotalPhysical() < quest.requirements.requiredPhysical)
+        {
+            Debug.Log($"Yetersiz Physical Stat! Gereken: {quest.requirements.requiredPhysical}, Mevcut: {StatManager.Instance.GetTotalPhysical():F0}");
+            return;
+        }
+        if (StatManager.Instance.GetTotalMental() < quest.requirements.requiredMental)
+        {
+            Debug.Log($"Yetersiz Mental Stat! Gereken: {quest.requirements.requiredMental}, Mevcut: {StatManager.Instance.GetTotalMental():F0}");
+            return;
+        }
+        if (StatManager.Instance.GetTotalSpiritual() < quest.requirements.requiredSpiritual)
+        {
+            Debug.Log($"Yetersiz Spiritual Stat! Gereken: {quest.requirements.requiredSpiritual}, Mevcut: {StatManager.Instance.GetTotalSpiritual():F0}");
+            return;
+        }
+        if (StatManager.Instance.GetTotalPerception() < quest.requirements.requiredPerception)
+        {
+            Debug.Log($"Yetersiz Perception Stat! Gereken: {quest.requirements.requiredPerception}, Mevcut: {StatManager.Instance.GetTotalPerception():F0}");
+            return;
+        }
+        if (StatManager.Instance.GetTotalLuck() < quest.requirements.requiredLuck)
+        {
+            Debug.Log($"Yetersiz Luck Stat! Gereken: {quest.requirements.requiredLuck}, Mevcut: {StatManager.Instance.GetTotalLuck():F0}");
+            return;
+        }
+        if (StatManager.Instance.GetTotalSocial() < quest.requirements.requiredSocial)
+        {
+            Debug.Log($"Yetersiz Social Stat! Gereken: {quest.requirements.requiredSocial}, Mevcut: {StatManager.Instance.GetTotalSocial():F0}");
+            return;
+        }
         // TODO: Diğer gereksinimleri de (stat, level vb.) burada kontrol et.
 
         // 2. Kaynakları Tüket
@@ -147,7 +178,7 @@ public class QuestManager : MonoBehaviour
             CurrencyManager.Instance.SpendNexusCoin(quest.requirements.requiredNexusCoin);
         }
 
-        
+
 
         // 3. Nihai Süre Hesabı
         float baseDuration = quest.baseCompletionTime;

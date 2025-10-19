@@ -1,66 +1,117 @@
 using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine.UI; // ScrollRect için eklendi
 
 /// <summary>
-/// Belirli bir kategorideki görevleri (örn: Bölüm 1 Görevleri) listeleyen UI panelini yönetir.
-/// QuestItemUI prefab'larını oluşturur ve içeriği doldurur.
+/// Görev listesini yönetir. Belirtilen zorluk seviyesine göre görevleri oluşturur ve gösterir.
 /// </summary>
 public class QuestPanelUI : MonoBehaviour
 {
-    [Header("Panel Ayarları")]
-    [Tooltip("Bu panelde gösterilecek olan görevlerin QuestData listesi.")]
-    public List<QuestData> questsToShow;
-
     [Header("UI Referansları")]
-    [Tooltip("Tek bir görevi temsil eden QuestItemUI prefab'ı.")]
+    [Tooltip("QuestItemUI prefab'ının ekleneceği content objesi.")]
+    public Transform questContentParent;
+    [Tooltip("Oluşturulacak görev arayüzü prefab'ı.")]
     public GameObject questItemPrefab;
-    [Tooltip("Oluşturulan görev UI'larının ekleneceği container transform (Vertical Layout Group içeren).")]
-    public Transform questContainer;
+    [Tooltip("Görev listesini içeren ScrollRect bileşeni.")]
+    public ScrollRect scrollRect; // En üste kaydırmak için referans eklendi
 
-    /// <summary>
-    /// Bu panel aktif olduğunda görev listesini oluşturur veya günceller.
-    /// </summary>
+    [Header("Görev Listeleri (Zorluğa Göre)")]
+    public List<QuestData> easyQuests;
+    public List<QuestData> normalQuests;
+    public List<QuestData> hardQuests;
+    public List<QuestData> veryHardQuests;
+    public List<QuestData> nightmareQuests;
+
+    private List<GameObject> _instantiatedQuestItems = new List<GameObject>();
+
     void Start()
     {
-        // Başlangıçta görev listesini doldur.
-        PopulateQuestList();
+        // DifficultyManager'ı dinlemeye başla
+        if (DifficultyManager.Instance != null)
+        {
+            DifficultyManager.Instance.OnDifficultyChanged += PopulateQuestsForDifficulty;
+        }
+
+        // Başlangıçta mevcut zorluk seviyesine göre görevleri doldur
+        PopulateQuestsForDifficulty(DifficultyManager.Instance.currentDifficulty);
+    }
+
+    private void OnDestroy()
+    {
+        // Dinlemeyi bırak
+        if (DifficultyManager.Instance != null)
+        {
+            DifficultyManager.Instance.OnDifficultyChanged -= PopulateQuestsForDifficulty;
+        }
     }
 
     /// <summary>
-    /// Mevcut görev listesini temizler ve questsToShow listesindeki her görev için yeni bir UI elemanı oluşturur.
+    /// Belirtilen zorluk seviyesi için görev listesini temizler ve yeniden oluşturur.
     /// </summary>
-    public void PopulateQuestList()
+    private void PopulateQuestsForDifficulty(DifficultyManager.Difficulty difficulty)
     {
-        if (questItemPrefab == null || questContainer == null)
+        // 1. Mevcut görev arayüzlerini temizle
+        foreach (GameObject item in _instantiatedQuestItems)
         {
-            Debug.LogError("QuestPanelUI: Prefab veya Container atanmamış!");
-            return;
+            Destroy(item);
+        }
+        _instantiatedQuestItems.Clear();
+
+        // 2. Doğru görev listesini seç
+        List<QuestData> questsToDisplay = GetQuestListForDifficulty(difficulty);
+
+        // 3. Seçilen listedeki her görev için yeni arayüz elemanı oluştur
+        if (questsToDisplay != null)
+        {
+            foreach (QuestData quest in questsToDisplay)
+            {
+                GameObject newQuestItem = Instantiate(questItemPrefab, questContentParent);
+                QuestItemUI questItemUI = newQuestItem.GetComponent<QuestItemUI>();
+                if (questItemUI != null)
+                {
+                    questItemUI.Setup(quest);
+                }
+                _instantiatedQuestItems.Add(newQuestItem);
+            }
         }
 
-        // Önceki listeden kalanları temizle
-        foreach (Transform child in questContainer)
+        // 4. Scroll bar'ı en üste sıfırla (isteğe bağlı ama önerilir)
+        if (scrollRect != null)
         {
-            Destroy(child.gameObject);
+            // Canvas'ın güncellenmesini beklemek için bir frame gecikme ekliyoruz.
+            StartCoroutine(ResetScrollPosition());
         }
+    }
 
-        // Gösterilecek her görev için bir UI elemanı oluştur
-        foreach (QuestData quest in questsToShow)
+    /// <summary>
+    /// Zorluk seviyesine göre ilgili görev listesini döndürür.
+    /// </summary>
+    private List<QuestData> GetQuestListForDifficulty(DifficultyManager.Difficulty difficulty)
+    {
+        switch (difficulty)
         {
-            // Prefab'dan yeni bir GameObject oluştur ve container'ın içine yerleştir.
-            GameObject questItemInstance = Instantiate(questItemPrefab, questContainer);
-
-            // Oluşturulan objenin üzerindeki QuestItemUI script'ini al.
-            QuestItemUI questItem = questItemInstance.GetComponent<QuestItemUI>();
-
-            // Eğer script bulunduysa, görevin verileriyle kur.
-            if (questItem != null)
-            {
-                questItem.Setup(quest);
-            }
-            else
-            {
-                Debug.LogError($"QuestItemUI script'i, '{questItemPrefab.name}' prefab'ında bulunamadı!");
-            }
+            case DifficultyManager.Difficulty.Easy:
+                return easyQuests;
+            case DifficultyManager.Difficulty.Normal:
+                return normalQuests;
+            case DifficultyManager.Difficulty.Hard:
+                return hardQuests;
+            case DifficultyManager.Difficulty.VeryHard:
+                return veryHardQuests;
+            case DifficultyManager.Difficulty.Nightmare:
+                return nightmareQuests;
+            default:
+                return new List<QuestData>(); // Boş liste
+        }
+    }
+    
+    private System.Collections.IEnumerator ResetScrollPosition()
+    {
+        // Bir frame bekle, layout'un güncellenmesini sağla
+        yield return new WaitForEndOfFrame();
+        if (scrollRect != null)
+        {
+            scrollRect.verticalNormalizedPosition = 1f;
         }
     }
 }
