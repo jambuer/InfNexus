@@ -16,6 +16,7 @@ public class ItemDrop
     public int minQuantity = 1;
     /// <summary>Düşecek eşyanın maksimum miktarı.</summary>
     public int maxQuantity = 1;
+    public int amount = 1;
 
     /// <summary>Eşyanın düşüp düşmeyeceğini ve düşerse miktarını belirler.</summary>
     public (ItemData item, int quantity) GetDrop()

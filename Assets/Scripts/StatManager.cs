@@ -39,6 +39,8 @@ public class StatManager : MonoBehaviour
         }
     }
 
+    
+
     /// <summary>
     /// Gelen stat ismine göre ilgili statı kalıcı olarak artırır.
     /// QuestManager gibi sistemlerden gelen genel stat ödüllerini dağıtmak için kullanılır.
@@ -106,6 +108,8 @@ public class StatManager : MonoBehaviour
                 break;
         }
     }
+
+    
     
     public void AddAllStats(double amount)
  {
@@ -280,15 +284,17 @@ public class StatManager : MonoBehaviour
     public TextMeshProUGUI socialText;
 
     public void UpdateStatUI()
-{
+    {
         physicalText.text = physical.ToString();
         mentalText.text = mental.ToString();
         perceptionText.text = perception.ToString();
         spiritualText.text = spiritual.ToString();
         luckText.text = luck.ToString();
         socialText.text = social.ToString();
-    // Diğerlerini de güncelleyin
-}
+        // Diğerlerini de güncelleyin
+    }
+
+
 
     // Örneğin ModifyStat fonksiyonunuzun sonunda UpdateStatUI() çağırın
     public void ModifyPhysical(int amount)
@@ -330,6 +336,8 @@ public class StatManager : MonoBehaviour
 
 
 
+
+
     // Save/Load için stat verilerini al
     public StatData GetStatData()
     {
@@ -342,6 +350,24 @@ public class StatManager : MonoBehaviour
             luck = this.luck,
             social = this.social
         };
+    }
+    
+    public float GetTotalStat(string statName)
+    {
+        // Gelen statName'e göre ilgili toplam değeri döndür
+        switch (statName.ToLower()) // Küçük/büyük harf duyarsız yapalım
+        {
+            case "physical": return (float)GetTotalPhysical();
+            case "mental": return (float)GetTotalMental();
+            case "spiritual": return (float)GetTotalSpiritual();
+            case "perception": return (float)GetTotalPerception();
+            case "luck": return (float)GetTotalLuck();
+            case "social": return (float)GetTotalSocial();
+            // Buraya başka stat isimleri ekleyebilirsin
+            default:
+                Debug.LogWarning($"Bilinmeyen stat adı: {statName}");
+                return 0; // Bilinmiyorsa 0 döndür
+        }
     }
 
     // Save/Load için stat verilerini yükle

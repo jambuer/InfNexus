@@ -22,11 +22,13 @@ public class LevelManager : MonoBehaviour
     public event Action OnXPChanged;
     public event Action OnLevelUp;
 
+    
+
     void Awake()
     {
         if (Instance == null)
         {
-            Instance = this; 
+            Instance = this;
             DontDestroyOnLoad(gameObject); // Sahne değişse bile bu obje kalıcı olsun
         }
         else
@@ -34,6 +36,8 @@ public class LevelManager : MonoBehaviour
             Destroy(gameObject);
         }
     }
+
+
 
     // Bu fonksiyon, görevlerden veya başka kaynaklardan XP eklemek için çağrılacak
     public void AddXP(double amount)
@@ -61,7 +65,7 @@ public class LevelManager : MonoBehaviour
         // Ödülleri ver
         unspentStatPoints += statPointsPerLevel;
 
-        
+
 
         // ResourceManager'daki maksimum değerleri artır
         if (ResourceManager.Instance != null)
@@ -81,8 +85,16 @@ public class LevelManager : MonoBehaviour
 
         Debug.Log($"SEVİYE ATLADIN! Yeni Seviye: {currentLevel}. Dağıtılmamış Puan: {unspentStatPoints}");
         OnLevelUp?.Invoke(); // Seviye atlandığını UI'a bildir
+        OnPlayerLeveledUp?.Invoke(); // Statik event'i tetikle (InteractableObject bunu dinliyor)
         OnXPChanged?.Invoke(); // Kalan XP'yi de UI'da güncelle
     }
+
+    public static event Action OnPlayerLeveledUp;
+
+    
+        
+
+
 
     public bool SpendStatPoint(int amountToSpend)
     {
@@ -90,16 +102,18 @@ public class LevelManager : MonoBehaviour
         if (unspentStatPoints >= amountToSpend)
         {
             unspentStatPoints -= amountToSpend;
-            OnLevelUp?.Invoke(); 
-            OnXPChanged?.Invoke(); 
+            OnLevelUp?.Invoke();
+            OnXPChanged?.Invoke();
             return true; // Puanlar başarıyla harcandı
         }
-        
+
         return false; // Harcanacak yeterli puan yok
     }
 
-        private string GetDebuggerDisplay()
-        {
-            return ToString();
-        }
+    private string GetDebuggerDisplay()
+    {
+        return ToString();
     }
+}
+    
+    

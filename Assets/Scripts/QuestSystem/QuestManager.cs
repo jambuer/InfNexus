@@ -29,14 +29,17 @@ public class QuestManager : MonoBehaviour
 
     void Awake()
     {
+        Debug.Log($"QuestManager Awake çalışıyor: {gameObject.name}");
         if (Instance == null)
         {
             Instance = this;
             DontDestroyOnLoad(gameObject); // Sahne değişse bile bu obje kalıcı olsun diye
             LoadQuestProgress();
+            Debug.Log($"QuestManager Awake çalışıyor: {gameObject.name}");
         }
         else
         {
+            Debug.LogWarning($"!!! Fazladan QuestManager yok ediliyor: {gameObject.name}. Mevcut Instance: {Instance.gameObject.name}", gameObject);
             Destroy(gameObject);
         }
     }
@@ -227,6 +230,8 @@ public class QuestManager : MonoBehaviour
     }
 
 
+
+
     /// <summary>
     /// Görevin zamanlayıcısını yöneten ve anlık ilerleme bildiren Coroutine.
     /// </summary>
@@ -244,6 +249,9 @@ public class QuestManager : MonoBehaviour
         OnQuestProgressUpdate?.Invoke(quest.questID, 1f); // Tamamlandığından emin ol
         CompleteQuest(quest);
     }
+
+     public static event Action<string> OnQuestCompleted;
+
 
     // ====================================================================================================
     // GÖREV TAMAMLAMA VE ÖDÜLLER
@@ -268,8 +276,11 @@ public class QuestManager : MonoBehaviour
         OnQuestProgress?.Invoke(quest, newCompletionCount);
         SaveQuestProgress();
 
+        OnQuestCompleted?.Invoke(quest.questID); // Statik event'i görev ID'si ile tetikle
+
         Debug.Log($"Görev '{quest.questName}' tamamlandı! Toplam tamamlama: {newCompletionCount}.");
     }
+
 
     /// <summary>
     /// Görev ödüllerini Stat ve Ustalık bonuslarını hesaba katarak dağıtır.

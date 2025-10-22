@@ -14,6 +14,7 @@ public class InventoryUI : MonoBehaviour
     {
         // Envanter her değiştiğinde (AddItem, RemoveItem) UpdateUI fonksiyonunu çalıştır
         Inventory.Instance.OnInventoryChanged += UpdateUI;
+        Inventory.OnInventoryChanged_Static += UpdateUI;
 
         // Başlangıçta envanter panelini gizle (isteğe bağlı)
         inventoryPanel.SetActive(false);

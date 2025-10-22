@@ -6,9 +6,21 @@ using System; // Serializable sınıflar için
 /// Tek bir görevin tüm veri tanımlarını içeren ScriptableObject.
 /// Unity Editor'dan yeni görevler oluşturmak için kullanılır.
 /// </summary>
+/// 
+ public enum QuestArea {
+    Global, // Genel görevler
+    City,   // Şehir görevleri
+    Adventure, // Macera bölgesi görevleri
+    Dungeon // Zindan görevleri (örnek)
+    // İhtiyaç oldukça burayı genişletebilirsin
+}
 [CreateAssetMenu(fileName = "NewQuest", menuName = "Quest System/Quest Data")]
 public class QuestData : ScriptableObject
 {
+     
+    [Header("Bölge Bilgisi")]
+public QuestArea questArea = QuestArea.Global; // Varsayılan olarak Global olsun
+
     [Header("Temel Bilgiler")]
     /// <summary>Görevin benzersiz kimliği.</summary>
     public string questID; // Görevin benzersiz kimliği, otomatik atanabilir veya manuel verilebilir.
@@ -19,6 +31,8 @@ public class QuestData : ScriptableObject
     public string description = "A detailed description of the quest objectives.";
     /// <summary>Görevin arayüzdeki ikonu.</summary>
     public Sprite questIcon;
+
+    
     /// <summary>Görevin temel tamamlanma süresi (saniye cinsinden).</summary>
     public float baseCompletionTime = 10f; // Saniye cinsinden
     /// <summary>Görevin birincil kategorisi.</summary>

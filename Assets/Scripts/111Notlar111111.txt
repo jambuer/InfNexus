@@ -1,0 +1,13 @@
+
+
+
+Console a bilgi aktarmak için kullanılır.;
+
+GameConsole.Instance.AddMessage($"+{amount} {itemToAdd.itemName} elde edildi.");
+
+Savaş ekranı;
+
+Alttan yukarıya doğru bir panel açılacak.
+Scriptte Background / EnemyIcon olacak ( değişkenlik gösterenler bunlar)
+              Nereden açıldıysa oraya yönlendirmesi için content alanı
+

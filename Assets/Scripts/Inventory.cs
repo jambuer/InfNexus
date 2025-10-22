@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System;
 
 public class Inventory : MonoBehaviour
 {
@@ -39,16 +40,17 @@ public class Inventory : MonoBehaviour
         {
             items.Add(itemToAdd, amount);
         }
-        
+
         Debug.Log($"{amount} x {itemToAdd.itemName} envantere eklendi.");
-        OnInventoryChanged?.Invoke(); // Envanterin değiştiğini UI'a bildir
+        OnInventoryChanged_Static?.Invoke(); // Envanterin değiştiğini UI'a bildir
 
         if (GameConsole.Instance != null)
         {
             GameConsole.Instance.AddMessage($"+{amount} {itemToAdd.itemName} elde edildi.");
         }
-        
+
     }
+
 
     // Envanterden eşya silme
     public void RemoveItem(ItemData itemToRemove, int amount = 1)
@@ -62,11 +64,13 @@ public class Inventory : MonoBehaviour
             {
                 items.Remove(itemToRemove);
             }
-            
+
             Debug.Log($"{amount} x {itemToRemove.itemName} envanterden silindi.");
-            OnInventoryChanged?.Invoke(); // Envanterin değiştiğini UI'a bildir
+            OnInventoryChanged_Static?.Invoke();// Envanterin değiştiğini UI'a bildir
         }
     }
+    
+    public static event Action OnInventoryChanged_Static;
 
     // Belirli bir item'dan yeterli miktarda var mı diye kontrol et
     public bool HasItem(ItemData item, int amount = 1)
