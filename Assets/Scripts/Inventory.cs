@@ -81,4 +81,13 @@ public class Inventory : MonoBehaviour
         }
         return false;
     }
+
+    public int GetItemCount(ItemData item)
+    {
+        if (items.TryGetValue(item, out int count))
+        {
+            return count;
+        }
+        return 0; // Envanterde yoksa 0 döndür
+    }
 }

@@ -532,7 +532,7 @@ GameObject:
   - component: {fileID: 24584859}
   - component: {fileID: 24584858}
   m_Layer: 5
-  m_Name: GuildSubButton
+  m_Name: RaidSubButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -26347,7 +26347,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: guild
+  m_text: RAID
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: df798b1ba99782d47a786a99361af7cf, type: 2}
   m_sharedMaterial: {fileID: 915536667394630682, guid: df798b1ba99782d47a786a99361af7cf, type: 2}
@@ -45404,11 +45404,11 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 24584857}
-  - {fileID: 1868519742}
-  - {fileID: 1956173994}
-  - {fileID: 29507376}
   - {fileID: 734942267}
+  - {fileID: 24584857}
+  - {fileID: 1956173994}
+  - {fileID: 1868519742}
+  - {fileID: 29507376}
   - {fileID: 1205234658}
   - {fileID: 591344652}
   - {fileID: 1089429718}
@@ -58503,11 +58503,11 @@ RectTransform:
   m_Children:
   - {fileID: 2145864344}
   - {fileID: 1594417520}
-  - {fileID: 2051858929}
-  - {fileID: 751729348}
-  - {fileID: 1793189535}
-  - {fileID: 1784115045}
   - {fileID: 608365999}
+  - {fileID: 2051858929}
+  - {fileID: 1793189535}
+  - {fileID: 751729348}
+  - {fileID: 1784115045}
   - {fileID: 1429570412}
   - {fileID: 86716801}
   - {fileID: 2021059389}
@@ -58568,19 +58568,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 865fd97fb0e3d9f49988e4ef410e3e0c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  guildButton: {fileID: 24584859}
-  regionButton: {fileID: 1868519744}
-  raceButton: {fileID: 1956173996}
-  workButton: {fileID: 29507378}
   explorerButton: {fileID: 734942269}
+  raidButton: {fileID: 24584859}
+  raceButton: {fileID: 1956173996}
+  regionButton: {fileID: 1868519744}
+  workButton: {fileID: 29507378}
   cavesButton: {fileID: 1205234660}
   oceanButton: {fileID: 591344655}
   mountainsButton: {fileID: 1089429721}
-  guildContent: {fileID: 2051858928}
-  regionContent: {fileID: 751729347}
-  raceContent: {fileID: 1793189534}
-  workContent: {fileID: 1784115044}
   explorerContent: {fileID: 608365998}
+  raidContent: {fileID: 2051858928}
+  raceContent: {fileID: 1793189534}
+  regionContent: {fileID: 751729347}
+  workContent: {fileID: 1784115044}
   cavesContent: {fileID: 1429570411}
   oceanContent: {fileID: 86716800}
   mountainsContent: {fileID: 2021059388}
@@ -59343,7 +59343,7 @@ GameObject:
   - component: {fileID: 2051858932}
   - component: {fileID: 2051858931}
   m_Layer: 5
-  m_Name: GuildSubContent
+  m_Name: RaidSubContent
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

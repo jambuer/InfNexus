@@ -1,4 +1,5 @@
-
+crtical Hit rate maksimum %75 olabilir demiştik. Bunu, " eğer %75 olduysa,
+ ilave 'critical hit rate', 'critical hit'e eklensin.
 
 
 Console a bilgi aktarmak için kullanılır.;
@@ -11,3 +12,101 @@ Alttan yukarıya doğru bir panel açılacak.
 Scriptte Background / EnemyIcon olacak ( değişkenlik gösterenler bunlar)
               Nereden açıldıysa oraya yönlendirmesi için content alanı
 
+
+
+
+
+
+                 Mastery;
+                
+
+AllStats:
+
+(1)First: +1 AllStats
+(2)First: +5 AllStats
+
+Luck:
+
+(1)Lucky: +5 Luck
+
+
+Gold Bonus:
+
+(1)Undecided: %5 gold bonus
+
+Unspent Stat Points:
+
+(1)WoodCutter: +5 unspent stat points
+
+
+Explorer:
+
+(1)Explorer: -3 dakika Explorer Görevleri
+(2)Explorer: -5 dakika Explorer Görevleri
+
+
+
+Main:
+
+Nexus: Nexus content açılır.
+Raid: raidsubbutton açılır.
+
+
+
+
+                    Stats
+
+
+
+Physical statı için; 
+
+Her "+1" Physical stat puanı için = ( (+2) Attack ) + ( (+3) maksimum health) + ( (+2) maksimum energy) + ( (+1) defense) + ( (+0.1) Health Recovery) + ( (+1) Energy Recovery)
+Her "+100" Physical stat puanı için = ( (+%1) Attack Bonus ) + ( (+%1) maksimum health) + ( (+%0.75) maksimum energy) + ((+%0.5) defense) + ( (+%1) Energy Recovery) + ( (+%1) Health Recovery)
+Her "+1000" Physical stat puanı için = ( Gelen her bonus physical stat (eqiupment, items, etc.) + (+%1) Gold artar ) + ( (+100) Attack Bonus) + ( (+%3) Exp Bonus)
+Her "+10000" Physical stat puanı için = ( (+100) All Stats (bütün statlar 100 artsın)) + ( (+10) Prestige Points) + ((+1) Premium Coin)
+
+
+
+Mental
+
+Her "+1" Mental stat puanı için = ( (+1) Attack ) + ( (+3) maksimum mana) + ( (+1) maksimum energy) + ( (+0.5) Mana Recovery) + ( (+1) Energy Recovery)
+Her "+100" Mental stat puanı için = ( (+%1) Attack Bonus ) + ( (+%1) maksimum Mana) + ( (+%0.40) maksimum energy) + ((+%0.5) defense) + ( (+%0.5) Energy Recovery) + ( (+%1) Mana Recovery) + ((+%2) Skill Exp Bonus) 
+Her "+1000" Mental stat puanı için = ( Gelen her bonus Mental stat (eqiupment, items, etc.) + (+%1) Gold artar ) + ( (+100) Attack Bonus) + ( (+%3) Exp Bonus) + ((+%1) Resource Cost Reduction)
+Her "+10000" Mental stat puanı için = ( (+100) All Stats (bütün statlar 100 artsın)) + ( (+10) Prestige Points) + ((+1) Premium Coin)
+
+
+
+
+Perception
+
+Her "+1" Perception stat puanı için = ( (+0.02 %Critical Hit Rate(örneğin 1 perception %0.02 Critical Hit Rate)) + (+0.01 %Critical Hit Damage) + ( (+1) Energy) + ( +0.2 saniye Cooldown Quest, Training, Crafting etc. süresi) + ( +0.1 Production) + ((+1) Hit Rate)
+Her "+100" Perception stat puanı için = ( (+%1) Exp Bonus) + ( (+%1) Cooldown) + ( (+%1) Production) + ( (+%0.3) Drop Rate) + ((+%0.5) Hit Rate)
+Her "+1000" Perception stat puanı için = ( Gelen her bonus Perception stat (eqiupment, items, etc.) + (+%1) Gold artar ) + ( (+%3) Exp Bonus) + ((+%3 Critical Hit Rate)) + ((+%5 Critical Hit Damage))
+Her "+10000" Perception stat puanı için = ( (+100) All Stats (bütün statlar 100 artsın)) + ( (+10) Prestige Points) + ((+1) Premium Coin)
+
+
+
+Spiritual
+
+Her "+1" Spiritual stat puanı için = ( (+0.1) Health, Energy, Mana Recovery) + ( (+0.01) Prestij Puanı) + ((+0.02) All Stats)
+Her "+100" Spiritual stat puanı için = ( (+%0.5) Health, Energy, Mana recovery ) + ( (+%1) Prestij Puanı)
+Her "+1000" Spiritual stat puanı için = ( Gelen her bonus Spiritual stat (eqiupment, items, etc.) + (+%1) Gold artar ) + ( (+%3) Exp Bonus) 
+Her "+10000" Spiritual stat puanı için = ( (+100) All Stats (bütün statlar 100 artsın)) + ( (+10) Prestige Points) + ((+%10) Prestige Point) + ((+1) Premium Coin)
+
+
+
+Luck
+
+Her "+1" Luck stat puanı için = ( (+1) Drop Rate) + ( (+0.03 %Critical Hit Rate) + ((+0.2) Hit Rate)
+Her "+100" Luck stat puanı için = ( (+%1) Bonus Drop Rate) + ( (+%1) Exp Bonus ) + ( (+%5) Gold Bonus) + ( (+%1) Nexus Coin Bonus)
+Her "+1000" Luck stat puanı için = ( Gelen her bonus Luck stat (eqiupment, items, etc.) + (+%1) Gold artar ) + ( (+%3) Exp Bonus) + ((+%3) Hit Rate) + ((+%0.75)lucky investment şansı)
+Her "+10000" Luck stat puanı için = ( (+100) All Stats (bütün statlar 100 artsın)) + ( (+10) Prestige Points) + ((+1) Premium Coin)
+
+
+
+Social
+
+Her "+1" Social stat puanı için = ( (+1) Charisma) + ( (+1) People (PeopleCoin) ) + ( +0.05 saniye Cooldown Quest, Training, Crafting etc. süresi) + ( +0.05 Production)
+Her "+100" Social stat puanı için = ( (+%10) Production) + ( (+%10) Cooldown) + ( Satılan "Sell" ürünlerde (+%3) kazanç) + ( Toplam miktarın (+5%) People (PeopleCoin) ) + ( (+%1) Nexus Coin Bonus)
+Her "+1000" Social stat puanı için = ( Gelen her bonus Social stat (eqiupment, items, etc.) + (+%1) Gold artar ) + ( (+100) People (PeopleCoin) ) + ( (+%3) Exp Bonus)
+Her "+10000" Social stat puanı için = ( (+100) All Stats (bütün statlar 100 artsın)) + ( (+10) Prestige Points) + ((+1) Premium Coin)

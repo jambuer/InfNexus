@@ -300,6 +300,11 @@ public class QuestManager : MonoBehaviour
         {
             double finalExp = quest.experienceReward * (1 + stats.ExpBonus);
             LevelManager.Instance.AddXP(finalExp);
+
+            if (GameConsole.Instance != null)
+            {
+                GameConsole.Instance.AddMessage($"<color=green>+{finalExp:F0} XP</color> kazanıldı ({quest.questName}).");
+            }
         }
 
         // Altın Ödülü
@@ -309,6 +314,11 @@ public class QuestManager : MonoBehaviour
             // Önce düz bonuslar (mastery vb.), sonra yüzdesel bonuslar uygulanır
             double finalGold = (baseGold + masteryYieldBonus) * (1 + stats.GoldBonus);
             if (finalGold > 0) CurrencyManager.Instance.AddGold(finalGold);
+
+            if (GameConsole.Instance != null)
+                {
+                    GameConsole.Instance.AddMessage($"<color=yellow>+{finalGold:F0} Altın</color> kazanıldı ({quest.questName}).");
+                }
         }
 
         // Nexus Coin Ödülü
@@ -318,17 +328,43 @@ public class QuestManager : MonoBehaviour
             // Önce düz bonuslar, sonra yüzdesel bonuslar
             double finalNexus = (baseNexus + masteryYieldBonus) * (1 + stats.NexusCoinBonus);
             if (finalNexus > 0) CurrencyManager.Instance.AddNexusCoin(finalNexus);
+
+            if (GameConsole.Instance != null)
+                {
+                    GameConsole.Instance.AddMessage($"<color=purple>+{finalNexus:F0} Nexus Coin</color> kazanıldı ({quest.questName}).");
+                }
         }
 
         // Eşya Ödülleri
         if (quest.itemRewards != null)
         {
+            // ÇÖZÜM 2: EŞYA DÜŞÜRME MANTIĞI
             foreach (var itemDrop in quest.itemRewards)
             {
-                // TODO: Item drop mantığını buraya ekle (stats.DropRate'i kullanarak)
-                // Örnek: if (Random.value < itemDrop.dropChance * (1 + stats.DropRate)) { ... }
+                if (itemDrop == null || itemDrop.itemToDrop == null) continue;
+
+                // StatCalculator'dan gelen DropRate bonusunu al
+                // (stats.DropRate'in 0.1 = %10, 1.0 = %100 bonus olduğunu varsayıyoruz)
+                float finalDropChance = itemDrop.dropChance * (1 + (float)stats.DropRate); 
+
+                // Random.value 0.0 ile 1.0 arasında bir değer verir.
+                if (UnityEngine.Random.value <= finalDropChance)
+                {
+                    // ItemDrop.cs'e 'amount' değişkenini eklediğimizi varsayıyoruz
+                    int amountToGive = itemDrop.amount; 
+                    
+                    // Envantere ekle
+                    Inventory.Instance.AddItem(itemDrop.itemToDrop, amountToGive);
+
+                    // ÇÖZÜM 1 (Devamı): Eşya ödülünü konsola yazdır
+                    if (GameConsole.Instance != null)
+                    {
+                        GameConsole.Instance.AddMessage($"<color=orange>+{amountToGive} {itemDrop.itemToDrop.itemName}</color> elde edildi ({quest.questName}).");
+                    }
+                }
             }
         }
+
 
         // Stat Ödülleri
         if (quest.statRewards != null)
@@ -336,6 +372,11 @@ public class QuestManager : MonoBehaviour
             foreach (var statReward in quest.statRewards)
             {
                 StatManager.Instance.AddStat(statReward.statToReward.ToString(), statReward.amount);
+
+                if (GameConsole.Instance != null)
+                {
+                    GameConsole.Instance.AddMessage($"<color=cyan>+{statReward.amount} {statReward.statToReward}</color> kalıcı stat kazanıldı ({quest.questName}).");
+                }
             }
         }
     }

@@ -43,7 +43,7 @@ MonoBehaviour:
   - itemToDrop: {fileID: 11400000, guid: 114f4e6640320324f9ed3e1f0b48bc1b, type: 2}
     dropChance: 0.75
     minQuantity: 1
-    maxQuantity: 1
+    maxQuantity: 9000000
     amount: 1
   statRewards: []
   automationData:
