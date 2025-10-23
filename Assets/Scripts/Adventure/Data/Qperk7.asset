@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ee8b6215200ebda4589a50f89f413dd0, type: 3}
+  m_Name: Qperk7
+  m_EditorClassIdentifier: 
+  tag: 2
+  description: I should go a little further before the sun disappears.
+  unlockRequirements:
+  - requirementType: resource
+    requirementName: Eneregy
+    requiredValue: 30
+  purchasePrice:
+  - requirementType: resource
+    requirementName: Energy
+    requiredValue: 40
+  reward:
+    masteryName: Empty
+    amount: 0
+    description: I didn't find anything.

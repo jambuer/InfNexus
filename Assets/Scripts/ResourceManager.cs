@@ -150,5 +150,54 @@ public class ResourceManager : MonoBehaviour
         UpdateAllBars();
         OnValuesChanged?.Invoke();
     }
+
+    /// <summary>
+/// Maksimum Can değerini kalıcı olarak değiştirir ve UI'ı günceller.
+/// </summary>
+/// <param name="amount">Eklenecek (pozitif) veya çıkarılacak (negatif) miktar.</param>
+public void ModifyMaxHealth(float amount)
+{
+    maxHealth += amount;
+    if (maxHealth < 1) maxHealth = 1; // Maksimum can 1'in altına düşmesin
+    
+    // Mevcut canı da yeni maksimuma ayarla (veya orantıla)
+    // Şimdilik, eğer mevcut can max'tan fazlaysa, onu max'a eşitleyelim.
+    if (currentHealth > maxHealth) currentHealth = maxHealth;
+    
+    OnValuesChanged?.Invoke(); // UI'ı (ve event'i dinleyen diğer yerleri) güncelle
+}
+
+/// <summary>
+/// Maksimum Enerji değerini kalıcı olarak değiştirir ve UI'ı günceller.
+/// </summary>
+/// <param name="amount">Eklenecek (pozitif) veya çıkarılacak (negatif) miktar.</param>
+public void ModifyMaxEnergy(float amount)
+{
+    maxEnergy += amount;
+    if (maxEnergy < 1) maxEnergy = 1; 
+
+    if (currentEnergy > maxEnergy) currentEnergy = maxEnergy;
+    
+    OnValuesChanged?.Invoke(); // UI'ı güncelle
+}
+
+    /// <summary>
+    /// Maksimum Mana değerini kalıcı olarak değiştirir ve UI'ı günceller.
+    /// </summary>
+    /// <param name="amount">Eklenecek (pozitif) veya çıkarılacak (negatif) miktar.</param>
+    public void ModifyMaxMana(float amount)
+    {
+        maxMana += amount;
+        if (maxMana < 1) maxMana = 1;
+
+        if (currentMana > maxMana) currentMana = maxMana;
+        
+        OnValuesChanged?.Invoke(); // UI'ı güncelle
+    }
+    
+    private string GetDebuggerDisplay()
+    {
+        return ToString();
+    }
 }
 

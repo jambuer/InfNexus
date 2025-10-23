@@ -52,6 +52,13 @@ public class LevelManager : MonoBehaviour
         }
     }
 
+    public void AddUnspentStatPoints(int amount)
+{
+    unspentStatPoints += amount;
+    OnLevelUp?.Invoke(); // Stat puanı UI'ını güncelleyen event'i tetikle
+    OnXPChanged?.Invoke(); // Bazen aynı UI'dadır, garanti olsun
+}
+
     private void LevelUp()
     {
         // Kalan XP'yi bir sonraki seviyeye aktar

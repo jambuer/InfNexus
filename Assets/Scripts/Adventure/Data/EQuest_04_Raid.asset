@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7ded5c18f62cc3a4e9db0ac555c2776d, type: 3}
+  m_Name: EQuest_04_Raid
+  m_EditorClassIdentifier: 
+  tag: 3
+  questID: EXPLORER_QUEST_4
+  description: I have to get out of here, but the area is full of monsters.
+  requirements: []
+  baseCompletionTime: 0
+  completionLimit: 1
+  rewardsPerCompletion:
+  - rewardDescription: (1)Explorer
+    statRewards: []
+    itemRewards: []
+    perkRewards:
+    - masteryName: (1)Explorer
+      amount: 1
+      description: -3m Explorer Time
+  unlocksQuestID: EXPLORER_QUEST_5
+  isTimerBased: 1

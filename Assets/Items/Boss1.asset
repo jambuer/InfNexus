@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cd0d82c7474c23e459adb1837e866066, type: 3}
+  m_Name: Boss1
+  m_EditorClassIdentifier: 
+  itemName: Boss1
+  description: "Bossu a\xE7acak item"
+  icon: {fileID: -4218568329292045701, guid: cfbd6c66955b29541b65ad2d107356bd, type: 3}
+  tags: 01000000
+  bonuses: []
+  requirements: []

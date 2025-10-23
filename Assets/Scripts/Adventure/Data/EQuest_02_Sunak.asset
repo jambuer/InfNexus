@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7ded5c18f62cc3a4e9db0ac555c2776d, type: 3}
+  m_Name: EQuest_02_Sunak
+  m_EditorClassIdentifier: 
+  tag: 6
+  questID: EXPLORER_QUEST_2
+  description: The coins I collected from the creatures are shaking. I guess I have
+    to drop them here.
+  requirements: []
+  baseCompletionTime: 0
+  completionLimit: 0
+  rewardsPerCompletion: []
+  unlocksQuestID: EXPLORER_QUEST_3
+  isTimerBased: 0

@@ -1,0 +1,52 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7ded5c18f62cc3a4e9db0ac555c2776d, type: 3}
+  m_Name: EQuest_01_Stat
+  m_EditorClassIdentifier: 
+  tag: 4
+  questID: EXPLORER_QUEST_1
+  description: I can't stay here like this. I need to find a way.
+  requirements:
+  - requirementType: Energy
+    requirementName: Energy
+    requiredValue: 50
+  baseCompletionTime: 60
+  completionLimit: 3
+  rewardsPerCompletion:
+  - rewardDescription: +3 Physical Stat
+    statRewards:
+    - statToReward: 1
+      amount: 3
+    itemRewards: []
+    perkRewards: []
+  - rewardDescription: Yok
+    statRewards: []
+    itemRewards: []
+    perkRewards: []
+  - rewardDescription: +1 All Stats
+    statRewards:
+    - statToReward: 1
+      amount: 1
+    - statToReward: 2
+      amount: 1
+    - statToReward: 3
+      amount: 1
+    - statToReward: 4
+      amount: 1
+    - statToReward: 5
+      amount: 1
+    - statToReward: 6
+      amount: 1
+    itemRewards: []
+    perkRewards: []
+  unlocksQuestID: EXPLORER_QUEST_2
+  isTimerBased: 0

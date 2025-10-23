@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7ded5c18f62cc3a4e9db0ac555c2776d, type: 3}
+  m_Name: EQuest_03_Boss
+  m_EditorClassIdentifier: 
+  tag: 4
+  questID: EXPLORER_QUEST_3
+  description: OMG! What is this???
+  requirements:
+  - requirementType: Energy
+    requirementName: Energy
+    requiredValue: 80
+  baseCompletionTime: 30
+  completionLimit: 1
+  rewardsPerCompletion:
+  - rewardDescription: Ilk boss
+    statRewards: []
+    itemRewards:
+    - itemToDrop: {fileID: 11400000, guid: 726615f8e9e262a448c99ba1e9227188, type: 2}
+      dropChance: 1
+      minQuantity: 1
+      maxQuantity: 1
+      amount: 1
+    perkRewards: []
+  unlocksQuestID: EXPLORER_QUEST_4
+  isTimerBased: 0

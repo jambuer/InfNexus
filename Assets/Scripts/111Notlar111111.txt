@@ -6,6 +6,11 @@ Console a bilgi aktarmak için kullanılır.;
 
 GameConsole.Instance.AddMessage($"+{amount} {itemToAdd.itemName} elde edildi.");
 
+
+
+Kodumuz Hangi Tipleri Biliyor? 
+level, quest, item, stat, gold, nexuscoin, people, health, energy, mana, maxhealth, maxenergy, maxmana
+
 Savaş ekranı;
 
 Alttan yukarıya doğru bir panel açılacak.
@@ -35,6 +40,9 @@ Gold Bonus:
 (1)Undecided: %5 gold bonus
 
 Unspent Stat Points:
+
+(1)Unspent: +5 unspent stat points
+
 
 (1)WoodCutter: +5 unspent stat points
 
