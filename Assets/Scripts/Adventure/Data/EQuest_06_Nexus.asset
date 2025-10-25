@@ -14,13 +14,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   tag: 2
   questID: EXPLORER_QUEST_6
-  description: 
+  description: Where is this place? What are these humanoid creatures??
   requirements:
-  - requirementType: Energy
+  - reqType: 10
     requirementName: Energy
     requiredValue: 20
   baseCompletionTime: 7
   completionLimit: 11
-  rewardsPerCompletion: []
+  rewardsPerCompletion:
+  - rewardDescription: 
+    statRewards: []
+    itemRewards: []
+    perkRewards:
+    - perkToGrant: {fileID: 11400000, guid: b371194af50a60b4783b87954fb51497, type: 2}
+      amount: 1
+      descriptionOverride: 
   unlocksQuestID: 
   isTimerBased: 0

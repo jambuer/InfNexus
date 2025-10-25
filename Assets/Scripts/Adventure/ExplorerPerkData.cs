@@ -1,14 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-// Sol paneldeki her bir öğenin hangi aşamada olduğunu tutan enum
-public enum PerkState
-{
-    Locked,     // Henüz görünmüyor (bir önceki alınmadı)
-    Unlockable, // Görünüyor, "UNLOCK" butonu aktif (Sadece Req gösterilir)
-    Payable,    // Kilidi açıldı, "PAY" butonu aktif (Req + Price gösterilir)
-    Purchased   // Satın alındı, listeden kaybolacak
-}
 
 // Inspector'dan seçeceğimiz etiketler
 public enum ExplorerTag
@@ -25,16 +17,25 @@ public enum ExplorerTag
     Premium
 }
 
+
+
+public enum PerkState { Locked, Unlockable, Payable, Purchased }
+
 // Verilecek Mastery Ödülü
 [System.Serializable]
 public class PerkReward
 {
-    [Tooltip("PerkManager'da tutulacak benzersiz mastery adı (örn: 'First', 'Explorer')")]
-    public string masteryName;
-    [Tooltip("Bu alım oyuncuya kaç 'stack' kazandıracak?")]
+    [Tooltip("Bu Explorer Perk'i tamamlandığında verilecek olan temel Perk Definition asset'i.")]
+    public PerkDefinition perkToGrant; // Artık PerkDefinition'a referans tutuyor
+
+    [Tooltip("Bu alım oyuncuya kaç 'stack' kazandıracak? (Genellikle 1)")]
     public int amount = 1;
-    [Tooltip("UI'da gösterilecek ödül açıklaması (örn: '+1 AllStats')")]
-    public string description;
+
+    // EffectType, Value, Parameter alanları buradan KALDIRILDI.
+    // Onlar artık perkToGrant referansı üzerinden okunacak.
+
+    [Tooltip("UI'da gösterilecek ödül açıklaması (Opsiyonel, PerkDefinition'dan alınabilir).")]
+    public string descriptionOverride = ""; // İsteğe bağlı açıklama
 }
 
 [CreateAssetMenu(fileName = "NewExplorerPerk", menuName = "Adventure/Explorer Perk (Sol Panel)")]

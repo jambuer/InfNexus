@@ -16,8 +16,8 @@ MonoBehaviour:
   questID: EXPLORER_QUEST_5
   description: Boss item
   requirements:
-  - requirementType: Boss1item
-    requirementName: Boss1item
+  - reqType: 4
+    requirementName: Boss1ExplorerItem
     requiredValue: 1
   baseCompletionTime: 0
   completionLimit: 1
@@ -26,8 +26,8 @@ MonoBehaviour:
     statRewards: []
     itemRewards: []
     perkRewards:
-    - masteryName: (1)Unspent
+    - perkToGrant: {fileID: 11400000, guid: 35abed69cae4aae49b54b76728199385, type: 2}
       amount: 1
-      description: +5 Unspent Stat Points
+      descriptionOverride: 
   unlocksQuestID: EXPLORER_QUEST_6
   isTimerBased: 0

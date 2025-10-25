@@ -14,9 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   tag: 2
   description: There is something calling me over there.
-  unlockRequirements: []
+  unlockRequirements:
+  - reqType: 10
+    requirementName: energy
+    requiredValue: 20
   purchasePrice: []
   reward:
-    masteryName: (1)Lucky
+    perkToGrant: {fileID: 11400000, guid: 33ca21aae81213e46ada1b3594bb574a, type: 2}
     amount: 1
-    description: A strange energy is surrounding your body. +5 Luck Stat.
+    descriptionOverride: 

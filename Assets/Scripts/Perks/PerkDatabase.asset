@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 31e06ae5780cc7040ae0cc61e87dfc94, type: 3}
+  m_Name: PerkDatabase
+  m_EditorClassIdentifier: 
+  allPerkDefinitions:
+  - {fileID: 11400000, guid: 435872667f0e08049b075dd6125eb87a, type: 2}
+  - {fileID: 11400000, guid: 037844959121edb4e81aed9ae343c4b0, type: 2}
+  - {fileID: 11400000, guid: c3879d608438cce4492e03450b90ddb9, type: 2}
+  - {fileID: 11400000, guid: 35abed69cae4aae49b54b76728199385, type: 2}
+  - {fileID: 11400000, guid: 33ca21aae81213e46ada1b3594bb574a, type: 2}
+  - {fileID: 11400000, guid: 83410eaa7a0367f45bf9504bc4eae081, type: 2}
+  - {fileID: 11400000, guid: 193a3bcc676db2b41a19d643f30672a6, type: 2}
+  - {fileID: 11400000, guid: de6395a74eb527941b4518f46dd869d5, type: 2}
+  - {fileID: 11400000, guid: b371194af50a60b4783b87954fb51497, type: 2}
+  - {fileID: 11400000, guid: 62e98d391100d5741818fbb40d9cdaa4, type: 2}

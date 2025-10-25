@@ -96,9 +96,9 @@ public class InteractableObject : MonoBehaviour, IPointerEnterHandler, IPointerE
         foreach (Requirement req in unlockRequirements)
         {
             bool requirementSatisfied = false;
-            switch (req.requirementType.ToLower()) // Küçük/büyük harf duyarlılığını kaldır
+            switch (req.reqType)
             {
-                case "level":
+                case RequirementType.Level:
                     // TODO: LevelManager.Instance gibi bir yerden oyuncu seviyesini al
                     // Şimdilik varsayılan 1
                     requirementSatisfied = false; // Başlangıçta karşılanmadı olarak ayarla
@@ -119,7 +119,7 @@ public class InteractableObject : MonoBehaviour, IPointerEnterHandler, IPointerE
                     }
                     
                     break;
-                case "stat":
+                case RequirementType.Stat:
                     // TODO: StatManager.Instance gibi bir yerden ilgili stat'ı al
                     // Örnek: if (StatManager.Instance.GetStatValue(req.requirementName) >= req.requiredValue)
                     // Şimdilik varsayılan olarak karşılanmadı diyelim
@@ -139,7 +139,7 @@ public class InteractableObject : MonoBehaviour, IPointerEnterHandler, IPointerE
                         requirementSatisfied = false;
                     }
                     break;
-                case "quest":
+                case RequirementType.Quest:
                     // TODO: QuestManager.Instance gibi bir yerden görevin tamamlanıp tamamlanmadığını kontrol et
                     // Örnek: if (QuestManager.Instance.IsQuestCompleted(req.requirementName)) // requirementName burada Quest ID olabilir
                     // Şimdilik varsayılan olarak karşılanmadı diyelim
@@ -148,7 +148,7 @@ public class InteractableObject : MonoBehaviour, IPointerEnterHandler, IPointerE
                         requirementSatisfied = true;
                     }
                     break;
-                case "item":
+                case RequirementType.Item:
                     // Envanter kontrolü
                     if (Inventory.Instance != null && ItemManager.Instance != null)
                     {
@@ -177,7 +177,7 @@ public class InteractableObject : MonoBehaviour, IPointerEnterHandler, IPointerE
 
                 // Buraya başka gereksinim türleri (örn: "chapter") eklenebilir
                 default:
-                    Debug.LogWarning($"Bilinmeyen gereksinim türü: {req.requirementType}");
+                    Debug.LogWarning($"Bilinmeyen gereksinim türü: {req.reqType}");
                     break;
             }
 
@@ -215,9 +215,9 @@ public class InteractableObject : MonoBehaviour, IPointerEnterHandler, IPointerE
         foreach (Requirement req in unlockRequirements)
         {
             // Gereksinim tipine göre ilgili yöneticiden harcama yap
-            switch (req.requirementType.ToLower())
+            switch (req.reqType)
             {
-                case "item":
+                case RequirementType.Item:
                     ItemData item = ItemManager.Instance.GetItemByName(req.requirementName);
                     if (item != null && Inventory.Instance != null)
                     {
@@ -229,7 +229,7 @@ public class InteractableObject : MonoBehaviour, IPointerEnterHandler, IPointerE
                     }
                     break;
 
-                case "gold":
+                case RequirementType.Gold:
                     if (CurrencyManager.Instance != null)
                     {
                         CurrencyManager.Instance.SpendGold(req.requiredValue); // Değer int'den double'a otomatik dönüşecektir
@@ -240,7 +240,7 @@ public class InteractableObject : MonoBehaviour, IPointerEnterHandler, IPointerE
                     }
                     break;
 
-                case "nexuscoin":
+                case RequirementType.NexusCoin:
                     if (CurrencyManager.Instance != null)
                     {
                         CurrencyManager.Instance.SpendNexusCoin(req.requiredValue);
@@ -251,7 +251,7 @@ public class InteractableObject : MonoBehaviour, IPointerEnterHandler, IPointerE
                     }
                     break;
 
-                case "people": // Varsayılan isim, Inspector'da "people" yazdığından emin ol
+                case RequirementType.People: // Varsayılan isim, Inspector'da "people" yazdığından emin ol
                     if (CurrencyManager.Instance != null)
                     {
                         // CurrencyManager'da SpendPeople(double amount) olduğunu varsayıyoruz
@@ -442,7 +442,7 @@ public class InteractableObject : MonoBehaviour, IPointerEnterHandler, IPointerE
         // Bu objenin gereksinimleri arasında tamamlanan görev var mı?
         foreach (Requirement req in unlockRequirements)
         {
-            if (req.requirementType.ToLower() == "quest" && req.requirementName == completedQuestID)
+            if (req.reqType == RequirementType.Quest && req.requirementName == completedQuestID)
             {
                 // Eğer bu görev bir gereksinimse, tüm gereksinimleri tekrar kontrol et
                 CheckRequirementsAndMaybeUnlock();
@@ -470,47 +470,47 @@ public class InteractableObject : MonoBehaviour, IPointerEnterHandler, IPointerE
             bool isMet = false;
             string reqText = "";
 
-            switch (req.requirementType.ToLower())
+            switch (req.reqType)
             {
-                case "level":
+                case RequirementType.Level:
                     int currentLevel = (LevelManager.Instance != null) ? LevelManager.Instance.currentLevel : 0;
                     isMet = currentLevel >= req.requiredValue;
                     reqText = $"Seviye {req.requiredValue}";
                     break;
-                case "quest":
+                case RequirementType.Quest:
                     isMet = (QuestManager.Instance != null) && QuestManager.Instance.GetCompletionCount(req.requirementName) > 0;
                     reqText = $"Görevi tamamla: '{req.requirementName}'"; // Tırnak içine aldık
                     break;
-                case "item":
+                case RequirementType.Item:
                     ItemData item = (ItemManager.Instance != null) ? ItemManager.Instance.GetItemByName(req.requirementName) : null;
                     int currentAmount = (item != null && Inventory.Instance != null) ? Inventory.Instance.GetItemCount(item) : 0; // GetItemCount fonksiyonun olduğunu varsayıyoruz*
                     isMet = currentAmount >= req.requiredValue;
                     reqText = $"{currentAmount} / {req.requiredValue} x {req.requirementName}";
                     break;
-                case "stat":
+                case RequirementType.Stat:
                     float currentStat = (StatManager.Instance != null) ? StatManager.Instance.GetTotalStat(req.requirementName) : 0;
                     isMet = currentStat >= req.requiredValue;
                     reqText = $"{req.requirementName} Stat: {currentStat:F0} / {req.requiredValue}";
                     break;
 
-                case "gold":
+                case RequirementType.Gold:
                     double currentGold = (CurrencyManager.Instance != null) ? CurrencyManager.Instance.gold : 0;
                     isMet = currentGold >= req.requiredValue;
                     reqText = $"{currentGold:F0} / {req.requiredValue} Altın";
                     break;
-                case "nexuscoin":
+                case RequirementType.NexusCoin:
                     double currentNexus = (CurrencyManager.Instance != null) ? CurrencyManager.Instance.nexusCoin : 0;
                     isMet = currentNexus >= req.requiredValue;
                     reqText = $"{currentNexus:F0} / {req.requiredValue} Nexus Coin";
                     break;
-                case "people":
+                case RequirementType.People:
                     double currentPeople = 0; // Varsayılan
                     // if (CurrencyManager.Instance != null) currentPeople = CurrencyManager.Instance.people; //* Değişkenin adını doğrula
                     isMet = currentPeople >= req.requiredValue;
                     reqText = $"{currentPeople:F0} / {req.requiredValue} Nüfus";
                     break;
                 default:
-                    reqText = $"{req.requirementName} ({req.requirementType})";
+                    reqText = $"{req.requirementName} ({req.reqType})";
                     break;
             }
 

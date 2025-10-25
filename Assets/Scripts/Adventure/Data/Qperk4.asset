@@ -15,14 +15,14 @@ MonoBehaviour:
   tag: 7
   description: I have a bad feeling.
   unlockRequirements:
-  - requirementType: Health
+  - reqType: 9
     requirementName: Health
     requiredValue: 30
   purchasePrice:
-  - requirementType: resource
+  - reqType: 12
     requirementName: Maximum Health
     requiredValue: -10
   reward:
-    masteryName: Empty
+    perkToGrant: {fileID: 11400000, guid: 15ae63a9981aedc40ad43f3127377381, type: 2}
     amount: 1
-    description: Everything was in vain. It didn't gain anything.
+    descriptionOverride: 

@@ -16,7 +16,7 @@ MonoBehaviour:
   questID: EXPLORER_QUEST_3
   description: OMG! What is this???
   requirements:
-  - requirementType: Energy
+  - reqType: 10
     requirementName: Energy
     requiredValue: 80
   baseCompletionTime: 30

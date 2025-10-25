@@ -15,14 +15,14 @@ MonoBehaviour:
   tag: 2
   description: I should go a little further before the sun disappears.
   unlockRequirements:
-  - requirementType: resource
+  - reqType: 10
     requirementName: Eneregy
     requiredValue: 30
   purchasePrice:
-  - requirementType: resource
+  - reqType: 10
     requirementName: Energy
     requiredValue: 40
   reward:
-    masteryName: Empty
+    perkToGrant: {fileID: 11400000, guid: 15ae63a9981aedc40ad43f3127377381, type: 2}
     amount: 0
-    description: I didn't find anything.
+    descriptionOverride: 

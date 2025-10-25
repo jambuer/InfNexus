@@ -4,147 +4,322 @@ using System.Linq;
 using System;
 
 /// <summary>
-/// Explorer panelinden ve diğer kaynaklardan elde edilen
-/// kalıcı, stackable (biriktirilebilir) "Perk"leri (Ustalıkları) yönetir.
-/// Bu, QuestManager'a bağlı olan tiered MasteryManager'dan ayrı bir sistemdir.
+/// Oyuncunun sahip olduğu Perk'lerin (PerkDefinition) stack sayılarını yönetir.
+/// Anlık efektleri uygular ve pasif bonusları sorgulamak için arayüz sağlar.
+/// GameDataManager ile uyumlu "pasif" modda çalışır.
+/// ExplorerManager'dan gelen event'leri dinler.
 /// </summary>
-public class PerkManager : MonoBehaviour
+public class PerkManager : MonoBehaviour, IGameDataSaveable<PerkSaveData> // IGameDataSaveable doğru
 {
     public static PerkManager Instance { get; private set; }
 
-    // Oyuncunun sahip olduğu tüm perk'leri ve stack sayılarını tutar
-    // Key: "First", Value: 3
-    // Key: "Explorer", Value: 2
-    private Dictionary<string, int> _perkCounts = new Dictionary<string, int>();
+    [Header("Veritabanı Referansı")]
+    [Tooltip("Kullanılacak Perk Database asset'i.")]
+    public PerkDatabase perkDatabase; // Bu doğru
 
-    // Bonusların her yerden kolayca sorgulanabilmesi için event (opsiyonel ama iyi pratik)
+    // DEĞİŞİKLİK: Anahtar artık string (perkID)
+    private Dictionary<string, int> _perkCounts = new Dictionary<string, int>();
     public event System.Action OnPerkUpdated;
 
     void Awake()
     {
-        if (Instance == null)
+        if (Instance == null) { Instance = this; DontDestroyOnLoad(gameObject); }
+        else { Destroy(gameObject); }
+    }
+
+    // --- EVENT ABONELİĞİ (Değişiklik Yok) ---
+    void Start()
+    {
+        if (ExplorerManager.Instance != null)
         {
-            Instance = this;
-            DontDestroyOnLoad(gameObject);
-            LoadPerks(); // Kayıtlı perk'leri yükle
+            ExplorerManager.Instance.OnExplorerPerkCompleted += HandleExplorerPerkCompleted;
+            Debug.Log("[PerkManager] ExplorerManager event'ine abone olundu.");
+        }
+        else { Debug.LogWarning("[PerkManager] ExplorerManager başlangıçta bulunamadı!"); }
+    }
+
+    void OnDestroy()
+    {
+        if (ExplorerManager.Instance != null)
+        {
+            try { ExplorerManager.Instance.OnExplorerPerkCompleted -= HandleExplorerPerkCompleted; }
+            catch (Exception ex) { Debug.LogWarning($"[PerkManager] Event aboneliği kaldırılırken hata: {ex.Message}");}
+        }
+    }
+
+    /// <summary>
+    /// ExplorerManager'dan gelen 'OnExplorerPerkCompleted' event'ini yakalar.
+    /// </summary>
+    /// <summary>
+    /// ExplorerManager'dan gelen 'OnExplorerPerkCompleted' event'ini yakalar.
+    /// </summary>
+    private void HandleExplorerPerkCompleted(PerkReward completedExplorerReward) // Parametre ExplorerPerkData.PerkReward
+    {
+        // Gelen ExplorerReward içindeki PerkDefinition referansını ve amount'u al
+        PerkDefinition perkDefToGrant = completedExplorerReward?.perkToGrant;
+        int amountToAdd = completedExplorerReward?.amount ?? 0;
+
+        // Sadece perkDefToGrant ve amountToAdd'ın geçerli olup olmadığını kontrol etmemiz yeterli
+        if (perkDefToGrant != null && amountToAdd > 0)
+        {
+            // Doğru log mesajı
+            Debug.Log($"[PerkManager] HandleExplorerPerkCompleted tetiklendi: {perkDefToGrant.perkID} (x{amountToAdd})");
+            // Kendi AddPerk metodunu çağır (Instance olmadan!)
+            AddPerk(perkDefToGrant, amountToAdd); // <<<--- DÜZELTİLMİŞ ÇAĞRI
         }
         else
         {
-            Destroy(gameObject);
+            // Doğru log mesajı
+            Debug.LogWarning("[PerkManager] HandleExplorerPerkCompleted: Geçersiz PerkReward veya PerkDefinition alındı.");
         }
     }
+    
+
+    // --- EVENT ABONELİĞİ BİTTİ ---
 
     /// <summary>
-    /// Bir Perk'in stack sayısını artırır.
+    /// Bir Perk'in stack sayısını artırır ve anlık ödülünü uygular.
     /// </summary>
-    /// <param name="perkName">Artırılacak Perk'in adı (örn: "First")</param>
-    /// <param name="amount">Eklenecek stack sayısı</param>
-    public void AddPerk(string perkName, int amount = 1)
+    /// <param name="perkDef">Eklenen Perk'in PerkDefinition verisi.</param>
+    /// <param name="amountToAdd">Eklenecek stack sayısı.</param>
+    public void AddPerk(PerkDefinition perkDef, int amountToAdd) // İmza değişti
     {
-        if (!_perkCounts.ContainsKey(perkName))
+        if (perkDef == null || string.IsNullOrEmpty(perkDef.perkID) || amountToAdd <= 0)
         {
-            _perkCounts[perkName] = 0;
+             Debug.LogError("[PerkManager] AddPerk: Geçersiz PerkDefinition veya miktar!");
+             return;
         }
-        _perkCounts[perkName] += amount;
-        
-        Debug.Log($"Perk eklendi: {perkName}, Yeni Stack: {_perkCounts[perkName]}");
+
+        string perkID = perkDef.perkID; // Anahtar olarak perkID kullanılıyor
+
+        _perkCounts.TryGetValue(perkID, out int currentCount);
+        _perkCounts[perkID] = currentCount + amountToAdd;
+
+        Debug.Log($"[PerkManager] Perk eklendi/güncellendi: {perkID}, Yeni Stack: {_perkCounts[perkID]} (+{amountToAdd})");
         OnPerkUpdated?.Invoke();
-        SavePerks();
-        
-        // Ödülleri doğrudan burada da dağıtabiliriz
-        HandlePerkReward(perkName, amount);
+
+        // Anlık efekti uygula (PerkDefinition kullanarak)
+        HandlePerkReward(perkDef, amountToAdd);
+
+        // KAYIT ARTIK BURADA YAPILMIYOR
     }
 
     /// <summary>
-    /// Bir Perk'in mevcut stack sayısını döndürür.
+    /// Bir Perk'in (ID'sine göre) mevcut stack sayısını döndürür.
     /// </summary>
-    public int GetPerkCount(string perkName)
-    {
-        _perkCounts.TryGetValue(perkName, out int count);
-        return count;
-    }
-
+    public int GetPerkCount(string perkID) => _perkCounts.TryGetValue(perkID, out int count) ? count : 0;
     /// <summary>
-    /// Perk'in ödülünü anında uygular (şimdilik sadece Stat/StatPuanı)
+    /// Bir Perk'in (Enum değerine göre) mevcut stack sayısını döndürür.
     /// </summary>
-    private void HandlePerkReward(string perkName, int amount)
+    public int GetPerkCount(PerkName perkNameValue)
     {
-        switch (perkName)
+        // Enum None ise 0 döndür
+        if (perkNameValue == PerkName.None) return 0;
+
+        // Veritabanından bu enum'a karşılık gelen PerkDefinition'ı bul
+        if (perkDatabase == null)
         {
-            case "First": // Örnek 1 ve 9
-                StatManager.Instance.AddAllStats(amount); // (1) stack için +1, (2) stack için +2 ekler (eğer amount 1 ve 2 ise)
-                GameConsole.Instance.AddMessage($"<color=cyan>Perk Ödülü: +{amount} Tüm Statlar</color>");
-                break;
-            case "WoodCutter": // Örnek 5
-              int pointsToAdd = 5 * amount;
-              LevelManager.Instance.AddUnspentStatPoints(pointsToAdd); // LevelManager'ın kendi fonksiyonunu çağır
-              GameConsole.Instance.AddMessage($"<color=green>Perk Ödülü: +{pointsToAdd} Stat Puanı</color>");
-              break;
-            case "Lucky": // Örnek 6
-                StatManager.Instance.AddStat("Luck", 5 * amount); // Her "Lucky" alımı için +5 Luck
-                GameConsole.Instance.AddMessage($"<color=cyan>Perk Ödülü: +{5 * amount} Luck</color>");
-                break;
-            // Diğer stat/ödül vermeyen perk'ler (Undecided, Explorer, Empty, Raid, Nexus)
-            // burada bir şey yapmaz. Onların bonusları ilgili yerlerde GetPerkCount ile sorgulanır.
+            Debug.LogError("[PerkManager] GetPerkCount(Enum): PerkDatabase atanmamış!");
+            return 0;
+        }
+        // PerkDatabase'e enum ile arama metodu eklemek daha iyi olurdu,
+        // Şimdilik listede arayalım (biraz yavaş olabilir):
+        PerkDefinition perkDef = perkDatabase.allPerkDefinitions?.Find(p => p != null && p.perkNameValue == perkNameValue);
+
+        if (perkDef != null && !string.IsNullOrEmpty(perkDef.perkID))
+        {
+            // Bulunan perkDef'in ID'si ile _perkCounts'tan sayıyı al
+            return GetPerkCount(perkDef.perkID);
+        }
+        else
+        {
+            // Enum değeri veritabanında bulunamadıysa uyarı ver
+            Debug.LogWarning($"[PerkManager] GetPerkCount(Enum): Veritabanında '{perkNameValue}' enum değerine sahip PerkDefinition bulunamadı.");
+            return 0;
         }
     }
 
 
-    // --- BONUS SORGULAMA FONKSİYONLARI ---
-    // Diğer script'ler (StatCalculator, ExplorerManager) bonusları buradan sorgulayacak
 
     /// <summary>
-    /// "Undecided" perk'inden gelen toplam Gold Bonus'u döndürür.
+    /// Yeni eklenen Perk'in PerkDefinition verisine göre anlık ödülünü uygular.
     /// </summary>
-    public float GetGoldBonusPercent()
+    private void HandlePerkReward(PerkDefinition perkDef, int amountApplied) // İmza değişti
     {
-        // Örnek 2: "+%5 Gold Bonus"
-        // Her stack %5 veriyorsa:
-        return GetPerkCount("Undecided") * 0.05f; // 1 stack = 0.05 (%5), 2 stack = 0.10 (%10)
-    }
+        if (perkDef == null || amountApplied <= 0) return;
 
-    /// <summary>
-    /// "Explorer" perk'inden gelen toplam ExplorerTime süresi düşüşünü döndürür.
-    /// </summary>
-    public float GetExplorerTimeReduction()
-    {
-        // Örnek 3: "-3 dakika"
-        // Her stack 3 dakika (180 saniye) veriyorsa:
-        return GetPerkCount("Explorer") * 180f; // Saniye cinsinden
-    }
+        string consoleMessage = "";
 
+        bool statManagerExists = StatManager.Instance != null;
+        bool levelManagerExists = LevelManager.Instance != null;
+        bool resourceManagerExists = ResourceManager.Instance != null;
+        bool inventoryManagerExists = Inventory.Instance != null;
+        bool itemManagerExists = ItemManager.Instance != null;
+        bool gameConsoleExists = GameConsole.Instance != null;
+        bool explorerManagerExists = ExplorerManager.Instance != null; // Bunu da ekleyelim, belki lazım olur
+        bool currencyManagerExists = CurrencyManager.Instance != null; // İstediniz
 
-    // --- KAYIT & YÜKLEME ---
-    // (MasteryManager'dakine benzer basit bir PlayerPrefs kaydı)
+        // Diğer manager kontrolleri...
 
-    [System.Serializable]
-    private class PerkSaveData
-    {
-        public List<string> perkNames = new List<string>();
-        public List<int> perkCounts = new List<int>();
-    }
-
-    private void SavePerks()
-    {
-        PerkSaveData saveData = new PerkSaveData();
-        saveData.perkNames = _perkCounts.Keys.ToList();
-        saveData.perkCounts = _perkCounts.Values.ToList();
-        string json = JsonUtility.ToJson(saveData);
-        PlayerPrefs.SetString("ExplorerPerkProgress", json);
-    }
-
-    private void LoadPerks()
-    {
-        if (PlayerPrefs.HasKey("ExplorerPerkProgress"))
+        try
         {
-            string json = PlayerPrefs.GetString("ExplorerPerkProgress");
-            PerkSaveData saveData = JsonUtility.FromJson<PerkSaveData>(json);
-            _perkCounts.Clear();
-            for (int i = 0; i < saveData.perkNames.Count; i++)
+            // Artık perkDef'teki EffectType, Value, Parameter kullanılıyor
+            switch (perkDef.effectType)
             {
-                _perkCounts[saveData.perkNames[i]] = saveData.perkCounts[i];
+                case PerkEffectType.AddAllStats:
+                    if (statManagerExists) StatManager.Instance.AddAllStats(perkDef.effectValue * amountApplied);
+                    else Debug.LogWarning($"[{perkDef.perkID}] StatManager bulunamadı!");
+                    consoleMessage = $"<color=cyan>Perk Ödülü: +{perkDef.effectValue * amountApplied:F0} Tüm Statlar</color> ({perkDef.displayName})";
+                    break;
+
+                case PerkEffectType.AddStatPoints:
+                    int pointsToAdd = (int)Math.Round(perkDef.effectValue * amountApplied);
+                    if (levelManagerExists) LevelManager.Instance.AddUnspentStatPoints(pointsToAdd);
+                    else Debug.LogWarning($"[{perkDef.perkID}] LevelManager bulunamadı!");
+                    consoleMessage = $"<color=green>Perk Ödülü: +{pointsToAdd} Stat Puanı</color> ({perkDef.displayName})";
+                    break;
+
+                case PerkEffectType.AddStat:
+                    if (!string.IsNullOrEmpty(perkDef.effectParameter))
+                    {
+                        float statToAdd = perkDef.effectValue * amountApplied;
+                        if (statManagerExists) StatManager.Instance.AddStat(perkDef.effectParameter, statToAdd);
+                        else Debug.LogWarning($"[{perkDef.perkID}] StatManager bulunamadı!");
+                        consoleMessage = $"<color=cyan>Perk Ödülü: +{statToAdd:F0} {perkDef.effectParameter}</color> ({perkDef.displayName})";
+                    }
+                    else { Debug.LogWarning($"[{perkDef.perkID}] AddStat efekti için 'effectParameter' (Stat adı) eksik."); }
+                    break;
+
+                case PerkEffectType.ModifyResourceMaxHealth:
+                     if (resourceManagerExists) ResourceManager.Instance.ModifyMaxHealth(perkDef.effectValue * amountApplied);
+                     else Debug.LogWarning($"[{perkDef.perkID}] ResourceManager bulunamadı!");
+                     consoleMessage = $"<color=lightblue>Perk Etkisi: Maks. Can {(perkDef.effectValue > 0 ? "+" : "")}{perkDef.effectValue * amountApplied:F0}</color> ({perkDef.displayName})";
+                     break;
+                case PerkEffectType.ModifyResourceMaxEnergy:
+                     if (resourceManagerExists) ResourceManager.Instance.ModifyMaxEnergy(perkDef.effectValue * amountApplied);
+                     else Debug.LogWarning($"[{perkDef.perkID}] ResourceManager bulunamadı!");
+                     consoleMessage = $"<color=lightblue>Perk Etkisi: Maks. Enerji {(perkDef.effectValue > 0 ? "+" : "")}{perkDef.effectValue * amountApplied:F0}</color> ({perkDef.displayName})";
+                     break;
+                case PerkEffectType.ModifyResourceMaxMana:
+                     if (resourceManagerExists) ResourceManager.Instance.ModifyMaxMana(perkDef.effectValue * amountApplied);
+                     else Debug.LogWarning($"[{perkDef.perkID}] ResourceManager bulunamadı!");
+                     consoleMessage = $"<color=lightblue>Perk Etkisi: Maks. Mana {(perkDef.effectValue > 0 ? "+" : "")}{perkDef.effectValue * amountApplied:F0}</color> ({perkDef.displayName})";
+                     break;
+
+                case PerkEffectType.GrantItem:
+                     if (!string.IsNullOrEmpty(perkDef.effectParameter) && inventoryManagerExists && itemManagerExists)
+                     {
+                         ItemData itemToGrant = ItemManager.Instance.GetItemByName(perkDef.effectParameter);
+                         int quantity = (int)Math.Round(perkDef.effectValue * amountApplied);
+                         if (itemToGrant != null && quantity > 0)
+                         {
+                             Inventory.Instance.AddItem(itemToGrant, quantity);
+                             consoleMessage = $"<color=orange>Perk Ödülü: +{quantity} {itemToGrant.itemName}</color> ({perkDef.displayName})";
+                         }
+                         else { Debug.LogWarning($"[{perkDef.perkID}] GrantItem eşyası '{perkDef.effectParameter}' bulunamadı veya miktar ({quantity}) geçersiz."); }
+                     }
+                     else { Debug.LogWarning($"[{perkDef.perkID}] GrantItem için 'effectParameter' (Eşya adı) eksik veya Inventory/ItemManager yok."); }
+                     break;
+
+                case PerkEffectType.UnlockFeature:
+                    // TODO: Özellik açma mantığı (ilgili manager'ın null kontrolünü burada yapın)
+                    Debug.Log($"[PerkManager] ÖZELLİK AÇILDI (TODO): {perkDef.effectParameter} ({perkDef.perkID})");
+                    consoleMessage = $"<color=yellow>Özellik Açıldı: {perkDef.effectParameter}</color> ({perkDef.displayName})";
+                    break;
+
+                // --- SORGULANAN BONUSLAR VEYA ANLIK ETKİSİ OLMAYANLAR ---
+                case PerkEffectType.None:
+                case PerkEffectType.AddGoldBonus: // Bunların etkisi StatCalculator'da uygulanacak
+                case PerkEffectType.AddXPBonus:
+                case PerkEffectType.ModifyResourceHealthRecovery:
+                case PerkEffectType.ModifyResourceEnergyRecovery:
+                case PerkEffectType.ModifyResourceManaRecovery:
+                case PerkEffectType.AddCriticalChance:
+                case PerkEffectType.AddCriticalDamage:
+                case PerkEffectType.AddDropRate:
+                case PerkEffectType.ReduceEnemyHealth:
+                case PerkEffectType.ReduceEnemyDamage:
+                case PerkEffectType.ReduceEnemyArmor:
+                case PerkEffectType.AddHitRate:
+                case PerkEffectType.AddProduction:
+                case PerkEffectType.AddCooldownReduction:
+                case PerkEffectType.AddResourceCostReduction:
+                case PerkEffectType.AddPrestigePoints:
+                case PerkEffectType.AddPrestigeBonus:
+                case PerkEffectType.GetExplorerTimeReduction:
+                    consoleMessage = $"<color=grey>Perk '{perkDef.displayName}' alındı (Pasif Bonus veya Etki Yok).</color>";
+                    break;
+
+                default:
+                    Debug.LogWarning($"HandlePerkReward: Bilinmeyen veya işlenmeyen PerkEffectType '{perkDef.effectType}' ({perkDef.perkID}).");
+                    break;
             }
-            Debug.Log("Explorer Perk (Ustalık) verisi yüklendi.");
         }
+        catch (Exception ex)
+        {
+            Debug.LogError($"[{perkDef?.perkID ?? "Bilinmeyen Perk"}] HandlePerkReward hatası ({perkDef?.effectType}): {ex.Message}\n{ex.StackTrace}");
+            consoleMessage = $"<color=red>HATA: Perk efekti uygulanırken sorun oluştu ({perkDef?.displayName})!</color>";
+        }
+
+        if (!string.IsNullOrEmpty(consoleMessage) && gameConsoleExists)
+        {
+            GameConsole.Instance.AddMessage(consoleMessage);
+        }
+        else if (!string.IsNullOrEmpty(consoleMessage))
+        {
+            string cleanMessage = System.Text.RegularExpressions.Regex.Replace(consoleMessage, "<.*?>", string.Empty);
+            Debug.Log($"[PerkManager] GameConsole yok, log: {cleanMessage}");
+        }
+    }
+
+    /// <summary>
+    /// Belirli bir PerkEffectType'a sahip tüm perk'lerin toplam etkisini (stack'lerle çarpılmış) hesaplar.
+    /// NOT: effectValue'nun Percentage veya Multiplier olup olmadığını KONTROL ETMEZ, sadece toplar/çarpar.
+    /// Bu kontrolü StatCalculator gibi çağıran yer yapmalıdır.
+    /// </summary>
+    public float GetBonusFromPerks(PerkEffectType typeToQuery)
+    {
+        float totalValue = 0; // Yüzdeler için toplama, çarpanlar için çarpma gerekebilir? Şimdilik toplama.
+
+        if (perkDatabase == null) { return 0; } // Database olmadan hesaplama yapılamaz
+
+        foreach (var pair in _perkCounts)
+        {
+            string perkID = pair.Key;
+            int count = pair.Value;
+            if (count <= 0) continue;
+
+            // Veritabanından bu perk'in tanımını al
+            PerkDefinition perkDef = perkDatabase.GetPerkDefinitionByID(perkID);
+
+            if (perkDef != null && perkDef.effectType == typeToQuery)
+            {
+                // Şimdilik sadece Flat ve Percentage değerleri topladığımızı varsayalım.
+                // Multiplier için ayrı bir metot veya farklı bir hesaplama gerekebilir.
+                totalValue += perkDef.effectValue * count;
+            }
+        }
+        return totalValue;
+    }
+
+
+    // --- KAYIT SİSTEMİ (IGameDataSaveable Uygulaması) ---
+
+    public PerkSaveData GetSaveData()
+    {
+        Debug.Log("[PerkManager] Kayıt verisi oluşturuluyor.");
+        // Anahtar olarak string (perkID) kullanıldığı için direkt kaydedilebilir.
+        return new PerkSaveData { perkCounts = new Dictionary<string, int>(_perkCounts) };
+    }
+
+    public void LoadFromData(PerkSaveData data)
+    {
+        // Anahtar string olduğu için direkt yüklenebilir.
+        _perkCounts = data?.perkCounts ?? new Dictionary<string, int>();
+
+        if (data != null) { Debug.Log("[PerkManager] Explorer Perk verisi yüklendi."); }
+        else { Debug.Log("[PerkManager] Kaydedilmiş Explorer Perk verisi bulunamadı."); }
+
+        OnPerkUpdated?.Invoke();
     }
 }

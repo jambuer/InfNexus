@@ -16,10 +16,10 @@ MonoBehaviour:
   description: This is the end. I need to return to the campsite.
   unlockRequirements: []
   purchasePrice:
-  - requirementType: gold
+  - reqType: 6
     requirementName: Gold
     requiredValue: 10000
   reward:
-    masteryName: (2)First
+    perkToGrant: {fileID: 11400000, guid: 35abed69cae4aae49b54b76728199385, type: 2}
     amount: 1
-    description: You are the pioneer of humanity. All Stats +5.
+    descriptionOverride: 

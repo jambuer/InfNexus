@@ -15,7 +15,10 @@ MonoBehaviour:
   tag: 3
   questID: EXPLORER_QUEST_4
   description: I have to get out of here, but the area is full of monsters.
-  requirements: []
+  requirements:
+  - reqType: 16
+    requirementName: 
+    requiredValue: 10
   baseCompletionTime: 0
   completionLimit: 1
   rewardsPerCompletion:
@@ -23,8 +26,11 @@ MonoBehaviour:
     statRewards: []
     itemRewards: []
     perkRewards:
-    - masteryName: (1)Explorer
+    - perkToGrant: {fileID: 11400000, guid: 62e98d391100d5741818fbb40d9cdaa4, type: 2}
       amount: 1
-      description: -3m Explorer Time
+      descriptionOverride: 
+    - perkToGrant: {fileID: 11400000, guid: 435872667f0e08049b075dd6125eb87a, type: 2}
+      amount: 1
+      descriptionOverride: 
   unlocksQuestID: EXPLORER_QUEST_5
   isTimerBased: 1

@@ -2,11 +2,15 @@ using UnityEngine;
 using System;
 using TMPro;
 
-public class StatManager : MonoBehaviour
+/// <summary>
+/// Oyuncunun temel (base) stat'larını yönetir, bonusları ekler/çıkarır.
+/// GameDataManager ile uyumlu "pasif" modda çalışır.
+/// </summary>
+public class StatManager : MonoBehaviour, IGameDataSaveable<StatSaveData>
 {
     public static StatManager Instance;
 
-    [Header("Base Stats")]
+    [Header("Base Stats (Kaydedilen Değerler)")]
     public double physical = 0;
     public double mental = 0;
     public double perception = 0;
@@ -14,7 +18,7 @@ public class StatManager : MonoBehaviour
     public double luck = 0;
     public double social = 0;
 
-    [Header("Bonus Stats (Equipment, Items, etc.)")]
+    [Header("Bonus Stats (Geçici - Kaydedilmez)")]
     public double physicalBonus = 0;
     public double mentalBonus = 0;
     public double perceptionBonus = 0;
@@ -39,14 +43,10 @@ public class StatManager : MonoBehaviour
         }
     }
 
-    
-
     /// <summary>
     /// Gelen stat ismine göre ilgili statı kalıcı olarak artırır.
     /// QuestManager gibi sistemlerden gelen genel stat ödüllerini dağıtmak için kullanılır.
     /// </summary>
-    /// <param name="statName">Artırılacak statın adı (Physical, Mental, vb.).</param>
-    /// <param name="amount">Eklenecek miktar.</param>
     public void AddStat(string statName, double amount)
     {
         switch (statName)
@@ -75,6 +75,9 @@ public class StatManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Seviye atlandığında harcanan stat puanlarını kalıcı (base) stat'lara ekler.
+    /// </summary>
     public void Addstatpoint(string statName, int points)
     {
         switch (statName.ToLower())
@@ -109,20 +112,24 @@ public class StatManager : MonoBehaviour
         }
     }
 
-    
-    
+    /// <summary>
+    /// Tüm kalıcı (base) stat'lara belirtilen miktarı ekler.
+    /// </summary>
     public void AddAllStats(double amount)
- {
-    physical += amount;
-    mental += amount;
-    perception += amount;
-    spiritual += amount;
-    luck += amount;
-    social += amount;
-    // Toplu bir güncelleme olduğunu bildirmek için "All" event'ini tetikle
-    OnStatChanged?.Invoke("All", 0);
- }
+    {
+        physical += amount;
+        mental += amount;
+        perception += amount;
+        spiritual += amount;
+        luck += amount;
+        social += amount;
+        // Toplu bir güncelleme olduğunu bildirmek için "All" event'ini tetikle
+        OnStatChanged?.Invoke("All", 0);
+    }
 
+    // ====================================================================================================
+    // STAT ALMA (GET) METOTLARI
+    // ====================================================================================================
 
     // Toplam stat değerlerini al (base + bonus)
     public double GetTotalPhysical() => physical + physicalBonus;
@@ -131,6 +138,30 @@ public class StatManager : MonoBehaviour
     public double GetTotalSpiritual() => spiritual + spiritualBonus;
     public double GetTotalLuck() => luck + luckBonus;
     public double GetTotalSocial() => social + socialBonus;
+
+    /// <summary>
+    /// Gelen stat ismine göre toplam (base + bonus) değeri döndürür.
+    /// </summary>
+    public float GetTotalStat(string statName)
+    {
+        // Gelen statName'e göre ilgili toplam değeri döndür
+        switch (statName.ToLower()) // Küçük/büyük harf duyarsız yapalım
+        {
+            case "physical": return (float)GetTotalPhysical();
+            case "mental": return (float)GetTotalMental();
+            case "spiritual": return (float)GetTotalSpiritual();
+            case "perception": return (float)GetTotalPerception();
+            case "luck": return (float)GetTotalLuck();
+            case "social": return (float)GetTotalSocial();
+            default:
+                Debug.LogWarning($"Bilinmeyen stat adı: {statName}");
+                return 0; // Bilinmiyorsa 0 döndür
+        }
+    }
+
+    // ====================================================================================================
+    // BİREYSEL STAT DEĞİŞTİRME (ADD/REMOVE)
+    // ====================================================================================================
 
     // === PHYSICAL STAT ===
     public void AddPhysical(double amount, bool isPermanent = true)
@@ -240,8 +271,13 @@ public class StatManager : MonoBehaviour
         OnStatChanged?.Invoke("Social", GetTotalSocial());
     }
 
-    // === TOPLU İŞLEMLER ===
-    // Tüm bonusları sıfırla (ekipman çıkarınca)
+    // ====================================================================================================
+    // TOPLU İŞLEMLER VE BONUSLAR
+    // ====================================================================================================
+
+    /// <summary>
+    /// Tüm geçici bonusları sıfırlar (örn: ekipman çıkarınca).
+    /// </summary>
     public void ClearAllBonuses()
     {
         physicalBonus = 0;
@@ -255,7 +291,9 @@ public class StatManager : MonoBehaviour
         Debug.Log("Tüm bonuslar sıfırlandı");
     }
 
-    // Belirli bir yüzde bonus ekle (buff için)
+    /// <summary>
+    /// Belirli bir stat'a, base stat üzerinden yüzdesel bonus ekler (örn: buff için).
+    /// </summary>
     public void AddPercentageBonus(string statName, double percentage)
     {
         double bonus = 0;
@@ -276,6 +314,11 @@ public class StatManager : MonoBehaviour
         Debug.Log($"{statName} için %{percentage} bonus eklendi: +{bonus}");
     }
 
+    // ====================================================================================================
+    // UI İŞLEMLERİ (Arayüz Bağlantıları)
+    // ====================================================================================================
+
+    [Header("UI Referansları (Opsiyonel)")]
     public TextMeshProUGUI physicalText;
     public TextMeshProUGUI mentalText;
     public TextMeshProUGUI perceptionText;
@@ -283,20 +326,22 @@ public class StatManager : MonoBehaviour
     public TextMeshProUGUI luckText;
     public TextMeshProUGUI socialText;
 
+    /// <summary>
+    /// UI'daki tüm stat metinlerini günceller.
+    /// </summary>
     public void UpdateStatUI()
     {
-        physicalText.text = physical.ToString();
-        mentalText.text = mental.ToString();
-        perceptionText.text = perception.ToString();
-        spiritualText.text = spiritual.ToString();
-        luckText.text = luck.ToString();
-        socialText.text = social.ToString();
-        // Diğerlerini de güncelleyin
+        if (physicalText != null) physicalText.text = physical.ToString();
+        if (mentalText != null) mentalText.text = mental.ToString();
+        if (perceptionText != null) perceptionText.text = perception.ToString();
+        if (spiritualText != null) spiritualText.text = spiritual.ToString();
+        if (luckText != null) luckText.text = luck.ToString();
+        if (socialText != null) socialText.text = social.ToString();
     }
 
-
-
-    // Örneğin ModifyStat fonksiyonunuzun sonunda UpdateStatUI() çağırın
+    // Bu 'Modify' metotları muhtemelen UI butonları içindir.
+    // 'Addstatpoint' ile aynı işi yapıyorlar, ancak 'int' alıyorlar.
+    // Fonksiyonellik 'Addstatpoint' ile çakışsa da, eski kodda olduğu için korundu.
     public void ModifyPhysical(int amount)
     {
         physical += amount;
@@ -332,16 +377,19 @@ public class StatManager : MonoBehaviour
         social += amount;
         UpdateStatUI();
     }
+    
+    // ====================================================================================================
+    // KAYIT SİSTEMİ (GameDataManager UYUMLU)
+    // ====================================================================================================
 
-
-
-
-
-
-    // Save/Load için stat verilerini al
-    public StatData GetStatData()
+    /// <summary>
+    /// GameDataManager'a kaydedilecek verileri toplar ve döndürür.
+    /// Bu, GameSaveData.cs içindeki 'StatSaveData' sınıfı ile eşleşmelidir.
+    /// SADECE 'base' stat'lar kaydedilir, 'bonus' stat'lar kaydedilmez.
+    /// </summary>
+    public StatSaveData GetSaveData()
     {
-        return new StatData
+        return new StatSaveData
         {
             physical = this.physical,
             mental = this.mental,
@@ -351,28 +399,18 @@ public class StatManager : MonoBehaviour
             social = this.social
         };
     }
-    
-    public float GetTotalStat(string statName)
-    {
-        // Gelen statName'e göre ilgili toplam değeri döndür
-        switch (statName.ToLower()) // Küçük/büyük harf duyarsız yapalım
-        {
-            case "physical": return (float)GetTotalPhysical();
-            case "mental": return (float)GetTotalMental();
-            case "spiritual": return (float)GetTotalSpiritual();
-            case "perception": return (float)GetTotalPerception();
-            case "luck": return (float)GetTotalLuck();
-            case "social": return (float)GetTotalSocial();
-            // Buraya başka stat isimleri ekleyebilirsin
-            default:
-                Debug.LogWarning($"Bilinmeyen stat adı: {statName}");
-                return 0; // Bilinmiyorsa 0 döndür
-        }
-    }
 
-    // Save/Load için stat verilerini yükle
-    public void LoadStatData(StatData data)
+    /// <summary>
+    /// GameDataManager'dan gelen verileri bu yöneticiye yükler.
+    /// </summary>
+    public void LoadFromData(StatSaveData data)
     {
+        if (data == null) 
+        {
+            Debug.LogWarning("StatManager LoadFromData: Yüklenecek veri bulunamadı (data == null).");
+            return;
+        }
+
         this.physical = data.physical;
         this.mental = data.mental;
         this.perception = data.perception;
@@ -380,22 +418,12 @@ public class StatManager : MonoBehaviour
         this.luck = data.luck;
         this.social = data.social;
 
-        OnStatChanged?.Invoke("All", 0);
+        // Bonuslar geçici olduğu için yükleme sonrası sıfırlanır.
+        ClearAllBonuses(); 
+
+        // Tüm stat'ların yüklendiğini ve UI'ın güncellenmesi gerektiğini bildirir.
+        OnStatChanged?.Invoke("All", 0); 
+        UpdateStatUI(); // UI metinlerini de doğrudan güncelle
+        Debug.Log("StatManager verisi yüklendi.");
     }
 }
-
-// Save/Load için veri yapısı
-[System.Serializable]
-public class StatData
-{ 
-    public double physical;
-    public double mental;
-    public double perception;
-    public double spiritual;
-    public double luck;
-    public double social;
- }
-
-
-
-

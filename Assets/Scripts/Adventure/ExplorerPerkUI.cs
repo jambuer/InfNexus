@@ -3,11 +3,9 @@ using UnityEngine.UI;
 using TMPro;
 using System.Text;
 using System.Collections.Generic;
-using System.Linq; // `Any` gibi fonksiyonlar için eklendi (veya gerekmeyebilir)
+using System; // TimeSpan ve Exception için eklendi
 
-// Bu enum'u ya buraya ya da ExplorerPerkData.cs'e (class'ın dışına) taşıyalım.
-// Zaten ExplorerPerkData.cs'de varsa bu bloğu silebilirsin.
-
+// Enum tanımları ExplorerPerkData.cs içinde olduğu varsayılıyor.
 
 public class ExplorerPerkUI : MonoBehaviour
 {
@@ -22,14 +20,13 @@ public class ExplorerPerkUI : MonoBehaviour
     [Header("Grup Panelleri")]
     public GameObject lockedPanel;
     public GameObject unlockedPanel;
-    public GameObject priceRewardSection; 
-    public GameObject requirementsSection; 
+    public GameObject priceRewardSection;
+    public GameObject requirementsSection;
 
     [Header("Renk Ayarları")]
     public Color metColor = Color.green;
     public Color notMetColor = Color.red;
 
-    // Perk verisini public yapalım ki Manager dışarıdan okuyabilsin (gerekirse)
     public ExplorerPerkData _perkData { get; private set; }
     private PerkState _currentState;
     private bool _isTimerTask = false;
@@ -45,30 +42,11 @@ public class ExplorerPerkUI : MonoBehaviour
         {
             actionButton.onClick.AddListener(OnActionButtonClicked);
         }
+        else
+        {
+            Debug.LogError($"[{_perkData?.name ?? gameObject.name}] Action Button atanmamış!", this.gameObject);
+        }
     }
-
-    /// <summary>
-/// Zamanlayıcı görünümünü açar/kapatır.
-/// </summary>
-public void SetActiveTimerView(bool isTimerRunning)
-{
-    // Zamanlayıcı çalışırken butonu gizle, metni göster
-    if (actionButton != null) actionButton.gameObject.SetActive(!isTimerRunning);
-    if (timerText != null) timerText.gameObject.SetActive(isTimerRunning);
-}
-
-/// <summary>
-/// Zamanlayıcı metnini günceller (SS:DD:SS formatında).
-/// </summary>
-public void UpdateTimerText(float remainingSeconds)
-{
-    if (timerText == null) return;
-    System.TimeSpan timeSpan = System.TimeSpan.FromSeconds(remainingSeconds);
-    timerText.text = string.Format("{0:D2}:{1:D2}:{2:D2}",
-                                    (int)timeSpan.TotalHours,
-                                    timeSpan.Minutes,
-                                    timeSpan.Seconds);
-}
 
     /// <summary>
     /// Bu UI öğesini ExplorerPerkData ve başlangıç durumu ile kurar.
@@ -76,15 +54,35 @@ public void UpdateTimerText(float remainingSeconds)
     public void Setup(ExplorerPerkData data, PerkState initialState)
     {
         _perkData = data;
-        if (_perkData == null) { Destroy(gameObject); return; }
+        if (_perkData == null)
+        {
+            Debug.LogError("Setup için PerkData null!", this.gameObject);
+            Destroy(gameObject);
+            return;
+        }
+
+        // UI Referans Kontrolleri (Setup aşamasında yapmak daha iyi)
+        if (descriptionText == null) Debug.LogWarning($"[{_perkData.name}] DescriptionText atanmamış!", this.gameObject);
+        if (requirementsText == null) Debug.LogWarning($"[{_perkData.name}] RequirementsText atanmamış!", this.gameObject);
+        if (rewardText == null) Debug.LogWarning($"[{_perkData.name}] RewardText atanmamış!", this.gameObject);
+        if (timerText == null) Debug.LogWarning($"[{_perkData.name}] TimerText atanmamış!", this.gameObject);
+        if (lockedPanel == null) Debug.LogWarning($"[{_perkData.name}] LockedPanel atanmamış!", this.gameObject);
+        if (unlockedPanel == null) Debug.LogWarning($"[{_perkData.name}] UnlockedPanel atanmamış!", this.gameObject);
+        if (priceRewardSection == null) Debug.LogWarning($"[{_perkData.name}] PriceRewardSection atanmamış!", this.gameObject);
+        if (requirementsSection == null) Debug.LogWarning($"[{_perkData.name}] RequirementsSection atanmamış!", this.gameObject);
+        // --- Kontroller Bitti ---
 
         if (descriptionText != null)
             descriptionText.text = _perkData.description;
 
-        _isTimerTask = _perkData.tag == ExplorerTag.ExplorerTime;
+        _isTimerTask = (_perkData.tag == ExplorerTag.ExplorerTime);
 
-        // UI'ı ayarla
+        // Başlangıç UI durumunu ayarla
         SetState(initialState);
+
+        // Eventleri dinlemeye başla
+        // Obje aktifse OnEnable zaten çağrılmıştır, değilse Awake/Start sonrası aktifleşince çağrılır.
+        // Bu yüzden SubscribeToEvents'i OnEnable içine taşıyoruz.
     }
 
     /// <summary>
@@ -93,300 +91,267 @@ public void UpdateTimerText(float remainingSeconds)
     public void SetState(PerkState newState)
     {
         _currentState = newState;
-        
+
+        // UI Referanslarının var olduğundan emin ol (Awake'de kontrol edildi ama yine de güvenli)
+        if (lockedPanel == null || unlockedPanel == null || requirementsSection == null || priceRewardSection == null || actionButton == null || actionButtonText == null || requirementsText == null || rewardText == null)
+        {
+             Debug.LogError($"[{_perkData?.name ?? "Bilinmeyen Perk"}] UI Referans hatası nedeniyle SetState yapılamıyor!");
+            return;
+        }
+
+
         lockedPanel.SetActive(newState == PerkState.Locked);
         unlockedPanel.SetActive(newState == PerkState.Unlockable || newState == PerkState.Payable);
 
+        // Zamanlayıcıyı başlangıçta gizle
+        SetActiveTimerView(false);
+
         if (newState == PerkState.Locked)
         {
+            // Kilitliyken event dinlemeye gerek yok
+            SubscribeToEvents(false);
             return;
         }
-        
-        bool requirementsMet;
+        else
+        {
+            // Kilit açıldığında veya açılabilir olduğunda dinlemeye başla/devam et
+            SubscribeToEvents(true); // OnEnable zaten yapacak ama emin olmak için
+        }
+
+        bool requirementsMetForButton;
         switch (newState)
         {
             case PerkState.Unlockable: // Aşama 2: UNLOCK
                 requirementsSection.SetActive(true);
-                priceRewardSection.SetActive(false); 
-                
-                requirementsMet = AreRequirementsMet(_perkData.unlockRequirements);
-                requirementsText.text = FormatRequirements(_perkData.unlockRequirements, false, "<b>Kilidi Açmak İçin:</b>");
-                
+                priceRewardSection.SetActive(false);
+
+                // Kontrolü Manager'a sor
+                requirementsMetForButton = ExplorerManager.Instance != null && ExplorerManager.Instance.CheckRequirementsMet(_perkData.unlockRequirements);
+                requirementsText.text = BuildFormattedRequirementsString(_perkData.unlockRequirements, false, "<b>Kilidi Açmak İçin:</b>");
+
                 actionButton.gameObject.SetActive(true);
                 actionButtonText.text = "UNLOCK";
-                actionButton.interactable = requirementsMet;
+                actionButton.interactable = requirementsMetForButton;
                 break;
 
             case PerkState.Payable: // Aşama 3: PAY / START
                 requirementsSection.SetActive(true);
-                priceRewardSection.SetActive(true); 
+                priceRewardSection.SetActive(true);
 
-                requirementsText.text = FormatRequirements(_perkData.unlockRequirements, true, "<b>Kilit Açıldı:</b>"); 
-                rewardText.text = $"<b>Ödül:</b> {(_perkData.reward != null ? _perkData.reward.description : "Yok")}";
-                
-                requirementsMet = AreRequirementsMet(_perkData.purchasePrice);
-                requirementsText.text += "\n" + FormatRequirements(_perkData.purchasePrice, false, "<b>Ödenecek Maliyet:</b>");
+                requirementsText.text = BuildFormattedRequirementsString(_perkData.unlockRequirements, true, "<b>Kilit Açıldı:</b>");
+                requirementsText.text += "\n" + BuildFormattedRequirementsString(_perkData.purchasePrice, false, "<b>Ödenecek Maliyet:</b>");
+
+
+                string descToShow = "Yok";
+                if (_perkData.reward?.perkToGrant != null) // perkToGrant null değilse
+                {
+                    // Önce override'a bak, yoksa definition'daki açıklamayı al
+                    descToShow = !string.IsNullOrEmpty(_perkData.reward.descriptionOverride)
+                                 ? _perkData.reward.descriptionOverride
+                                 : _perkData.reward.perkToGrant.description;
+                }
+
+                rewardText.text = $"<b>Ödül:</b> {descToShow}";
+
+
+                // Buton için maliyet kontrolünü Manager'a sor
+                requirementsMetForButton = ExplorerManager.Instance != null && ExplorerManager.Instance.CheckRequirementsMet(_perkData.purchasePrice);
 
                 actionButton.gameObject.SetActive(true);
                 actionButtonText.text = _isTimerTask ? "START" : "PAY";
-                actionButton.interactable = requirementsMet; 
-                
-                SetActiveTimerView(false); // Zamanlayıcı görünümünü kapat
+                actionButton.interactable = requirementsMetForButton;
                 break;
         }
     }
-    
+
     private void OnActionButtonClicked()
     {
-        if (_perkData == null || ExplorerManager.Instance == null) return;
+        if (_perkData == null || ExplorerManager.Instance == null)
+        {
+             Debug.LogError("PerkData veya ExplorerManager bulunamadığı için butona tıklanamıyor!");
+             return;
+        }
+
 
         switch (_currentState)
         {
             case PerkState.Unlockable:
-                if (AreRequirementsMet(_perkData.unlockRequirements))
+                // Kontrolü Manager'a sor
+                if (ExplorerManager.Instance.CheckRequirementsMet(_perkData.unlockRequirements))
                 {
-                    SetState(PerkState.Payable); // Aşama 3'e geçir
+                    // Sadece UI durumunu değiştir, Manager'a gitmeye gerek yok
+                    SetState(PerkState.Payable);
                 }
                 break;
-                
+
             case PerkState.Payable:
                 actionButton.interactable = false; // Çift tıklamayı önle
-                
+
                 if (_isTimerTask)
                 {
-                    SetActiveTimerView(true); // Zamanlayıcı görünümünü aç
-                    ExplorerManager.Instance.StartExplorerTimer(_perkData, this);
+                    SetActiveTimerView(true); // Zamanlayıcı UI'ını göster
+                    ExplorerManager.Instance.StartExplorerTimer(_perkData, this); // Manager'a başlatmasını söyle
                 }
                 else
                 {
+                    // Satın alma işlemini Manager'a yaptır
                     ExplorerManager.Instance.PurchasePerk(_perkData);
                 }
                 break;
         }
     }
 
+    /// <summary>
+    /// Zamanlayıcı bittiğinde veya harcama başarısız olduğunda Manager tarafından çağrılabilir.
+    /// </summary>
     public void ResetButton()
     {
-        SetActiveTimerView(false); // Zamanlayıcı görünümünü kapat
-        if (_currentState == PerkState.Payable)
+        SetActiveTimerView(false);
+        if (_currentState == PerkState.Payable && actionButton != null && ExplorerManager.Instance != null)
         {
-            actionButton.interactable = AreRequirementsMet(_perkData.purchasePrice);
+            // Buton durumunu tekrar Manager'a sorarak güncelle
+            actionButton.interactable = ExplorerManager.Instance.CheckRequirementsMet(_perkData.purchasePrice);
         }
     }
 
-    #region Gereksinim Kontrolü (Sorun 2 Çözümü)
-
-    // Bu fonksiyonlar, ExplorerManager'daki yardımcı fonksiyonların BİREBİR AYNISIDIR.
-    // Bu, UI'ın Manager ile aynı kontrolleri yapmasını sağlar.
-
-    private bool AreRequirementsMet(List<Requirement> requirements)
+    /// <summary>
+    /// Zamanlayıcı görünümünü açar/kapatır.
+    /// </summary>
+    public void SetActiveTimerView(bool isTimerRunning)
     {
-        if (requirements == null || requirements.Count == 0) return true;
-        foreach (Requirement req in requirements)
-        {
-            if (!IsRequirementMet(req)) return false;
-        }
-        return true;
+        if (actionButton != null) actionButton.gameObject.SetActive(!isTimerRunning);
+        if (timerText != null) timerText.gameObject.SetActive(isTimerRunning);
     }
-    
-    private bool IsRequirementMet(Requirement req)
+
+    /// <summary>
+    /// Zamanlayıcı metnini günceller (Formatlı).
+    /// </summary>
+    public void UpdateTimerText(float remainingSeconds)
     {
-        // Manager'ların null olma ihtimaline karşı güvenli kontrol yap
-        switch (req.requirementType.ToLower())
+        if (timerText == null) return;
+        if (remainingSeconds < 0) remainingSeconds = 0;
+
+        System.TimeSpan timeSpan = System.TimeSpan.FromSeconds(remainingSeconds);
+        if (timeSpan.TotalHours >= 1)
         {
-            case "level":
-                return (LevelManager.Instance != null) && LevelManager.Instance.currentLevel >= req.requiredValue;
-            case "quest":
-                return (QuestManager.Instance != null) && QuestManager.Instance.GetCompletionCount(req.requirementName) > 0;
-            case "item":
-                ItemData item = (ItemManager.Instance != null) ? ItemManager.Instance.GetItemByName(req.requirementName) : null;
-                return (item != null && Inventory.Instance != null) && Inventory.Instance.HasItem(item, req.requiredValue);
-            case "stat":
-                return (StatManager.Instance != null) && StatManager.Instance.GetTotalStat(req.requirementName) >= req.requiredValue;
-            case "gold":
-                return (CurrencyManager.Instance != null) && CurrencyManager.Instance.gold >= req.requiredValue;
-            case "nexuscoin":
-                return (CurrencyManager.Instance != null) && CurrencyManager.Instance.nexusCoin >= req.requiredValue;
-            case "people":
-                // CurrencyManager'daki değişkenin adını 'people' olarak varsayıyoruz
-                return (CurrencyManager.Instance != null) && CurrencyManager.Instance.people >= req.requiredValue;
-            case "health": 
-                return (ResourceManager.Instance != null) && ResourceManager.Instance.currentHealth > req.requiredValue;
-            case "energy":
-                return (ResourceManager.Instance != null) && ResourceManager.Instance.currentEnergy >= req.requiredValue;
-            case "mana":
-                return (ResourceManager.Instance != null) && ResourceManager.Instance.currentMana >= req.requiredValue; 
-            case "maxhealth":
-            // Eğer -10 gibi bir maliyetse, yeterli max health'imiz var mı?
-            if (req.requiredValue < 0)
-                return (ResourceManager.Instance != null) && (ResourceManager.Instance.maxHealth + req.requiredValue) >= 1;
-                 return true; // Eğer +10 gibi bir bonus ise, her zaman "karşılanmıştır" (bu bir maliyet değil)
-            case "maxenergy":
-            if (req.requiredValue < 0)
-                return (ResourceManager.Instance != null) && (ResourceManager.Instance.maxEnergy + req.requiredValue) >= 1;
-                return true;
-            case "maxmana":
-            if (req.requiredValue < 0)
-                return (ResourceManager.Instance != null) && (ResourceManager.Instance.maxMana + req.requiredValue) >= 1;
-                return true;
-            default:
-                Debug.LogWarning($"Bilinmeyen gereksinim tipi (IsRequirementMet): {req.requirementType}");
-                return false;
+            timerText.text = string.Format("{0:D2}:{1:D2}:{2:D2}", (int)timeSpan.TotalHours, timeSpan.Minutes, timeSpan.Seconds);
+        }
+        else
+        {
+             timerText.text = string.Format("{0:D2}:{1:D2}", timeSpan.Minutes, timeSpan.Seconds);
         }
     }
 
-    private string FormatRequirements(List<Requirement> requirements, bool forceMetColor, string header = "")
-    {
-        if (requirements == null || requirements.Count == 0)
-        {
-            if(header.Contains("Maliyet")) return "<b>Maliyet:</b> Yok";
-            if(header.Contains("Kilit")) return "<b>Gereksinim:</b> Yok";
-            return "";
-        }
 
-        StringBuilder sb = new StringBuilder();
-        if (!string.IsNullOrEmpty(header))
-        {
-             sb.AppendLine(header);
-        }
+    #region Gereksinim Formatlama (Kontrol Manager'da)
 
-        foreach (Requirement req in requirements)
-        {
-            bool isMet = forceMetColor || IsRequirementMet(req);
-            string reqText = "";
-            string currentVal = ""; // Mevcut durumu göstermek için
+    // AreRequirementsMet ve IsRequirementMet metotları SİLİNDİ.
 
-            switch (req.requirementType.ToLower())
-            {
-                case "level":
-                    reqText = $"Seviye {req.requiredValue}";
-                    currentVal = $"({(LevelManager.Instance != null ? LevelManager.Instance.currentLevel : 0)})";
-                    break;
-                case "quest":
-                    reqText = $"Görevi tamamla: '{req.requirementName}'";
-                    break;
-                case "item":
-                    ItemData item = (ItemManager.Instance != null) ? ItemManager.Instance.GetItemByName(req.requirementName) : null;
-                    int currentAmount = (item != null && Inventory.Instance != null) ? Inventory.Instance.GetItemCount(item) : 0;
-                    reqText = $"{req.requiredValue} x {req.requirementName}";
-                    currentVal = $"({currentAmount})";
-                    break;
-                case "stat":
-                    float currentStat = (StatManager.Instance != null) ? StatManager.Instance.GetTotalStat(req.requirementName) : 0;
-                    reqText = $"{req.requiredValue} {req.requirementName} Stat";
-                    currentVal = $"({currentStat:F0})";
-                    break;
-                case "gold":
-                    reqText = $"{req.requiredValue} Altın";
-                    currentVal = $"({(CurrencyManager.Instance != null ? CurrencyManager.Instance.gold : 0):F0})";
-                    break;
-                case "nexuscoin":
-                    reqText = $"{req.requiredValue} Nexus Coin";
-                    currentVal = $"({(CurrencyManager.Instance != null ? CurrencyManager.Instance.nexusCoin : 0):F0})";
-                    break;
-                case "people":
-                    reqText = $"{req.requiredValue} Nüfus";
-                    currentVal = $"({(CurrencyManager.Instance != null ? CurrencyManager.Instance.people : 0):F0})";
-                    break;
-                case "health":
-                    reqText = $"{req.requiredValue} Can";
-                    currentVal = $"({(ResourceManager.Instance != null ? ResourceManager.Instance.currentHealth : 0):F0})";
-                    break;
-                case "energy":
-                    reqText = $"{req.requiredValue} Enerji";
-                    currentVal = $"({(ResourceManager.Instance != null ? ResourceManager.Instance.currentEnergy : 0):F0})";
-                    break;
-                case "mana":
-                    reqText = $"{req.requiredValue} Mana";
-                    currentVal = $"({(ResourceManager.Instance != null ? ResourceManager.Instance.currentMana : 0):F0})";
-                    break;
-                case "maxhealth":
-                    reqText = $"{(req.requiredValue > 0 ? "+" : "")}{req.requiredValue} Maksimum Can";
-                    currentVal = $"({(ResourceManager.Instance != null ? ResourceManager.Instance.maxHealth : 0):F0})";
-                    isMet = IsRequirementMet(req); // Rengi doğru ayarlamak için kontrolü tekrar yap
-                    break;
-                case "maxenergy":
-                    reqText = $"{(req.requiredValue > 0 ? "+" : "")}{req.requiredValue} Maksimum Enerji";
-                    currentVal = $"({(ResourceManager.Instance != null ? ResourceManager.Instance.maxEnergy : 0):F0})";
-                    isMet = IsRequirementMet(req);
-                    break;
-                case "maxmana":
-                    reqText = $"{(req.requiredValue > 0 ? "+" : "")}{req.requiredValue} Maksimum Mana";
-                    currentVal = $"({(ResourceManager.Instance != null ? ResourceManager.Instance.maxMana : 0):F0})";
-                    isMet = IsRequirementMet(req);
-                    break;
-                default:
-                    reqText = $"{req.requiredValue} {req.requirementName}";
-                    break;
-            }
-            
-            sb.AppendLine($"<color=#{ (isMet ? _metColorHex : _notMetColorHex) }>- {reqText} {currentVal}</color>");
-        }
-        return sb.ToString().TrimEnd();
-    }
-    
+    /// <summary>
+    /// Gereksinim listesini okunabilir metne çevirir, renkleri Manager'a sorarak ayarlar.
+    /// </summary>
+
     #endregion
 
-    #region Event Abonelikleri (Sorun 2 Çözümü)
+    #region Event Abonelikleri (Dinamik UI Güncellemesi - ESKİ KODDAN ALINDI)
 
-    // UI'ın gereksinimleri DİNAMİK olarak güncellemesi için event dinleme
+    private bool _isSubscribed = false; // Tekrar abone olmayı önlemek için
+
     private void OnEnable()
     {
-        if (_perkData == null) return; // Setup henüz çalışmadıysa dinlemeye başlama
+        // Setup henüz çalışmadıysa veya Manager yoksa dinlemeye başlama
+        if (_perkData == null || ExplorerManager.Instance == null) return;
+        // Zaten aboneysek tekrar abone olma
+        if (_isSubscribed) return;
+
         SubscribeToEvents(true);
         RefreshState(); // Panel açıldığında UI'ı yenile
     }
 
     private void OnDisable()
     {
+        // Sadece aboneysek abonelikten çık
+        if (!_isSubscribed) return;
         SubscribeToEvents(false);
     }
-    
+
     private void SubscribeToEvents(bool subscribe)
     {
         if (subscribe)
         {
-            // Statik event'lere abone ol
-            LevelManager.OnPlayerLeveledUp += OnPlayerStatsChanged; 
-            Inventory.OnInventoryChanged_Static += OnPlayerStatsChanged;
+            if (_isSubscribed) return; // Zaten aboneyse çık
 
-            // Instance'ı olan event'lere abone ol (null kontrolü önemli)
+            // Statik event'lere abone ol
+            LevelManager.OnPlayerLeveledUp += OnPlayerStatsChanged;
+            Inventory.OnInventoryChanged_Static += OnPlayerStatsChanged; // Statik event
+
+            // Instance'ı olan event'lere abone ol
             if (ResourceManager.Instance != null) ResourceManager.Instance.OnValuesChanged += OnPlayerStatsChanged;
             if (CurrencyManager.Instance != null) CurrencyManager.Instance.OnCurrencyChanged += OnCurrencyChanged;
             if (StatManager.Instance != null) StatManager.Instance.OnStatChanged += OnStatManagerChanged;
+            if (QuestManager.Instance != null) QuestManager.Instance.OnQuestProgress += OnQuestProgressChanged; // Eski kodda vardı
+
+             _isSubscribed = true;
+             //Debug.Log($"[{_perkData.name}] Event'lere abone olundu.");
         }
         else
         {
-            // Abonelikleri iptal et
+            if (!_isSubscribed) return; // Abone değilse çık
+
+            // Statik event aboneliklerini iptal et
             LevelManager.OnPlayerLeveledUp -= OnPlayerStatsChanged;
             Inventory.OnInventoryChanged_Static -= OnPlayerStatsChanged;
 
-            if (ResourceManager.Instance != null) ResourceManager.Instance.OnValuesChanged -= OnPlayerStatsChanged;
-            if (CurrencyManager.Instance != null) CurrencyManager.Instance.OnCurrencyChanged -= OnCurrencyChanged;
-            if (StatManager.Instance != null) StatManager.Instance.OnStatChanged -= OnStatManagerChanged;
+            // Instance aboneliklerini iptal et (try-catch ile)
+            try
+            {
+                 if (ResourceManager.Instance != null) ResourceManager.Instance.OnValuesChanged -= OnPlayerStatsChanged;
+                 if (CurrencyManager.Instance != null) CurrencyManager.Instance.OnCurrencyChanged -= OnCurrencyChanged;
+                 if (StatManager.Instance != null) StatManager.Instance.OnStatChanged -= OnStatManagerChanged;
+                 if (QuestManager.Instance != null) QuestManager.Instance.OnQuestProgress -= OnQuestProgressChanged;
+            }
+            catch (Exception ex) { Debug.LogWarning($"[{_perkData?.name ?? "Bilinmeyen Perk"}] Event aboneliği kaldırılırken hata: {ex.Message}"); }
+
+            _isSubscribed = false;
+            //Debug.Log($"[{_perkData.name}] Event abonelikleri iptal edildi.");
         }
     }
-    
-    // Gelen herhangi bir değişiklik anonsunda, gereksinim metnini yeniden çiz.
+
+    // Gelen herhangi bir değişiklik anonsunda, UI durumunu yenile.
     private void OnPlayerStatsChanged() => RefreshState();
     private void OnStatManagerChanged(string statName, double value) => RefreshState();
     private void OnCurrencyChanged(CurrencyType type, double amount) => RefreshState();
+    private void OnQuestProgressChanged(QuestData questData, int completionCount) => RefreshState();
 
     /// <summary>
-    /// Kaynaklar, statlar veya envanter değiştiğinde UI'ı günceller.
+    /// Kaynaklar, statlar, envanter veya görevler değiştiğinde UI'ı günceller.
     /// </summary>
     private void RefreshState()
     {
-        if (_perkData == null || !gameObject.activeInHierarchy) return;
+        // Obje aktif değilse, verisi yoksa veya Manager yoksa işlem yapma
+        if (_perkData == null || !gameObject.activeInHierarchy || ExplorerManager.Instance == null) return;
+        // Henüz Setup çağrılmadıysa (_currentState null olabilir)
+        if (_currentState == 0 && _perkData != null)
+        {
+            // Başlangıç durumunu Manager'dan alarak ayarla (güvenlik için)
+            bool isPurchased = ExplorerManager.Instance.GetExplorerQuestCompletionCount(_perkData.name) > 0; // Veya perk index'ine göre kontrol
+            if (isPurchased) _currentState = PerkState.Purchased; // Bu UI zaten görünmemeli
+            else
+            {
+                bool canUnlock = ExplorerManager.Instance.CheckRequirementsMet(_perkData.unlockRequirements);
+                _currentState = canUnlock ? PerkState.Payable : PerkState.Unlockable;
+            }
+        }
 
-        // Sadece 'Kilitli Değil' durumlarını güncelle, 'Kilitli' ise dokunma
+
+        // Sadece 'Kilitli Değil' durumlarını güncelle
         if (_currentState == PerkState.Unlockable)
         {
-            bool unlockRequirementsMet = AreRequirementsMet(_perkData.unlockRequirements);
-            requirementsText.text = FormatRequirements(_perkData.unlockRequirements, false, "<b>Kilidi Açmak İçin:</b>");
-            actionButton.interactable = unlockRequirementsMet;
-            
-            // Otomatik olarak PAYABLE durumuna geç, eğer şartlar aniden karşılanırsa
+            bool unlockRequirementsMet = ExplorerManager.Instance.CheckRequirementsMet(_perkData.unlockRequirements);
+            if (requirementsText != null) requirementsText.text = BuildFormattedRequirementsString(_perkData.unlockRequirements, false, "<b>Kilidi Açmak İçin:</b>");
+            if (actionButton != null) actionButton.interactable = unlockRequirementsMet;
+
+            // Eğer gereksinimler ANİDEN karşılanırsa, durumu otomatik PAYABLE yap
             if (unlockRequirementsMet)
             {
                 SetState(PerkState.Payable);
@@ -394,13 +359,52 @@ public void UpdateTimerText(float remainingSeconds)
         }
         else if (_currentState == PerkState.Payable)
         {
-            // Fiyat metnini yeniden oluştur (örn: 10/50 Odun) ve butonu güncelle
-            requirementsText.text = FormatRequirements(_perkData.unlockRequirements, true, "<b>Kilit Açıldı:</b>");
-            requirementsText.text += "\n" + FormatRequirements(_perkData.purchasePrice, false, "<b>Ödenecek Maliyet:</b>");
-            
-            actionButton.interactable = AreRequirementsMet(_perkData.purchasePrice);
+            bool purchaseRequirementsMet = ExplorerManager.Instance.CheckRequirementsMet(_perkData.purchasePrice);
+            // Fiyat metnini yeniden oluştur ve butonu güncelle
+            if (requirementsText != null)
+            {
+                requirementsText.text = BuildFormattedRequirementsString(_perkData.unlockRequirements, true, "<b>Kilit Açıldı:</b>");
+                requirementsText.text += "\n" + BuildFormattedRequirementsString(_perkData.purchasePrice, false, "<b>Ödenecek Maliyet:</b>");
+
+            }
+            if (actionButton != null)
+            {
+                actionButton.interactable = purchaseRequirementsMet;
+            }
         }
+        // Locked veya Purchased durumunda bir şey yapmaya gerek yok.
     }
+
+    private string BuildFormattedRequirementsString(List<Requirement> requirements, bool forceMetColor, string header)
+    {
+        if (requirements == null || requirements.Count == 0)
+        {
+            if (header.Contains("Maliyet")) return "<b>Maliyet:</b> Yok";
+            if (header.Contains("Kilit")) return "<b>Gereksinim:</b> Yok";
+            return "";
+        }
+
+        StringBuilder sb = new StringBuilder();
+        if (!string.IsNullOrEmpty(header))
+        {
+            sb.AppendLine(header);
+        }
+
+        // Manager'a her bir gereksinim için sormak üzere döngü kur
+        if (ExplorerManager.Instance != null)
+        {
+            foreach (Requirement req in requirements)
+            {
+                sb.AppendLine(ExplorerManager.Instance.GetFormattedRequirementString(req, forceMetColor));
+            }
+        }
+        else
+        {
+            sb.AppendLine("<color=red>(Yönetici bekleniyor...)</color>");
+        }
+        return sb.ToString().TrimEnd();
+    }
+
 
     #endregion
 }

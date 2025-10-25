@@ -8,7 +8,7 @@ public class ExplorerReward
 {
     [Tooltip("UI'da gösterilecek ödül açıklaması (örn: '+3 Physical Stat')")]
     public string rewardDescription; // "+3 Physical Stat"
-    
+
     [Tooltip("Bu tamamlamada verilecek stat ödülleri")]
     public List<StatReward> statRewards; // Mevcut StatReward yapısını kullanıyoruz
 
@@ -45,7 +45,7 @@ public class ExplorerQuestData : ScriptableObject
     [Header("Ödüller")]
     [Tooltip("Her bir tamamlama için sırayla verilecek ödüller listesi. (Liste boyutu Completion Limit ile eşleşmeli)")]
     public List<ExplorerReward> rewardsPerCompletion;
-    
+
     [Header("İlerleme")]
     [Tooltip("Bu görev tamamlandığında hangi Explorer Quest'inin kilidini açar (ID'si)")]
     public string unlocksQuestID; // Bir sonraki görevin kilidini açmak için
@@ -57,9 +57,11 @@ public class ExplorerQuestData : ScriptableObject
         // Tag'e göre görevin zaman bazlı olup olmadığını otomatik ayarla
         isTimerBased = (tag == ExplorerTag.ExplorerTime);
 
+        // questID boş ise otomatik ata
         if (string.IsNullOrEmpty(questID))
         {
             questID = System.Guid.NewGuid().ToString();
         }
     }
+    // Not: StatReward, ItemDrop ve Requirement sınıflarının başka dosyalarda tanımlı olduğunu varsayıyoruz.
 }

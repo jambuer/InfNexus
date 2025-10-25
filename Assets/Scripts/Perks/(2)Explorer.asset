@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3704638407276e9439d568a7b83aee7c, type: 3}
+  m_Name: (2)Explorer
+  m_EditorClassIdentifier: 
+  perkID: Explorer_2
+  perkNameValue: 10
+  displayName: (2)Explorer
+  description: (1)I think I have a better idea of where not to look now. -5m Explorer
+    Quest Time.
+  effectType: 26
+  valueType: 0
+  effectValue: 300
+  effectParameter: 

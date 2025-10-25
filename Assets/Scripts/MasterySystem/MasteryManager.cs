@@ -1,138 +1,173 @@
 using UnityEngine;
 using System.Collections.Generic;
-using System;
-using System.Linq; // Dictionary işlemleri için
+using System.Linq;
+using System; // ContextMenu için eklendi
 
 /// <summary>
 /// Evrensel Ustalık Sistemi'nin ana yöneticisi.
-/// Oyuncunun tüm ustalık yollarındaki ilerlemesini takip eder,
-/// seviye atlamaları yönetir ve kazandığı bonusları hesaplar.
-/// Singleton pattern kullanılarak her yerden erişilebilir.
+/// İlerlemeyi takip eder, bonusları hesaplar ve GameDataManager ile uyumlu çalışır.
+/// (Güncel ve Eski versiyonlar birleştirilip, tüm debug log'lar eklendi)
 /// </summary>
-public class MasteryManager : MonoBehaviour
+public class MasteryManager : MonoBehaviour, IGameDataSaveable<MasterySaveData>
 {
     public static MasteryManager Instance { get; private set; }
 
     [Header("Referanslar")]
     [Tooltip("Projenizdeki tüm ustalığı içeren MasteryDatabase ScriptableObject'ı.")]
-    public MasteryDatabase masteryDatabase; // Inspector'dan atanacak
+    public MasteryDatabase masteryDatabase;
 
     [Header("Debug/Geliştirici Araçları")]
     [Tooltip("Ustalık ilerlemesinin konsola yazdırılıp yazdırılmayacağını belirler.")]
-    public bool debugLogMastery = false;
+    public bool debugLogMastery = false; // ESKİ KODDAN EKLENDİ
 
-    // Oyuncunun her bir ustalık yolundaki tamamlanma sayıları
-    // Key: masteryID (string), Value: o ustalık için toplam tamamlama sayısı (int)
+    // Kaydedilen veri: Key: masteryID (string), Value: tamamlama sayısı (int)
     private Dictionary<string, int> _completionCounts = new Dictionary<string, int>();
 
-    // Oyuncunun her bir ustalık yolu için açtığı seviye bonusları
-    // Key: masteryID (string)
-    // Value: Dictionary<MasteryRewardType, float> -> O ustalık için her bonus türünün toplam değeri
+    // Hesaplanan veri (kaydedilmez): Key: masteryID, Value: Dictionary<RewardType, ToplamBonus>
     private Dictionary<string, Dictionary<MasteryRewardType, float>> _unlockedTierBonuses = new Dictionary<string, Dictionary<MasteryRewardType, float>>();
 
     // ====================================================================================================
-    // SINGLETON VE BAŞLANGIÇ METOTLARI
+    // SINGLETON VE BAŞLANGIÇ
     // ====================================================================================================
 
     void Awake()
     {
-        if (Instance == null)
-        {
-            Instance = this;
-            DontDestroyOnLoad(gameObject); // Sahne geçişlerinde yok olmamasını sağlar
-            LoadMasteryData(); // Kaydedilmiş verileri yükle
-        }
-        else
-        {
-            Destroy(gameObject);
+        if (Instance == null) 
+        { 
+            Instance = this; 
+            DontDestroyOnLoad(gameObject); 
+        } 
+        else 
+        { 
+            Destroy(gameObject); 
         }
     }
 
     void Start()
     {
-        // Tüm ustalılık yollarını veri tabanından yükledikten sonra bonusları hesapla
-        // Bu, oyun başladığında oyuncunun sahip olduğu tüm ustalık bonuslarının aktif olmasını sağlar.
+        // LoadFromData çağrıldıktan sonra (veya yeni oyunda)
+        // mevcut veriye göre bonusları hesapla.
         RecalculateAllMasteryBonuses();
+
+        if (QuestManager.Instance != null)
+        {
+            // "QuestManager bir görev ilerlemesi (veya tamamlanması) duyurursa,
+            // benim 'HandleQuestCompleted' metodumu çalıştır."
+            QuestManager.Instance.OnQuestProgress += HandleQuestCompleted;
+        }
+    
     }
 
+    void OnDestroy()
+    {
+        // YENİ EKLENEN KISIM:
+        if (QuestManager.Instance != null)
+        {
+            // "Ben yok oluyorsam, artık QuestManager'ı dinlemeyi bırak."
+            QuestManager.Instance.OnQuestProgress -= HandleQuestCompleted;
+        }
+    }
+
+    /// <summary>
+    /// QuestManager'dan gelen 'OnQuestProgress' event'ini (duyurusunu) yakalar.
+    /// Bu, bir görev tamamlandığında tetiklenir.
+    /// </summary>
+    private void HandleQuestCompleted(QuestData completedQuest, int newCompletionCount)
+    {
+        // Gelen görev verisi (completedQuest) null değilse
+        // ve bu görevin ilişkili bir 'masteryID'si varsa...
+        if (completedQuest != null && !string.IsNullOrEmpty(completedQuest.masteryID))
+        {
+            // ...o zaman KENDİ 'ProgressMastery' metodumuzu çağırarak ustalığı ilerlet.
+            ProgressMastery(completedQuest.masteryID, 1);
+        }
+    }
+
+
+
     // ====================================================================================================
-    // ANA İLERLEME METOTLARI
+    // İLERLEME VE HESAPLAMA
     // ====================================================================================================
 
     /// <summary>
-    /// Belirtilen ustalık yolunda ilerleme kaydeder.
-    /// Genellikle bir görev tamamlandığında veya eylem yapıldığında çağrılır.
+    /// Belirtilen ustalık yolunda ilerleme kaydeder (örn: Quest tamamlanınca).
     /// </summary>
-    /// <param name="masteryID">İlerlenecek ustalık yolunun benzersiz kimliği.</param>
-    /// <param name="amount">İlerlenecek miktar (varsayılan: 1).</param>
     public void ProgressMastery(string masteryID, int amount = 1)
     {
-        if (string.IsNullOrEmpty(masteryID))
+        if (string.IsNullOrEmpty(masteryID)) 
         {
-            if (debugLogMastery) Debug.LogWarning("ProgressMastery: Boş bir masteryID ile ilerleme kaydedilemez.");
+            if (debugLogMastery) Debug.LogWarning("ProgressMastery: Boş bir masteryID ile ilerleme kaydedilemez."); // ESKİ KODDAN EKLENDİ
             return;
         }
 
-        // MasteryData'yı veritabanından bul
         MasteryData masteryData = masteryDatabase.GetMasteryData(masteryID);
-        if (masteryData == null)
+        if (masteryData == null) 
         {
-            if (debugLogMastery) Debug.LogWarning($"ProgressMastery: {masteryID} ID'li ustalık yolu bulunamadı.");
+            if (debugLogMastery) Debug.LogWarning($"ProgressMastery: {masteryID} ID'li ustalık yolu bulunamadı."); // ESKİ KODDAN EKLENDİ
             return;
         }
 
-        // Mevcut ilerlemeyi al veya sıfırdan başla
-        if (!_completionCounts.ContainsKey(masteryID))
-        {
-            _completionCounts[masteryID] = 0;
-        }
-        int oldCompletionCount = _completionCounts[masteryID];
-        _completionCounts[masteryID] += amount;
+        int oldCompletionCount = GetCompletionCount(masteryID); // Mevcut sayıyı al
+        _completionCounts[masteryID] = oldCompletionCount + amount;
         int newCompletionCount = _completionCounts[masteryID];
 
-        if (debugLogMastery) Debug.Log($"Mastery '{masteryData.displayName}' ilerlemesi: {oldCompletionCount} -> {newCompletionCount} completions.");
+        if (debugLogMastery) Debug.Log($"Mastery '{masteryData.displayName}' ilerlemesi: {oldCompletionCount} -> {newCompletionCount} completions."); // ESKİ KODDAN EKLENDİ
 
-        // Seviye atlamalarını kontrol et ve bonusları güncelle
-        CheckForTierUnlocks(masteryData, oldCompletionCount, newCompletionCount);
-
-        SaveMasteryData(); // İlerlemeyi kaydet
+        // Bonusları, yeni seviye atlama log'unu da gösterecek şekilde yeniden hesapla
+        RecalculateMasteryBonuses(masteryID, newCompletionCount, oldCompletionCount);
+        
+        // KAYIT İŞLEMİ ARTIK BURADA YAPILMIYOR
+        // SaveMasteryData(); // GameDataManager halledecek
     }
 
     /// <summary>
-    /// Bir ustalık yolunda yeni seviyelerin açılıp açılmadığını kontrol eder ve bonusları günceller.
+    /// Kayıttan yükleme sonrası tüm ustalık bonuslarını yeniden hesaplar.
     /// </summary>
-    /// <param name="masteryData">Kontrol edilecek MasteryData objesi.</param>
-    /// <param name="oldCompletions">Önceki tamamlama sayısı.</param>
-    /// <param name="newCompletions">Yeni tamamlama sayısı.</param>
-    private void CheckForTierUnlocks(MasteryData masteryData, int oldCompletions, int newCompletions)
+    public void RecalculateAllMasteryBonuses()
     {
-        // Bu ustalık için bonusları tutacak Dictionary'yi hazırla
-        if (!_unlockedTierBonuses.ContainsKey(masteryData.masteryID))
+        _unlockedTierBonuses.Clear();
+        foreach (var entry in _completionCounts)
         {
-            _unlockedTierBonuses[masteryData.masteryID] = new Dictionary<MasteryRewardType, float>();
+            // -1 göndererek, bunun bir "yeni seviye atlama" log'u değil,
+            // toplu bir yeniden hesaplama olduğunu belirtiyoruz.
+            RecalculateMasteryBonuses(entry.Key, entry.Value, -1);
         }
-        else
+        if (debugLogMastery) Debug.Log("Tüm ustalık bonusları yeniden hesaplandı."); // ESKİ KODDAN EKLENDİ
+    }
+
+    /// <summary>
+    /// Belirli bir ustalık yolunun bonuslarını yeniden hesaplar.
+    /// </summary>
+    /// <param name="masteryID">Hesaplanacak ustalık ID'si.</param>
+    /// <param name="completions">Mevcut tamamlama sayısı.</param>
+    /// <param name="oldCompletions">Önceki tamamlama sayısı (-1 ise loglama yapılmaz).</param>
+    private void RecalculateMasteryBonuses(string masteryID, int completions, int oldCompletions = -1)
+    {
+        MasteryData masteryData = masteryDatabase.GetMasteryData(masteryID);
+        if (masteryData == null) 
         {
-            // Bonusları sıfırla ve yeniden hesapla (her seviye atladığında güncel kalmasını sağlar)
-            _unlockedTierBonuses[masteryData.masteryID].Clear();
+            if (debugLogMastery) Debug.LogWarning($"RecalculateMasteryBonuses: {masteryID} ID'li ustalık yolu bulunamadı."); // ESKİ KODDAN EKLENDİ
+            return;
         }
 
-        // Tüm seviyeleri kontrol et
-        foreach (MasteryTier tier in masteryData.masteryTiers.OrderBy(t => t.completionRequirement)) // Gereksinime göre sırala
+        // Bonusları sıfırla ve yeniden hesapla
+        if (!_unlockedTierBonuses.ContainsKey(masteryID)) 
+            _unlockedTierBonuses[masteryID] = new Dictionary<MasteryRewardType, float>();
+        else 
+            _unlockedTierBonuses[masteryID].Clear();
+
+        foreach (MasteryTier tier in masteryData.masteryTiers.OrderBy(t => t.completionRequirement))
         {
-            if (newCompletions >= tier.completionRequirement)
+            if (completions >= tier.completionRequirement)
             {
-                // Seviye açılmışsa bonusu ekle
-                if (_unlockedTierBonuses[masteryData.masteryID].ContainsKey(tier.rewardType))
-                {
-                    _unlockedTierBonuses[masteryData.masteryID][tier.rewardType] += tier.rewardValue;
-                }
-                else
-                {
-                    _unlockedTierBonuses[masteryData.masteryID][tier.rewardType] = tier.rewardValue;
-                }
+                // Bonusu ekle
+                if (!_unlockedTierBonuses[masteryID].ContainsKey(tier.rewardType)) 
+                    _unlockedTierBonuses[masteryID][tier.rewardType] = 0;
+                
+                _unlockedTierBonuses[masteryID][tier.rewardType] += tier.rewardValue;
 
-                if (debugLogMastery && oldCompletions < tier.completionRequirement) // Sadece yeni açıldığında logla
+                // ESKİ KODDAN EKLENDİ: Yeni açılan seviyeleri logla
+                if (debugLogMastery && oldCompletions != -1 && oldCompletions < tier.completionRequirement)
                 {
                     Debug.Log($"Mastery '{masteryData.displayName}' seviye atladı! Tier: {tier.completionRequirement} - Ödül: {tier.rewardType} ({tier.rewardValue})");
                 }
@@ -140,150 +175,73 @@ public class MasteryManager : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Oyun başladığında veya yükleme sonrası tüm ustalık bonuslarını yeniden hesaplar.
-    /// </summary>
-    public void RecalculateAllMasteryBonuses()
-    {
-        _unlockedTierBonuses.Clear(); // Önceki tüm bonusları temizle
-
-        foreach (var entry in _completionCounts)
-        {
-            string masteryID = entry.Key;
-            int completions = entry.Value;
-
-            MasteryData masteryData = masteryDatabase.GetMasteryData(masteryID);
-            if (masteryData == null)
-            {
-                if (debugLogMastery) Debug.LogWarning($"RecalculateAllMasteryBonuses: {masteryID} ID'li ustalık yolu bulunamadı.");
-                continue;
-            }
-
-            // Bu ustalık için bonusları tutacak Dictionary'yi hazırla
-            if (!_unlockedTierBonuses.ContainsKey(masteryID))
-            {
-                _unlockedTierBonuses[masteryID] = new Dictionary<MasteryRewardType, float>();
-            }
-
-            foreach (MasteryTier tier in masteryData.masteryTiers.OrderBy(t => t.completionRequirement))
-            {
-                if (completions >= tier.completionRequirement)
-                {
-                    if (_unlockedTierBonuses[masteryID].ContainsKey(tier.rewardType))
-                    {
-                        _unlockedTierBonuses[masteryID][tier.rewardType] += tier.rewardValue;
-                    }
-                    else
-                    {
-                        _unlockedTierBonuses[masteryID][tier.rewardType] = tier.rewardValue;
-                    }
-                }
-            }
-        }
-        if (debugLogMastery) Debug.Log("Tüm ustalık bonusları yeniden hesaplandı.");
-    }
-
-
     // ====================================================================================================
-    // BONUS SORGULAMA METOTLARI
+    // BİLGİ ALMA (GET) METOTLARI
     // ====================================================================================================
 
     /// <summary>
-    /// Belirtilen ustalık yolunda, belirtilen ödül türü için kazanılan toplam bonusu döndürür.
-    /// Diğer sistemler (örn: QuestManager) bu metodu kullanarak bonusları sorgular.
+    /// Belirtilen ustalık yolu ve ödül türü için toplam birikmiş bonusu döndürür.
     /// </summary>
-    /// <param name="masteryID">Bonusu sorgulanacak ustalık yolunun kimliği.</param>
-    /// <param name="rewardType">Sorgulanacak ödül türü.</param>
-    /// <returns>Kazanılan toplam bonus miktarı. Eğer bonus yoksa 0 döndürür.</returns>
     public float GetTotalBonusFor(string masteryID, MasteryRewardType rewardType)
     {
         if (string.IsNullOrEmpty(masteryID)) return 0f;
-
-        if (_unlockedTierBonuses.ContainsKey(masteryID) && _unlockedTierBonuses[masteryID].ContainsKey(rewardType))
-        {
-            return _unlockedTierBonuses[masteryID][rewardType];
+        
+        if (_unlockedTierBonuses.TryGetValue(masteryID, out var bonuses) && bonuses.TryGetValue(rewardType, out float value)) 
+        { 
+            return value; 
         }
         return 0f;
     }
 
     /// <summary>
-    /// Bir ustalık yolu için toplam tamamlama sayısını döndürür.
+    /// Bir ustalık yolunun mevcut tamamlama sayısını döndürür.
     /// </summary>
-    /// <param name="masteryID">Sorgulanacak ustalık yolunun kimliği.</param>
-    /// <returns>Toplam tamamlama sayısı.</returns>
-    public int GetCompletionCount(string masteryID)
-    {
-        if (_completionCounts.ContainsKey(masteryID))
-        {
-            return _completionCounts[masteryID];
-        }
-        return 0;
-    }
+    public int GetCompletionCount(string masteryID) => _completionCounts.TryGetValue(masteryID, out int count) ? count : 0;
 
     // ====================================================================================================
-    // KAYDETME/YÜKLEME (SAVE/LOAD) ALTYAPISI
+    // KAYIT SİSTEMİ (GameDataManager UYUMLU)
     // ====================================================================================================
 
-    // Kaydedilebilir veriler için yardımcı sınıf
-    [Serializable]
-    private class MasterySaveData
+    /// <summary>
+    /// GameDataManager'a kaydedilecek verileri toplar ve döndürür.
+    /// </summary>
+    public MasterySaveData GetSaveData()
     {
-        public List<string> masteryIDs;
-        public List<int> completionCounts;
-
-        public MasterySaveData(Dictionary<string, int> counts)
-        {
-            masteryIDs = counts.Keys.ToList();
-            completionCounts = counts.Values.ToList();
-        }
+        if (debugLogMastery) Debug.Log("Mastery ilerlemesi kaydedildi."); // ESKİ KODDAN EKLENDİ
+        // GameSaveData.cs ile uyumlu
+        return new MasterySaveData { completionCounts = new Dictionary<string, int>(_completionCounts) };
     }
 
     /// <summary>
-    /// Ustalık ilerlemesi verilerini kaydeder.
+    /// GameDataManager'dan gelen verileri bu yöneticiye yükler.
     /// </summary>
-    public void SaveMasteryData()
+    public void LoadFromData(MasterySaveData data)
     {
-        MasterySaveData saveData = new MasterySaveData(_completionCounts);
-        string jsonData = JsonUtility.ToJson(saveData);
-        PlayerPrefs.SetString("MasteryProgress", jsonData);
-        PlayerPrefs.Save();
-        if (debugLogMastery) Debug.Log("Mastery ilerlemesi kaydedildi.");
-    }
-
-    /// <summary>
-    /// Ustalık ilerlemesi verilerini yükler.
-    /// </summary>
-    public void LoadMasteryData()
-    {
-        if (PlayerPrefs.HasKey("MasteryProgress"))
+        _completionCounts = data?.completionCounts ?? new Dictionary<string, int>();
+        
+        if (data != null)
         {
-            string jsonData = PlayerPrefs.GetString("MasteryProgress");
-            MasterySaveData saveData = JsonUtility.FromJson<MasterySaveData>(jsonData);
-
-            _completionCounts.Clear();
-            for (int i = 0; i < saveData.masteryIDs.Count; i++)
-            {
-                _completionCounts[saveData.masteryIDs[i]] = saveData.completionCounts[i];
-            }
-            if (debugLogMastery) Debug.Log("Mastery ilerlemesi yüklendi.");
-            RecalculateAllMasteryBonuses(); // Yüklendikten sonra bonusları yeniden hesapla
+            if (debugLogMastery) Debug.Log("Mastery ilerlemesi yüklendi."); // ESKİ KODDAN EKLENDİ
         }
         else
         {
-            if (debugLogMastery) Debug.Log("Kaydedilmiş Mastery ilerlemesi bulunamadı.");
+            if (debugLogMastery) Debug.Log("Kaydedilmiş Mastery ilerlemesi bulunamadı."); // ESKİ KODDAN EKLENDİ
         }
-    }
 
+        // Yüklenen verilere göre tüm bonusları yeniden hesapla
+        RecalculateAllMasteryBonuses();
+    }
+    
     /// <summary>
-    /// Geliştirme amacıyla tüm ustalık ilerlemesini sıfırlar.
+    /// ESKİ KODDAN EKLENDİ: Geliştirme amacıyla tüm ustalık ilerlemesini sıfırlar.
+    /// (Sadece hafızadakini sıfırlar, kalıcı silme için 'Restart Game' gerekir)
     /// </summary>
     [ContextMenu("Reset All Mastery Progress (Debug Only)")]
     public void ResetAllMasteryProgress()
     {
         _completionCounts.Clear();
         _unlockedTierBonuses.Clear();
-        PlayerPrefs.DeleteKey("MasteryProgress");
-        PlayerPrefs.Save();
-        if (debugLogMastery) Debug.Log("Tüm ustalık ilerlemesi sıfırlandı.");
+        // PlayerPrefs satırları kaldırıldı, çünkü artık GameDataManager yönetiyor.
+        if (debugLogMastery) Debug.Log("Tüm ustalık ilerlemesi (hafızada) sıfırlandı.");
     }
 }

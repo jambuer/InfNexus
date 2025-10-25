@@ -15,11 +15,11 @@ MonoBehaviour:
   tag: 3
   description: This place looks safe. I should investigate it.
   unlockRequirements:
-  - requirementType: ExplorerTime
+  - reqType: 16
     requirementName: Time
     requiredValue: 15
   purchasePrice: []
   reward:
-    masteryName: (1)Explorer
+    perkToGrant: {fileID: 11400000, guid: 037844959121edb4e81aed9ae343c4b0, type: 2}
     amount: 1
-    description: At least I learned where to look. -3m Explorer Time.
+    descriptionOverride: 

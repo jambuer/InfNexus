@@ -16,17 +16,17 @@ MonoBehaviour:
   description: You need to strengthen yourself before you take action. Come when
     you feel ready.
   unlockRequirements:
-  - requirementType: Stat
+  - reqType: 5
     requirementName: Physical
     requiredValue: 25
-  - requirementType: Stat
+  - reqType: 5
     requirementName: Mental
     requiredValue: 10
   purchasePrice:
-  - requirementType: Gold
+  - reqType: 6
     requirementName: Gold
     requiredValue: 250
   reward:
-    masteryName: (1)First
+    perkToGrant: {fileID: 11400000, guid: c3879d608438cce4492e03450b90ddb9, type: 2}
     amount: 1
-    description: You are the pioneer of humanity. All Stats +1.
+    descriptionOverride: 

@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using TMPro;
 using System.Text;
 using System.Collections.Generic;
+using System; // TimeSpan ve Exception için eklendi
 
 public class ExplorerQuestUI : MonoBehaviour
 {
@@ -15,8 +16,6 @@ public class ExplorerQuestUI : MonoBehaviour
     public Button startButton;
     public TextMeshProUGUI startButtonText;
     public TextMeshProUGUI timerText;
-
-    [Header("Kilit Paneli")]
     public GameObject lockPanel; // Görev kilitliyken gösterilecek panel
 
     [Header("Renk Ayarları")]
@@ -24,9 +23,10 @@ public class ExplorerQuestUI : MonoBehaviour
     public Color notMetColor = Color.red;
 
     private ExplorerQuestData _questData;
-    private ExplorerManager _manager;
+    private ExplorerManager _manager; // Manager referansını tutalım
     private int _currentCompletions = 0;
-    private bool _isMet = false; // Gereksinimler karşılandı mı?
+    // _isMet kaldırıldı, kontrol artık Manager'da
+
     private string _metColorHex;
     private string _notMetColorHex;
 
@@ -38,6 +38,10 @@ public class ExplorerQuestUI : MonoBehaviour
         {
             startButton.onClick.AddListener(OnStartButtonClicked);
         }
+        else
+        {
+            Debug.LogError($"[{_questData?.questID ?? gameObject.name}] Start Button atanmamış!", this.gameObject);
+        }
     }
 
     /// <summary>
@@ -45,20 +49,39 @@ public class ExplorerQuestUI : MonoBehaviour
     /// </summary>
     public void Setup(ExplorerManager manager, ExplorerQuestData data, int currentCompletions)
     {
-        _manager = manager;
+        _manager = manager; // Manager referansını sakla
         _questData = data;
         _currentCompletions = currentCompletions;
 
-        if (_questData == null) return;
+        if (_questData == null)
+        {
+             Debug.LogError("Setup için QuestData null!", this.gameObject);
+             Destroy(gameObject);
+             return;
+        }
+        if (_manager == null)
+        {
+             Debug.LogError($"[{_questData.questID}] Setup için ExplorerManager null!", this.gameObject);
+        }
 
-        if (descriptionText != null) 
+
+        // UI Referans Kontrolleri
+        if (descriptionText == null) Debug.LogWarning($"[{_questData.questID}] DescriptionText atanmamış!", this.gameObject);
+        if (requirementsText == null) Debug.LogWarning($"[{_questData.questID}] RequirementsText atanmamış!", this.gameObject);
+        if (rewardsText == null) Debug.LogWarning($"[{_questData.questID}] RewardsText atanmamış!", this.gameObject);
+        if (completionCountText == null) Debug.LogWarning($"[{_questData.questID}] CompletionCountText atanmamış!", this.gameObject);
+        if (progressBar == null) Debug.LogWarning($"[{_questData.questID}] ProgressBar atanmamış!", this.gameObject);
+        if (timerText == null) Debug.LogWarning($"[{_questData.questID}] TimerText atanmamış!", this.gameObject);
+        if (lockPanel == null) Debug.LogWarning($"[{_questData.questID}] LockPanel atanmamış!", this.gameObject);
+        // --- Kontroller Bitti ---
+
+        if (descriptionText != null)
             descriptionText.text = _questData.description;
 
-        // Event'leri dinlemeye başla (Stat, Seviye vb. değişiklikleri için)
-        SubscribeToEvents(true);
-        
-        // UI'ı mevcut duruma göre güncelle
+        // UI'ı mevcut duruma göre ilk kez güncelle
         RefreshUI();
+
+        // Eventleri dinlemeye başla (OnEnable çağrılacak)
     }
 
     /// <summary>
@@ -66,24 +89,30 @@ public class ExplorerQuestUI : MonoBehaviour
     /// </summary>
     public void RefreshUI()
     {
-        if (_questData == null) return;
-        
-        // 1. Gereksinimleri Kontrol Et ve Metni Formatla
-        _isMet = CheckRequirementsMet(_questData.requirements);
+        if (_questData == null || _manager == null) return; // Manager kontrolü eklendi
+
+        // 1. Gereksinimleri Manager'a sor ve Metni Formatla
+        bool requirementsMet = _manager.CheckRequirementsMet(_questData.requirements);
         if (requirementsText != null)
-            requirementsText.text = FormatRequirements(_questData.requirements);
+            requirementsText.text = BuildFormattedRequirementsString(_questData.requirements); // Sadece listeyi gönder
 
         // 2. Tamamlanma Sayısını Güncelle
-        bool limitReached = _currentCompletions >= _questData.completionLimit;
+        // Manager'dan güncel sayıyı al (Setup sonrası değişmiş olabilir)
+        _currentCompletions = _manager.GetExplorerQuestCompletionCount(_questData.questID);
+        bool limitReached = _questData.completionLimit > 0 && _currentCompletions >= _questData.completionLimit; // limit 0 ise sınırsız kabul edelim
+
         if (completionCountText != null)
         {
-            completionCountText.text = $"{_currentCompletions} / {_questData.completionLimit}";
+            // Limiti 0 ise "X / ∞" gibi gösterilebilir
+            string limitText = _questData.completionLimit > 0 ? _questData.completionLimit.ToString() : "∞";
+            completionCountText.text = $"{_currentCompletions} / {limitText}";
             completionCountText.color = limitReached ? metColor : notMetColor;
         }
-        if (timerText != null)
-        {
-            timerText.gameObject.SetActive(false); // Varsayılan olarak gizle
-        }
+
+        // Zamanlayıcıyı başlangıçta gizle (UpdateProgressBar/UpdateTimerText yönetecek)
+        if (timerText != null) timerText.gameObject.SetActive(false);
+        if (progressBar != null) progressBar.gameObject.SetActive(false);
+
 
         // 3. Ödül Metnini Güncelle
         if (rewardsText != null)
@@ -95,39 +124,48 @@ public class ExplorerQuestUI : MonoBehaviour
             if (limitReached)
             {
                 SetButtonState("Tamamlandı", false);
-                if (lockPanel != null) lockPanel.SetActive(true); // Tamamlandıysa kilitle
+                // Tamamlandıysa kilit panelini tekrar göstermeye gerek yok,
+                // SetLocked metodu kilit durumunu yönetmeli.
             }
             else if (_manager.IsQuestActive(_questData.questID))
             {
+                // Görev aktifse butonu "İptal Et" yap ve progress bar/timer göster
                 SetButtonState("İptal Et", true);
+                // Not: Aktif görevin mevcut ilerlemesi UI'a yansıtılmalı
+                // Bu, Manager'da Coroutine'leri takip edip Load'da geri yükleyerek veya
+                // UI'ın periyodik olarak Manager'dan progress sormasıyla yapılabilir.
+                // Şimdilik sadece buton metnini ayarlıyoruz.
             }
-            else
+            else // Görev aktif değil ve limit dolmadı
             {
-                SetButtonState(_questData.isTimerBased ? "Başla (Süre)" : "Başla", _isMet);
+                SetButtonState(_questData.isTimerBased ? "Başla" : "Tamamla", requirementsMet); // Süre yazısını kaldırdık
             }
         }
     }
 
     /// <summary>
-    /// Bir sonraki ödülün açıklamasını döndürür.
+    /// Bir sonraki ödülün açıklamasını döndürür (renklendirme ile).
     /// </summary>
     private string GetNextRewardDescription()
     {
         StringBuilder sb = new StringBuilder("<b>Ödüller:</b>\n");
         if (_questData.rewardsPerCompletion == null || _questData.rewardsPerCompletion.Count == 0)
         {
-            return "<b>Ödül:</b> Yok";
+            return sb.Append("- Yok").ToString();
         }
 
-        for(int i=0; i < _questData.rewardsPerCompletion.Count; i++)
+        for(int i = 0; i < _questData.rewardsPerCompletion.Count; i++)
         {
-            string color = (i < _currentCompletions) ? _metColorHex : _notMetColorHex; // Alınmışsa yeşil, alınmamışsa kırmızı
-            string rewardDesc = _questData.rewardsPerCompletion[i].rewardDescription;
+            // Limit kontrolü eklendi (ödül listesi limitten uzun olabilir)
+            if (_questData.completionLimit > 0 && i >= _questData.completionLimit) break;
+
+            string colorHex = (i < _currentCompletions) ? _metColorHex : _notMetColorHex;
+            string rewardDesc = _questData.rewardsPerCompletion[i]?.rewardDescription ?? "Tanımsız Ödül"; // Null kontrolü
             if (string.IsNullOrEmpty(rewardDesc)) rewardDesc = "Ödül Yok";
-            
-            sb.AppendLine($"<color=#{color}>- Tamamlama {i + 1}: {rewardDesc}</color>");
+
+            sb.AppendLine($"<color=#{colorHex}>- T{i + 1}: {rewardDesc}</color>");
         }
-        return sb.ToString();
+        return sb.ToString().TrimEnd();
     }
 
     private void OnStartButtonClicked()
@@ -136,138 +174,108 @@ public class ExplorerQuestUI : MonoBehaviour
 
         if (_manager.IsQuestActive(_questData.questID))
         {
-            // Görevi İptal Et
+            // Görevi İptal Et (Manager yapar)
             _manager.CancelExplorerQuest(_questData.questID);
-            // UI anında güncellenir (event ile)
+            // UI, Manager'dan gelen UpdateProgress/UpdateTimer ile güncellenir.
         }
-        else if (_isMet)
+        else // Görev aktif değilse başlatmayı dene
         {
-            // Görevi Başlat
-            _manager.StartExplorerQuest(_questData);
-            SetButtonState("Çalışıyor...", false); // Başlatıldıktan sonra butonu kilitle
-            if (timerText != null)
+             // Gereksinimleri TEKRAR Manager'a sor (buton aktif olsa bile arada değişmiş olabilir)
+            if (_manager.CheckRequirementsMet(_questData.requirements))
             {
-                timerText.gameObject.SetActive(true); // Zamanlayıcıyı göster
+                SetButtonState("Başlatılıyor...", false); // Geçici olarak kilitle
+                _manager.StartExplorerQuest(_questData); // Manager görevi başlatır (ve kaynakları harcar)
+                // UI, Manager'dan gelen UpdateProgress/UpdateTimer ile güncellenir.
             }
-
+            else
+            {
+                 Debug.LogWarning($"[{_questData.questID}] Buton aktif ama gereksinimler karşılanmıyor?");
+                 RefreshUI(); // UI'ı en son duruma göre yenile
+            }
         }
     }
 
-    // ExplorerQuestUI.cs -> UpdateProgressBar:
-public void UpdateProgressBar(float progress)
-{
-    bool isRunning = progress > 0 && progress < 1;
-
-    if (progressBar != null)
+    /// <summary>
+    /// Manager tarafından çağrılır, progress bar'ı ve buton durumunu günceller.
+    /// </summary>
+    public void UpdateProgressBar(float progress)
     {
-        progressBar.gameObject.SetActive(isRunning);
-        progressBar.value = progress;
+        bool isRunning = progress > 0 && progress < 1;
+
+        if (progressBar != null)
+        {
+            progressBar.gameObject.SetActive(isRunning && _questData.isTimerBased); // Sadece zaman bazlıysa göster
+            progressBar.value = progress;
+        }
+
+        // Görev bittiğinde (progress 1) veya iptal edildiğinde (progress 0)
+        // buton durumunu RefreshUI ile yenile.
+        if (!isRunning && startButton != null && gameObject.activeInHierarchy) // Aktifse yenile
+        {
+            RefreshUI();
+        }
     }
 
-    // Eğer görev BİTTİ veya İPTAL EDİLDİ ise (progress 0 veya 1 ise)
-    if (!isRunning)
+    /// <summary>
+    /// Manager tarafından çağrılır, zamanlayıcı metnini günceller.
+    /// </summary>
+    public void UpdateTimerText(float remainingSeconds)
     {
-        if (timerText != null) timerText.gameObject.SetActive(false); // Zamanlayıcı metnini gizle
-        if (startButton != null) RefreshUI(); // Buton durumunu ("Başla") yenile
-    }
-}
+        if (timerText == null) return;
+        if (remainingSeconds < 0) remainingSeconds = 0;
 
+        // Zamanlayıcıyı sadece çalışıyorsa ve görev zaman bazlıysa göster
+        timerText.gameObject.SetActive(remainingSeconds > 0 && _questData.isTimerBased);
+
+        System.TimeSpan timeSpan = System.TimeSpan.FromSeconds(remainingSeconds);
+        if (timeSpan.TotalHours >= 1)
+        {
+            timerText.text = string.Format("{0:D2}:{1:D2}:{2:D2}", (int)timeSpan.TotalHours, timeSpan.Minutes, timeSpan.Seconds);
+        }
+        else
+        {
+            timerText.text = string.Format("{0:D2}:{1:D2}", timeSpan.Minutes, timeSpan.Seconds);
+        }
+    }
+
+
+    /// <summary>
+    /// Görevin kilitli olup olmadığını ayarlar. Manager tarafından çağrılır.
+    /// </summary>
     public void SetLocked(bool isLocked)
     {
         if (lockPanel != null)
         {
             lockPanel.SetActive(isLocked);
         }
-        // Kilitliyken butonları da kapat
+        // Kilitliyken butonları ve diğer etkileşimli elemanları gizle
         if (startButton != null) startButton.gameObject.SetActive(!isLocked);
-        // ... diğer UI elemanları ...
+        if (progressBar != null) progressBar.gameObject.SetActive(!isLocked);
+        if (timerText != null) timerText.gameObject.SetActive(!isLocked);
+        // Gereksinim/Ödül metinleri kilitliyken de görünebilir veya gizlenebilir, tasarıma bağlı.
     }
-    
-    /// <summary>
-/// Kalan süreyi SS:DD:SS formatında gösterir.
-/// </summary>
-public void UpdateTimerText(float remainingSeconds)
-{
-    if (timerText == null) return;
-
-    // Zamanlayıcıyı sadece çalışıyorsa (0'dan büyükse) göster
-    timerText.gameObject.SetActive(remainingSeconds > 0);
-
-    System.TimeSpan timeSpan = System.TimeSpan.FromSeconds(remainingSeconds);
-    timerText.text = string.Format("{0:D2}:{1:D2}:{2:D2}",
-                                    (int)timeSpan.TotalHours,
-                                    timeSpan.Minutes,
-                                    timeSpan.Seconds);
-}
 
     public string GetQuestID()
     {
         return (_questData != null) ? _questData.questID : string.Empty;
     }
 
-    #region Gereksinim Kontrolü (ExplorerPerkUI'dan Kopyalandı)
+    #region Gereksinim Formatlama (Kontrol Manager'da)
 
-    private bool CheckRequirementsMet(List<Requirement> requirements)
-    {
-        if (requirements == null || requirements.Count == 0) return true;
-        foreach (Requirement req in requirements)
-        {
-            if (!IsRequirementMet(req)) return false;
-        }
-        return true;
-    }
+    // CheckRequirementsMet ve IsRequirementMet metotları SİLİNDİ.
 
-    private bool IsRequirementMet(Requirement req)
-    {
-        // Not: Bu fonksiyon ExplorerManager'ın maliyet kontrolünden farklıdır,
-        // Sadece "Gereken" şarta bakılır (örn: 50 Enerjiye SAHİP olmak)
-        switch (req.requirementType.ToLower())
-        {
-            case "level": return (LevelManager.Instance != null) && LevelManager.Instance.currentLevel >= req.requiredValue;
-            case "quest": return (QuestManager.Instance != null) && QuestManager.Instance.GetCompletionCount(req.requirementName) > 0;
-            case "item":
-                ItemData item = (ItemManager.Instance != null) ? ItemManager.Instance.GetItemByName(req.requirementName) : null;
-                return (item != null && Inventory.Instance != null) && Inventory.Instance.HasItem(item, req.requiredValue);
-            case "stat": return (StatManager.Instance != null) && StatManager.Instance.GetTotalStat(req.requirementName) >= req.requiredValue;
-            case "energy": return (ResourceManager.Instance != null) && ResourceManager.Instance.currentEnergy >= req.requiredValue;
-            // Diğer kaynaklar...
-            default: return false;
-        }
-    }
 
-    private string FormatRequirements(List<Requirement> requirements)
+    private string BuildFormattedRequirementsString(List<Requirement> requirements)
     {
+        // Manager null ise veya liste boşsa başlık döndür
+        if (ExplorerManager.Instance == null) return "<b>Gereksinimler:</b>\n(Yönetici bekleniyor...)";
         if (requirements == null || requirements.Count == 0) return "<b>Gereksinim:</b> Yok";
 
         StringBuilder sb = new StringBuilder("<b>Gereksinimler:</b>\n");
         foreach (Requirement req in requirements)
         {
-            bool isMet = IsRequirementMet(req);
-            string reqText = "";
-            string currentVal = "";
-
-            switch (req.requirementType.ToLower())
-            {
-                case "level": reqText = $"Seviye {req.requiredValue}"; break;
-                case "quest": reqText = $"Görevi tamamla: '{req.requirementName}'"; break;
-                case "item":
-                    ItemData item = (ItemManager.Instance != null) ? ItemManager.Instance.GetItemByName(req.requirementName) : null;
-                    int currentAmount = (item != null && Inventory.Instance != null) ? Inventory.Instance.GetItemCount(item) : 0;
-                    reqText = $"{req.requiredValue} x {req.requirementName}";
-                    currentVal = $"({currentAmount})";
-                    break;
-                case "stat":
-                    float currentStat = (StatManager.Instance != null) ? StatManager.Instance.GetTotalStat(req.requirementName) : 0;
-                    reqText = $"{req.requiredValue} {req.requirementName} Stat";
-                    currentVal = $"({currentStat:F0})";
-                    break;
-                case "energy":
-                    reqText = $"{req.requiredValue} Enerji";
-                    currentVal = $"({ResourceManager.Instance.currentEnergy:F0})";
-                    break;
-                default: reqText = $"{req.requiredValue} {req.requirementName}"; break;
-            }
-            sb.AppendLine($"<color=#{ (isMet ? _metColorHex : _notMetColorHex) }>- {reqText} {currentVal}</color>");
+            // Manager'dan formatlanmış string'i al (forceMetColor = false)
+            sb.AppendLine(ExplorerManager.Instance.GetFormattedRequirementString(req, false));
         }
         return sb.ToString().TrimEnd();
     }
@@ -280,44 +288,72 @@ public void UpdateTimerText(float remainingSeconds)
         if (startButton != null) startButton.interactable = interactable;
     }
 
-    #region Event Abonelikleri
+    #region Event Abonelikleri (Dinamik UI Güncellemesi için)
 
-    // UI'ın gereksinimleri dinamik olarak güncellemesi için
+    private bool _isSubscribed = false;
+
     private void OnEnable()
     {
+        // Setup henüz çalışmadıysa veya Manager yoksa dinlemeye başlama
+        if (_questData == null || _manager == null) return;
+        if (_isSubscribed) return;
+
         SubscribeToEvents(true);
-        if (_questData != null) RefreshUI(); // Panel tekrar açıldığında UI'ı yenile
+        RefreshUI(); // Panel açıldığında UI'ı yenile
     }
 
     private void OnDisable()
     {
+        if (!_isSubscribed) return;
         SubscribeToEvents(false);
     }
-    
+
     private void SubscribeToEvents(bool subscribe)
     {
-        // Event'ler null olabilir, null kontrolü yap
+         // PerkUI'daki ile aynı mantık
         if (subscribe)
         {
-            if (LevelManager.Instance != null) LevelManager.Instance.OnLevelUp += OnPlayerStatsChanged;
+            if (_isSubscribed) return;
+
+            LevelManager.OnPlayerLeveledUp += OnPlayerStatsChanged;
+            Inventory.OnInventoryChanged_Static += OnPlayerStatsChanged; // Statik event
+
             if (ResourceManager.Instance != null) ResourceManager.Instance.OnValuesChanged += OnPlayerStatsChanged;
-            if (CurrencyManager.Instance != null) CurrencyManager.Instance.OnCurrencyChanged += OnPlayerStatsChanged;
+            if (CurrencyManager.Instance != null) CurrencyManager.Instance.OnCurrencyChanged += OnCurrencyChanged;
             if (StatManager.Instance != null) StatManager.Instance.OnStatChanged += OnStatManagerChanged;
-            if (Inventory.Instance != null) Inventory.OnInventoryChanged_Static += OnPlayerStatsChanged; // Statik eventi dinle
+            if (QuestManager.Instance != null) QuestManager.Instance.OnQuestProgress += OnQuestProgressChanged; // Ana görevler için
+             // ExplorerManager'ın kendi görev tamamlama event'ine de abone olunabilir (gerekirse)
+            // if (ExplorerManager.Instance != null) ExplorerManager.Instance.OnExplorerQuestCompleted += OnExplorerQuestCompleted;
+
+            _isSubscribed = true;
         }
         else
         {
-            if (LevelManager.Instance != null) LevelManager.Instance.OnLevelUp -= OnPlayerStatsChanged;
-            if (ResourceManager.Instance != null) ResourceManager.Instance.OnValuesChanged -= OnPlayerStatsChanged;
-            if (CurrencyManager.Instance != null) CurrencyManager.Instance.OnCurrencyChanged -= OnPlayerStatsChanged;
-            if (StatManager.Instance != null) StatManager.Instance.OnStatChanged -= OnStatManagerChanged;
-            if (Inventory.Instance != null) Inventory.OnInventoryChanged_Static -= OnPlayerStatsChanged; // Statik event aboneliğini kaldır
+            if (!_isSubscribed) return;
+
+            LevelManager.OnPlayerLeveledUp -= OnPlayerStatsChanged;
+            Inventory.OnInventoryChanged_Static -= OnPlayerStatsChanged;
+
+            try
+            {
+                 if (ResourceManager.Instance != null) ResourceManager.Instance.OnValuesChanged -= OnPlayerStatsChanged;
+                 if (CurrencyManager.Instance != null) CurrencyManager.Instance.OnCurrencyChanged -= OnCurrencyChanged;
+                 if (StatManager.Instance != null) StatManager.Instance.OnStatChanged -= OnStatManagerChanged;
+                 if (QuestManager.Instance != null) QuestManager.Instance.OnQuestProgress -= OnQuestProgressChanged;
+                // if (ExplorerManager.Instance != null) ExplorerManager.Instance.OnExplorerQuestCompleted -= OnExplorerQuestCompleted;
+            }
+            catch (Exception ex) { Debug.LogWarning($"[{_questData?.questID ?? "Bilinmeyen Görev"}] Event aboneliği kaldırılırken hata: {ex.Message}"); }
+
+            _isSubscribed = false;
         }
     }
 
+    // Gelen herhangi bir değişiklik anonsunda, UI durumunu yenile.
     private void OnPlayerStatsChanged() => RefreshUI();
     private void OnStatManagerChanged(string statName, double value) => RefreshUI();
-    private void OnPlayerStatsChanged(CurrencyType type, double amount) => RefreshUI();
+    private void OnCurrencyChanged(CurrencyType type, double amount) => RefreshUI();
+    private void OnQuestProgressChanged(QuestData questData, int completionCount) => RefreshUI(); // Ana görevler değiştiğinde
+    // private void OnExplorerQuestCompleted(ExplorerQuestData questData) => RefreshUI(); // Başka bir explorer görevi bittiğinde
 
     #endregion
 }

@@ -16,7 +16,7 @@ MonoBehaviour:
   questID: EXPLORER_QUEST_1
   description: I can't stay here like this. I need to find a way.
   requirements:
-  - requirementType: Energy
+  - reqType: 10
     requirementName: Energy
     requiredValue: 50
   baseCompletionTime: 60

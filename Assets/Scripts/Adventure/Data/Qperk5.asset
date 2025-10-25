@@ -15,14 +15,14 @@ MonoBehaviour:
   tag: 0
   description: I'd better gather some wood for the camp
   unlockRequirements:
-  - requirementType: item
+  - reqType: 4
     requirementName: Odun
     requiredValue: 50
   purchasePrice:
-  - requirementType: item
+  - reqType: 4
     requirementName: Odun
     requiredValue: 50
   reward:
-    masteryName: (1)WoodCutter
+    perkToGrant: {fileID: 11400000, guid: 193a3bcc676db2b41a19d643f30672a6, type: 2}
     amount: 1
-    description: A strange energy is surrounding your body. +5 Unspent Stat Point.
+    descriptionOverride: 

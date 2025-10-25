@@ -17,8 +17,8 @@ MonoBehaviour:
   description: The coins I collected from the creatures are shaking. I guess I have
     to drop them here.
   requirements: []
-  baseCompletionTime: 0
-  completionLimit: 0
+  baseCompletionTime: 1
+  completionLimit: 1
   rewardsPerCompletion: []
   unlocksQuestID: EXPLORER_QUEST_3
   isTimerBased: 0

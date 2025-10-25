@@ -1,9 +1,14 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using System; // Action event'i için bu satır gereklidir
+using System;
 
-public class ResourceManager : MonoBehaviour
+/// <summary>
+/// Oyuncunun Can, Enerji ve Mana gibi ana kaynaklarını yönetir.
+/// Rejenerasyonu ve StatCalculator'dan gelen maksimum değer güncellemelerini işler.
+/// GameDataManager ile uyumlu "pasif" modda çalışır.
+/// </summary>
+public class ResourceManager : MonoBehaviour, IGameDataSaveable<ResourceSaveData>
 {
     public static ResourceManager Instance;
 
@@ -25,7 +30,7 @@ public class ResourceManager : MonoBehaviour
     public float currentMana = 100f;
     public float maxMana = 100f;
 
-    // QuestItemUI'ın kaynak değişikliklerini dinleyebilmesi için event
+    // Diğer sistemlerin kaynak değişikliklerini dinleyebilmesi için event
     public event Action OnValuesChanged;
 
     void Awake()
@@ -43,6 +48,8 @@ public class ResourceManager : MonoBehaviour
 
     void Start()
     {
+        // Not: Bu değerler, hemen ardından GameDataManager'dan Load gelirse üzerine yazılacaktır.
+        // Bu, "Yeni Oyun" senaryosu için varsayılan değerleri ayarlar.
         currentHealth = maxHealth;
         currentEnergy = maxEnergy;
         currentMana = maxMana;
@@ -52,7 +59,12 @@ public class ResourceManager : MonoBehaviour
         if (StatCalculator.Instance != null)
         {
             StatCalculator.Instance.OnStatsRecalculated += UpdateMaxStats;
+            Debug.Log("ResourceManager, StatCalculator'a abone oldu.");
+
+            // Başlangıçta maksimum statları hemen çek
+            UpdateMaxStats();
         }
+        LevelManager.OnPlayerLeveledUp += HandlePlayerLevelUp;
     }
 
     void OnDestroy()
@@ -61,12 +73,14 @@ public class ResourceManager : MonoBehaviour
         {
             StatCalculator.Instance.OnStatsRecalculated -= UpdateMaxStats;
         }
+        LevelManager.OnPlayerLeveledUp -= HandlePlayerLevelUp;
     }
 
     void Update()
     {
         if (StatCalculator.Instance == null) return;
 
+        // Rejenerasyonları uygula
         float healthRegenRate = (float)StatCalculator.Instance.currentStats.HealthRecovery;
         float energyRegenRate = (float)StatCalculator.Instance.currentStats.EnergyRecovery;
         float manaRegenRate = (float)StatCalculator.Instance.currentStats.ManaRecovery;
@@ -79,6 +93,7 @@ public class ResourceManager : MonoBehaviour
         currentEnergy = Mathf.Clamp(currentEnergy + energyRegenRate * Time.deltaTime, 0, maxEnergy);
         currentMana = Mathf.Clamp(currentMana + manaRegenRate * Time.deltaTime, 0, maxMana);
 
+        // Sadece değerler gerçekten değiştiyse UI güncellemesi yap
         if (oldHealth != currentHealth || oldEnergy != currentEnergy || oldMana != currentMana)
         {
             UpdateAllBars();
@@ -86,6 +101,43 @@ public class ResourceManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// LevelManager'dan gelen 'OnPlayerLeveledUp' event'ini (duyurusunu) yakalar
+    /// ve kaynakları (Health, Energy, Mana) günceller.
+    /// </summary>
+    private void HandlePlayerLevelUp()
+    {
+        // LevelManager'dan seviye atlama bonuslarını al
+        // (Burada hala LevelManager.Instance'a erişiyoruz, ama sadece
+        // BİLGİ ALMAK için, EMİR VERMEK için değil. Bu daha kabul edilebilir.)
+        if (LevelManager.Instance == null) return;
+
+        float healthBonus = LevelManager.Instance.maxHealthPerLevel;
+        float energyBonus = LevelManager.Instance.maxEnergyPerLevel;
+        float manaBonus = LevelManager.Instance.maxManaPerLevel;
+
+        // ResourceManager KENDİ işini KENDİSİ yapar
+        this.maxHealth += healthBonus;
+        this.maxEnergy += energyBonus;
+        this.maxMana += manaBonus;
+
+        // Kaynakları tam doldur
+        this.currentHealth = this.maxHealth;
+        this.currentEnergy = this.maxEnergy;
+        this.currentMana = this.maxMana;
+
+        // UI'ı güncelle
+        UpdateAllBars();
+        OnValuesChanged?.Invoke();
+
+        Debug.Log($"[ResourceManager] Seviye atlandı! Yeni Max Health: {maxHealth}");
+    }
+
+
+    /// <summary>
+    /// StatCalculator'dan gelen 'OnStatsRecalculated' event'i ile tetiklenir.
+    /// Maksimum değerleri günceller ve mevcut değerleri bu maks'ın içinde tutar.
+    /// </summary>
     private void UpdateMaxStats()
     {
         if (StatCalculator.Instance == null) return;
@@ -94,6 +146,7 @@ public class ResourceManager : MonoBehaviour
         maxEnergy = (float)StatCalculator.Instance.currentStats.MaxEnergy;
         maxMana = (float)StatCalculator.Instance.currentStats.MaxMana;
 
+        // Mevcut değerlerin yeni maksimum değerleri aşmadığından emin ol
         currentHealth = Mathf.Min(currentHealth, maxHealth);
         currentEnergy = Mathf.Min(currentEnergy, maxEnergy);
         currentMana = Mathf.Min(currentMana, maxMana);
@@ -102,6 +155,9 @@ public class ResourceManager : MonoBehaviour
         OnValuesChanged?.Invoke(); // Max statlar değiştiğinde de haber ver
     }
 
+    /// <summary>
+    /// Tüm UI barlarını ve metinlerini günceller.
+    /// </summary>
     public void UpdateAllBars()
     {
         UpdateBar(healthFill, healthText, currentHealth, maxHealth);
@@ -109,6 +165,9 @@ public class ResourceManager : MonoBehaviour
         UpdateBar(manaFill, manaText, currentMana, maxMana);
     }
 
+    /// <summary>
+    /// (Eski koddaki) Özel UI bar doldurma mantığı.
+    /// </summary>
     void UpdateBar(Image fillImage, TextMeshProUGUI text, float current, float max)
     {
         if (fillImage == null || text == null) return;
@@ -129,6 +188,10 @@ public class ResourceManager : MonoBehaviour
 
         text.text = Mathf.RoundToInt(current) + " / " + Mathf.RoundToInt(max);
     }
+
+    // ====================================================================================================
+    // KAYNAK DEĞİŞTİRME METOTLARI
+    // ====================================================================================================
 
     public void ModifyHealth(float amount)
     {
@@ -151,53 +214,80 @@ public class ResourceManager : MonoBehaviour
         OnValuesChanged?.Invoke();
     }
 
-    /// <summary>
-/// Maksimum Can değerini kalıcı olarak değiştirir ve UI'ı günceller.
-/// </summary>
-/// <param name="amount">Eklenecek (pozitif) veya çıkarılacak (negatif) miktar.</param>
-public void ModifyMaxHealth(float amount)
-{
-    maxHealth += amount;
-    if (maxHealth < 1) maxHealth = 1; // Maksimum can 1'in altına düşmesin
-    
-    // Mevcut canı da yeni maksimuma ayarla (veya orantıla)
-    // Şimdilik, eğer mevcut can max'tan fazlaysa, onu max'a eşitleyelim.
-    if (currentHealth > maxHealth) currentHealth = maxHealth;
-    
-    OnValuesChanged?.Invoke(); // UI'ı (ve event'i dinleyen diğer yerleri) güncelle
-}
+    // Not: Bu 'ModifyMax...' metotları muhtemelen artık StatCalculator tarafından
+    // otomatik olarak yönetildiği için harici olarak çağrılmamalıdır.
+    // Ancak eski kodda oldukları için güvenlik açısından korundu.
+    public void ModifyMaxHealth(float amount)
+    {
+        maxHealth += amount;
+        if (maxHealth < 1) maxHealth = 1;
+        if (currentHealth > maxHealth) currentHealth = maxHealth;
+        OnValuesChanged?.Invoke();
+    }
 
-/// <summary>
-/// Maksimum Enerji değerini kalıcı olarak değiştirir ve UI'ı günceller.
-/// </summary>
-/// <param name="amount">Eklenecek (pozitif) veya çıkarılacak (negatif) miktar.</param>
-public void ModifyMaxEnergy(float amount)
-{
-    maxEnergy += amount;
-    if (maxEnergy < 1) maxEnergy = 1; 
-
-    if (currentEnergy > maxEnergy) currentEnergy = maxEnergy;
+    public void ModifyMaxEnergy(float amount)
+    {
+        maxEnergy += amount;
+        if (maxEnergy < 1) maxEnergy = 1; 
+        if (currentEnergy > maxEnergy) currentEnergy = maxEnergy;
+        OnValuesChanged?.Invoke();
+    }
     
-    OnValuesChanged?.Invoke(); // UI'ı güncelle
-}
-
-    /// <summary>
-    /// Maksimum Mana değerini kalıcı olarak değiştirir ve UI'ı günceller.
-    /// </summary>
-    /// <param name="amount">Eklenecek (pozitif) veya çıkarılacak (negatif) miktar.</param>
     public void ModifyMaxMana(float amount)
     {
         maxMana += amount;
         if (maxMana < 1) maxMana = 1;
-
         if (currentMana > maxMana) currentMana = maxMana;
-        
-        OnValuesChanged?.Invoke(); // UI'ı güncelle
+        OnValuesChanged?.Invoke();
     }
     
     private string GetDebuggerDisplay()
     {
         return ToString();
     }
-}
 
+    // ====================================================================================================
+    // KAYIT SİSTEMİ (GameDataManager UYUMLU)
+    // ====================================================================================================
+
+    /// <summary>
+    /// GameDataManager'a kaydedilecek verileri toplar ve döndürür.
+    /// Bu, GameSaveData.cs içindeki 'ResourceSaveData' sınıfı ile eşleşmelidir.
+    /// SADECE 'current' değerler kaydedilir, 'max' değerler Stat'lardan hesaplanır.
+    /// </summary>
+    public ResourceSaveData GetSaveData()
+    {
+        Debug.Log("ResourceManager: Kayıt verisi oluşturuluyor.");
+        return new ResourceSaveData
+        {
+            currentHealth = this.currentHealth,
+            currentEnergy = this.currentEnergy,
+            currentMana = this.currentMana
+        };
+    }
+
+    /// <summary>
+    /// GameDataManager'dan gelen verileri bu yöneticiye yükler.
+    /// Bu metodun, StatManager'ın verileri yüklendikten SONRA çağrılması kritiktir.
+    /// </summary>
+    public void LoadFromData(ResourceSaveData data)
+    {
+        if (data == null)
+        {
+            Debug.LogWarning("ResourceManager LoadFromData: Yüklenecek veri bulunamadı (data == null).");
+            return;
+        }
+
+        // maxHealth, maxEnergy, maxMana'nın StatCalculator tarafından
+        // bu fonksiyondan ÖNCE güncellendiğini varsayıyoruz.
+        // GameDataManager'daki yükleme sırası bunu garanti etmelidir.
+        
+        this.currentHealth = Mathf.Clamp(data.currentHealth, 0, this.maxHealth);
+        this.currentEnergy = Mathf.Clamp(data.currentEnergy, 0, this.maxEnergy);
+        this.currentMana = Mathf.Clamp(data.currentMana, 0, this.maxMana);
+        
+        UpdateAllBars();
+        OnValuesChanged?.Invoke();
+        Debug.Log($"ResourceManager verisi yüklendi. Health: {currentHealth}/{maxHealth}");
+    }
+}

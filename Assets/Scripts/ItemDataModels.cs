@@ -1,5 +1,7 @@
 using UnityEngine;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 // Item'ların sahip olabileceği etiketler. Burayı istediğin gibi genişletebilirsin.
 public enum ItemTag
@@ -24,7 +26,18 @@ public struct StatBonus
 [Serializable]
 public struct Requirement
 {
-    public string requirementType; // "Level", "Stat", "Quest"
-    public string requirementName; // Gerekli stat'ın adı veya görevin ID'si
+    // public string requirementType; // ESKİ SATIRI SİLİN VEYA YORUMA ALIN
+    [Tooltip("Gereksinimin türü (Seviye, Eşya, Stat vb.)")]
+    public RequirementType reqType; // YENİ ALAN (enum türünde)
+
+    [Tooltip("Gereksinimle ilgili ek bilgi (Eşya adı, Stat adı, Görev ID'si vb.)")]
+    public string requirementName; // Bu alan aynı kalıyor
+
+    // DİKKAT: Orijinal kodunuzda int idi. Float mı olmalıydı?
+    // Şimdilik int bırakıyorum, eğer float gerekiyorsa float yapın.
+    [Tooltip("Gereken değer (Seviye, Eşya miktarı, Stat değeri vb.)")]
     public int requiredValue;
 }
+
+
+

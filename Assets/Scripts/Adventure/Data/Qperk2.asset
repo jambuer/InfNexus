@@ -16,10 +16,10 @@ MonoBehaviour:
   description: I heard a scream. I think I should get away from here.
   unlockRequirements: []
   purchasePrice:
-  - requirementType: resource
+  - reqType: 13
     requirementName: Maximum Energy
     requiredValue: -5
   reward:
-    masteryName: (1)Undecided
+    perkToGrant: {fileID: 11400000, guid: 83410eaa7a0367f45bf9504bc4eae081, type: 2}
     amount: 1
-    description: I am not sure if I made the right decision. +%5 Gold Bonus.
+    descriptionOverride: 
