@@ -17,6 +17,8 @@ MonoBehaviour:
   enemyName: "test D\xFC\u015Fman"
   canRespawn: 1
   respawnTime: 0
+  enemySprite: {fileID: -406888779007449, guid: 6bf93389940896b4c8a8ecdcdeeb55f1, type: 3}
+  backgroundSprite: {fileID: -1271810057610364904, guid: 2ec343c1a26fb074fb0df06296ef39b2, type: 3}
   primaryTag: 1
   secondaryTag: 5
   hitRate: 1000

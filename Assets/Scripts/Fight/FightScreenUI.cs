@@ -48,19 +48,36 @@ public class FightScreenUI : MonoBehaviour
         if (enemyPrimaryTagText != null) enemyPrimaryTagText.text = _enemyData.primaryTag.ToString();
         if (enemySecondaryTagText != null) enemySecondaryTagText.text = _enemyData.secondaryTag.ToString();
 
-        // Görselleri Yükle (Örnek)
         if (enemyImage != null)
         {
-            Sprite enemySprite = Resources.Load<Sprite>($"EnemySprites/{_enemyData.enemyID}");
-            if (enemySprite != null) enemyImage.sprite = enemySprite;
-            else { enemyImage.sprite = null; enemyImage.color = Color.magenta; } // Hata gösterimi
+            if (_enemyData.enemySprite != null)
+            {
+                enemyImage.sprite = _enemyData.enemySprite; // Doğrudan atama
+                enemyImage.color = Color.white; // Görünür olması için rengi beyaza ayarla
+            }
+            else
+            {
+                enemyImage.sprite = null; // Sprite yoksa boşalt
+                enemyImage.color = Color.magenta; // Hata/placeholder rengi
+                Debug.LogWarning($"Düşman '{_enemyData.enemyName}' için 'enemySprite' atanmamış.");
+            }
         }
+
         if (backgroundImage != null)
         {
-            Sprite bgSprite = Resources.Load<Sprite>($"Backgrounds/{_enemyData.primaryTag}");
-            if (bgSprite != null) backgroundImage.sprite = bgSprite;
-            else { backgroundImage.sprite = null; backgroundImage.color = Color.grey; } // Varsayılan
+            if (_enemyData.backgroundSprite != null)
+            {
+                backgroundImage.sprite = _enemyData.backgroundSprite; // Doğrudan atama
+                backgroundImage.color = Color.white;
+            }
+            else
+            {
+                backgroundImage.sprite = null; // Sprite yoksa boşalt
+                backgroundImage.color = Color.grey; // Varsayılan/placeholder
+                Debug.LogWarning($"Düşman '{_enemyData.enemyName}' için 'backgroundSprite' atanmamış.");
+            }
         }
+        
 
         // Ödül Metni
         if (rewardsText != null) rewardsText.text = FormatRewardsText(_enemyData);

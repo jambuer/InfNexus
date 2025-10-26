@@ -39,6 +39,12 @@ public class EnemyData : ScriptableObject
 
     [Header("Etiketler")]
     [Tooltip("Düşmanın ana kategorisi (Raid, Boss vb.).")]
+    [Header("Görseller")]
+
+    public Sprite enemySprite;
+
+    [Tooltip("Savaş ekranında gösterilecek arka plan görseli (Sprite).")]
+    public Sprite backgroundSprite;
     public EnemyPrimaryTag primaryTag = EnemyPrimaryTag.None;
     [Tooltip("Düşmanın ikincil özelliği (Element, Tür vb.).")]
     public EnemySecondaryTag secondaryTag = EnemySecondaryTag.None;
