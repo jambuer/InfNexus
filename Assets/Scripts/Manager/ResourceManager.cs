@@ -78,12 +78,16 @@ public class ResourceManager : MonoBehaviour, IGameDataSaveable<ResourceSaveData
 
     void Update()
     {
-        if (StatCalculator.Instance == null) return;
+        if (!recoveryActive) return;
+
 
         // Rejenerasyonları uygula
         float healthRegenRate = (float)StatCalculator.Instance.currentStats.HealthRecovery;
         float energyRegenRate = (float)StatCalculator.Instance.currentStats.EnergyRecovery;
         float manaRegenRate = (float)StatCalculator.Instance.currentStats.ManaRecovery;
+
+        if (StatCalculator.Instance == null) return;
+
 
         float oldHealth = currentHealth;
         float oldEnergy = currentEnergy;
@@ -232,13 +236,27 @@ public class ResourceManager : MonoBehaviour, IGameDataSaveable<ResourceSaveData
         if (currentEnergy > maxEnergy) currentEnergy = maxEnergy;
         OnValuesChanged?.Invoke();
     }
-    
+
     public void ModifyMaxMana(float amount)
     {
         maxMana += amount;
         if (maxMana < 1) maxMana = 1;
         if (currentMana > maxMana) currentMana = maxMana;
         OnValuesChanged?.Invoke();
+    }
+    
+    private bool recoveryActive = true; // Yenilenmenin aktif olup olmadığını takip eder
+
+    public void StopRecovery()
+    {
+        recoveryActive = false;
+        Debug.Log("Kaynak yenilenmesi durduruldu.");
+    }
+
+    public void StartRecovery()
+    {
+        recoveryActive = true;
+        Debug.Log("Kaynak yenilenmesi başlatıldı.");
     }
     
     private string GetDebuggerDisplay()

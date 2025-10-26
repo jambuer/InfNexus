@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b958bd18b6932244c81821fd9be96972, type: 3}
+  m_Name: ChaosHit
+  m_EditorClassIdentifier: 
+  effectType: 16
+  triggerChance: 0.03
+  displayName: Chaos Hit
+  damageMultiplier: 10
+  damageAdditive: 0
+  statToAdd: 0
+  statMultiplier: 0
+  resourceToAdd: 0
+  resourceMultiplier: 0
+  defenseIgnorePercent: 0
+  temporaryDefenseReductionPercent: 0
+  extraHits: 0
+  triggersNextAttack: 0
+  multipliesTotalDamage: 0
+  sumsPreviousHits: 0

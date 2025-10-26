@@ -1,0 +1,44 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 809812e8beb98074286e7df0f1957538, type: 3}
+  m_Name: Raid_c1_Test
+  m_EditorClassIdentifier: 
+  enemyID: 87cd3472-5666-4e3c-80e4-6e258983ebaf
+  useLargeLayout: 0
+  enemyName: "test D\xFC\u015Fman"
+  canRespawn: 1
+  respawnTime: 0
+  primaryTag: 1
+  secondaryTag: 5
+  hitRate: 1000
+  attack: 100
+  defense: 50
+  critRate: 0.05
+  critDamage: 1.5
+  maxHealth: 10000000
+  dodgeChance: 0.05
+  experienceReward: 100
+  goldRewardTiers:
+  - minAmount: 500
+    maxAmount: 2500
+    probabilityWeight: 0.1
+  nexusCoinRewardTiers:
+  - minAmount: 10
+    maxAmount: 25
+    probabilityWeight: 0.1
+  itemDrops:
+  - itemToDrop: {fileID: 11400000, guid: 114f4e6640320324f9ed3e1f0b48bc1b, type: 2}
+    dropRateThreshold: 100
+    chanceMultiplierBelowThreshold: 0.125
+    baseDropChance: 1
+    maxDrops: 0
+    quantityScalesWithDropRate: 1

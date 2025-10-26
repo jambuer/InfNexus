@@ -61,7 +61,7 @@ public class ComputedStatsUI : MonoBehaviour
         // Mevcut statları güncelle
         attackText.text = stats.TotalAttack.ToString("F0");
         defenseText.text = stats.TotalDefense.ToString("F0");
-        critRateText.text = (stats.CritRate * 100).ToString("F1") + "%";
+        critRateText.text = (stats.CritRate * 100).ToString("F1") + "%"; 
         critDamageText.text = "+" + (stats.CritDamage * 100).ToString("F1") + "%";
         flatCooldownText.text = stats.FlatCooldownReduction.ToString("F1") + "s"; // Örn: -5.0s
         cooldownReductionText.text = $"-{stats.FlatCooldownReduction:F1}s & +{(stats.PercentCooldownReduction * 100):F1}%";

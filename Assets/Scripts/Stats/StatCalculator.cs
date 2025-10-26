@@ -210,7 +210,16 @@ public class StatCalculator : MonoBehaviour
         newStats.PrestigePoints = (flatPrestigePoints + allStatsBonusFromThresholds) * (1 + percentPrestigePoints);
 
         newStats.CritDamage += 1.0;
-        newStats.CritRate = Math.Min(0.75, newStats.CritRate);
+
+        // --- KRİTİK ŞANS/HASAR AYARLAMASI (%75 Limiti) ---
+        if (newStats.CritRate > 0.75)
+        {
+            double excessCritRate = newStats.CritRate - 0.75;
+            newStats.CritDamage += excessCritRate; // Fazlalığı CritDamage'e ekle
+            newStats.CritRate = 0.75; // CritRate'i %75'e sabitle
+            Debug.Log($"CritRate %75'i aştı. Fazlalık ({excessCritRate * 100:F1}%) CritDamage'e eklendi. Yeni CritDamage: +{((newStats.CritDamage -1)* 100):F1}%");
+        }
+        
 
         currentStats = newStats;
         OnStatsRecalculated?.Invoke();
