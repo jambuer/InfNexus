@@ -85,10 +85,9 @@ namespace PlayerFightMechanics // Kodları gruplamak için namespace kullanabili
         // public enum DamageFormulaType { Standard, HalfAttack, ThirdAttack, AddDefense, AddHealthOverTwo ... }
 
         // --- Diğer Özel Mantıklar İçin Alanlar ---
-        [Tooltip("Resonance gibi efektler için kaç ekstra vuruş yapılacağı.")]
-        public int extraHits = 0;
-        [Tooltip("Lucky Hit gibi sonraki saldırıyı tetikler mi?")]
-        public bool triggersNextAttack = false;
+        [Tooltip("Lucky Hit veya Resonance gibi, bu efekt mevcut tur bittikten sonra yeni bir saldırı turu tetikler mi?")]
+        public bool triggersExtraTurn = false;
+    
         [Tooltip("Extra Lucky Hit gibi toplam hasarı çarpar mı?")]
         public bool multipliesTotalDamage = false;
         [Tooltip("Perfect Hit gibi tüm önceki hasarları toplar mı?")]

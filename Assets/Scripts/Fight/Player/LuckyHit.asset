@@ -23,7 +23,6 @@ MonoBehaviour:
   resourceMultiplier: 0
   defenseIgnorePercent: 0
   temporaryDefenseReductionPercent: 0
-  extraHits: 0
-  triggersNextAttack: 1
+  triggersExtraTurn: 1
   multipliesTotalDamage: 0
   sumsPreviousHits: 0

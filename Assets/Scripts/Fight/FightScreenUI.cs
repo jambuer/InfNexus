@@ -77,7 +77,7 @@ public class FightScreenUI : MonoBehaviour
                 Debug.LogWarning($"Düşman '{_enemyData.enemyName}' için 'backgroundSprite' atanmamış.");
             }
         }
-        
+
 
         // Ödül Metni
         if (rewardsText != null) rewardsText.text = FormatRewardsText(_enemyData);
@@ -131,8 +131,11 @@ public class FightScreenUI : MonoBehaviour
     {
          if (enemyHealthSlider != null)
         {
+            // Slider logaritmik vb. değilse, devasa sayılarla düzgün çalışmaz.
+            // Şimdilik doğrusal (linear) bırakıyoruz.
             if (maxHealth > 0)
             {
+                 // Slider'a hala tam değerleri veriyoruz (görsel temsil)
                  enemyHealthSlider.maxValue = (float)maxHealth;
                  enemyHealthSlider.value = (float)Math.Max(0, currentHealth);
             } else {
@@ -142,7 +145,11 @@ public class FightScreenUI : MonoBehaviour
         }
         if (enemyHealthText != null)
         {
-            enemyHealthText.text = $"{Math.Max(0, currentHealth):F0} / {maxHealth:F0}";
+            // Metni formatlıyoruz
+            string currentHealthFormatted = NumberFormatter.FormatNumber(Math.Max(0, currentHealth)); // FORMATLAMA VAR MI?
+            string maxHealthFormatted = NumberFormatter.FormatNumber(maxHealth); // FORMATLAMA VAR MI?
+            
+            enemyHealthText.text = $"{currentHealthFormatted} / {maxHealthFormatted}"; // FORMATLANDI
         }
     }
 

@@ -26,7 +26,7 @@ MonoBehaviour:
   defense: 50
   critRate: 0.05
   critDamage: 1.5
-  maxHealth: 10000000
+  maxHealth: 1000000000000
   dodgeChance: 0.05
   experienceReward: 100
   goldRewardTiers:

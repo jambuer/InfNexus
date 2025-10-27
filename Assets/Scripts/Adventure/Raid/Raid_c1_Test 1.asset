@@ -15,7 +15,7 @@ MonoBehaviour:
   enemyID: 87cd3472-5666-4e3c-80e4-6e258983eba2
   useLargeLayout: 0
   enemyName: "test D\xFC\u015Fman2"
-  canRespawn: 0
+  canRespawn: 1
   respawnTime: 0
   enemySprite: {fileID: -446192762768061765, guid: 435c5dfb4d78a654298e8cfda1fdc6ee, type: 3}
   backgroundSprite: {fileID: 5063164910255406974, guid: 73fcb9416b6da60439f1b3d608d6c841, type: 3}
@@ -26,7 +26,7 @@ MonoBehaviour:
   defense: 50
   critRate: 0.05
   critDamage: 1.5
-  maxHealth: 100000000000
+  maxHealth: 1000
   dodgeChance: 0.05
   experienceReward: 100
   goldRewardTiers:

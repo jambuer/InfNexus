@@ -12049,7 +12049,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: -0.24997729, y: 0}
+  m_AnchoredPosition: {x: -0.2500056, y: 0}
   m_SizeDelta: {x: 452, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &351446158
@@ -32847,7 +32847,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 2089685795}
   m_Direction: 0
   m_Value: 1
-  m_Size: 0.99924266
+  m_Size: 0.999447
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -60279,7 +60279,6 @@ MonoBehaviour:
   fightConsole: {fileID: 1414864151}
   smallEnemyLayoutPrefab: {fileID: 6777935019116455, guid: 5d9cff42abd41be47bddebd0a5382ff5, type: 3}
   largeEnemyLayoutPrefab: {fileID: 1484601511992205182, guid: 53d42447da81dc1428b55d814f97046c, type: 3}
-  enemyDisplayPrefab: {fileID: 0}
   enemyDatabase: {fileID: 11400000, guid: f6f79df3a48725f44b0bd64bf89ef375, type: 2}
   playerAttackEffectDatabase: {fileID: 11400000, guid: d520eaf17a9ed9c4bacabfaa26315426, type: 2}
   attackController: {fileID: 774056419}
