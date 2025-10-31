@@ -3,11 +3,14 @@ using System.Collections.Generic;
 
 public class InventoryUI : MonoBehaviour
 {
-    public GameObject inventoryPanel; // Tüm envanterin ana paneli
-    public Transform slotContainer; // Slot prefab'larının ekleneceği yer (örn: bir Grid Layout Group)
-    public GameObject slotPrefab; // InventorySlot.cs script'ini içeren prefab
+    public GameObject inventoryPanel; 
+    public Transform slotContainer; 
+    public GameObject slotPrefab; 
 
-    // Oluşturulan slotları takip etmek için bir liste
+    [Header("Envanter Ayarları")]
+    // Başlangıçta kaç tane boş slotun görünmesini istediğinizi buradan ayarlayın
+    public int initialSlotCount = 20; 
+
     List<InventorySlot> slots = new List<InventorySlot>();
 
     void Start()
@@ -16,11 +19,30 @@ public class InventoryUI : MonoBehaviour
         Inventory.Instance.OnInventoryChanged += UpdateUI;
         Inventory.OnInventoryChanged_Static += UpdateUI;
 
-        // Başlangıçta envanter panelini gizle (isteğe bağlı)
-        inventoryPanel.SetActive(false);
+        // Başlangıçta sabit boş slotları oluştur
+        InitializeFixedSlots(initialSlotCount);
+
+        // İlk yüklemede UI'ı güncelle
+        UpdateUI();
     }
 
-    // Envanter panelini açıp kapatan bir fonksiyon (bir butona bağlanabilir)
+    // Başlangıçta sadece boş slotları oluşturur. Bu slotlar HER ZAMAN aktif kalacaktır.
+    void InitializeFixedSlots(int count)
+    {
+        for (int i = 0; i < count; i++)
+        {
+            GameObject newSlotObj = Instantiate(slotPrefab, slotContainer);
+            InventorySlot newSlot = newSlotObj.GetComponent<InventorySlot>();
+            
+            // Slotu boş olarak temizle ve görünür yap.
+            newSlot.ClearSlot(); 
+            newSlotObj.SetActive(true); 
+            
+            slots.Add(newSlot);
+        }
+    }
+
+    // Envanter panelini açıp kapatan bir fonksiyon
     public void ToggleInventory()
     {
         bool isActive = inventoryPanel.activeSelf;
@@ -36,33 +58,34 @@ public class InventoryUI : MonoBehaviour
     // Envanter verisine bakarak UI'ı yeniden çizer
     void UpdateUI()
     {
-        // Mevcut envanterdeki item sayısını al
-        int itemCount = Inventory.Instance.items.Count;
-
-        // 1. Adım: Yeterli sayıda slot olduğundan emin ol
-        while (slots.Count < itemCount)
-        {
-            // Eksikse yeni slot oluştur
-            GameObject newSlotObj = Instantiate(slotPrefab, slotContainer);
-            slots.Add(newSlotObj.GetComponent<InventorySlot>());
-        }
-
-        // 2. Adım: Slotları doldur
-        int i = 0;
+        // 1. Adım: Mevcut itemları slotlara yerleştir
+        int slotIndex = 0;
+        
+        // Dictionary'yi döngüye al
         foreach (var itemEntry in Inventory.Instance.items)
         {
-            // itemEntry.Key = EnvanterItemData (Odun)
-            // itemEntry.Value = int (Miktar, örn: 10)
-            slots[i].AddItemToSlot(itemEntry.Key, itemEntry.Value);
-            slots[i].gameObject.SetActive(true); // Slotu görünür yap
-            i++;
+            // EĞER mevcut slot sayımız, yerleştirmemiz gereken item sayısından az ise, YENİ SLOT OLUŞTUR
+            if (slotIndex >= slots.Count)
+            {
+                // Dinamik olarak yeni slot oluştur (InitialSlotCount aşıldı)
+                GameObject newSlotObj = Instantiate(slotPrefab, slotContainer);
+                slots.Add(newSlotObj.GetComponent<InventorySlot>());
+            }
+            
+            // Slotu item bilgisiyle doldur ve görünür yap.
+            slots[slotIndex].AddItemToSlot(itemEntry.Key, itemEntry.Value);
+            slots[slotIndex].gameObject.SetActive(true); 
+            
+            slotIndex++;
         }
 
-        // 3. Adım: Fazla (boş) slotları gizle
-        for (int j = i; j < slots.Count; j++)
+        // 2. Adım: Kalan slotları temizle.
+        // Bu slotlar ya başlangıçta oluşturulan boş slotlar olacak ya da bir item vardı ama silindi.
+        for (int j = slotIndex; j < slots.Count; j++)
         {
             slots[j].ClearSlot();
-            slots[j].gameObject.SetActive(false); // Veya ClearSlot() içinde gizle
+            // Bu slotları GİZLEMİYORUZ, aksine BOŞ slot olarak GÖSTERİYORUZ.
+            slots[j].gameObject.SetActive(true); 
         }
     }
 }

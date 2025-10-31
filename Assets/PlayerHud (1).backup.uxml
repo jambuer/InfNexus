@@ -1,0 +1,7 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI%20Toolkit/PlayerHudStyleSheet.uss?fileID=7433441132597879392&amp;guid=28b6d08706c2c4d44817519eff62fb0a&amp;type=3#PlayerHudStyleSheet" />
+    <ui:VisualElement name="HealthBar-Container" style="flex-grow: 1;">
+        <ui:Label text="Label" name="Health-Label" style="-unity-font-definition: url(&quot;project://database/Assets/TrajanPro-Bold.otf?fileID=12800000&amp;guid=c18d739050213994f9ca311e4eaf0b74&amp;type=3#TrajanPro-Bold&quot;); -unity-font-style: normal; -unity-text-align: upper-left;" />
+        <ui:VisualElement name="HealthBarFill" style="flex-grow: 1;" />
+    </ui:VisualElement>
+</ui:UXML>

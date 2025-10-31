@@ -23,7 +23,7 @@ MonoBehaviour:
   resourceMultiplier: 0
   defenseIgnorePercent: 0
   temporaryDefenseReductionPercent: 0
-  extraHits: 0
-  triggersNextAttack: 0
+  requiredPerkTag: ExtraLuckyHitPerk
+  triggersExtraTurn: 0
   multipliesTotalDamage: 1
   sumsPreviousHits: 0

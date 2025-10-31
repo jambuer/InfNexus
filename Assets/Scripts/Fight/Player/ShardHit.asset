@@ -23,7 +23,7 @@ MonoBehaviour:
   resourceMultiplier: 0
   defenseIgnorePercent: 0
   temporaryDefenseReductionPercent: 0
-  extraHits: 0
-  triggersNextAttack: 0
+  requiredPerkTag: ShardHitPerk
+  triggersExtraTurn: 0
   multipliesTotalDamage: 0
   sumsPreviousHits: 0

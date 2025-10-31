@@ -256,7 +256,7 @@ private string _enemyID; // Savaş başlatmak için sadece ID'yi saklıyoruz
     public void OnEnemyDefeated()
     {
         // CS0103 HATALARI DÜZELTİLDİ (Artık _currentData kullanılır)
-        if (_currentData == null) return; 
+        if (_currentData == null) return;
 
         if (_currentData.canRespawn)
         {
@@ -277,4 +277,6 @@ private string _enemyID; // Savaş başlatmak için sadece ID'yi saklıyoruz
             Debug.Log($"{_currentData.enemyName} yenildi ve tekrar saldıralamaz.");
         }
     }
+    
+    
 }

@@ -148,6 +148,32 @@ public class FightManager : Singleton<FightManager> // Singleton yaptık
         isFightActive = true;
         waitingForPlayerAction = false;
 
+        // ---- YENİ: Kilidi Açık Efektleri Filtrele ----
+    availablePlayerEffects.Clear(); // Önceki savaştan kalanları temizle
+    if (playerAttackEffectDatabase != null && GameValidator.Instance != null)
+    {
+        List<PlayerAttackEffectData> allEffects = playerAttackEffectDatabase.GetAllEffects();
+        foreach (var effectData in allEffects)
+        {
+            // Normal ve Kritik vuruşları ekleme, onlar özel durum
+            if (effectData.effectType == PlayerAttackEffectType.NormalHit || effectData.effectType == PlayerAttackEffectType.CriticalHit)
+            {
+                continue;
+            }
+
+            // GameValidator ile kilidin açık olup olmadığını kontrol et
+            if (GameValidator.Instance.IsAttackEffectUnlocked(effectData.effectType))
+            {
+                availablePlayerEffects.Add(effectData); // Sadece kilidi açık olanları listeye ekle
+            }
+        }
+        Debug.Log($"Savaş için {availablePlayerEffects.Count} adet kilidi açık saldırı efekti yüklendi.");
+    }
+    else
+    {
+         Debug.LogError("PlayerAttackEffectDatabase veya GameValidator bulunamadı, efektler yüklenemedi!");
+    }
+
         Debug.Log($"Savaş Başlatıldı: {currentEnemyData.enemyName} ({currentDifficulty}) - Can: {currentEnemyHealth}");
 
         // --- UI Güncelleme ---

@@ -3,6 +3,18 @@ using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
+using TMPro;
+
+public enum LogColor
+{
+    White,
+    Red,
+    Green,
+    Blue,
+    Yellow,
+    Cyan,
+    Magenta
+}
 
 public class GameConsole : MonoBehaviour
 {
@@ -65,8 +77,8 @@ public class GameConsole : MonoBehaviour
     private IEnumerator ScrollToBottom()
     {
         // Layout'un güncellenmesi için bir frame bekle
-        yield return null; 
-        
+        yield return null;
+
         // Scroll çubuğunu en alta (0) çek
         if (scrollRect != null)
         {

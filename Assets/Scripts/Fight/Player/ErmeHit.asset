@@ -23,7 +23,7 @@ MonoBehaviour:
   resourceMultiplier: 0
   defenseIgnorePercent: 0
   temporaryDefenseReductionPercent: 0
-  extraHits: 0
-  triggersNextAttack: 1
+  requiredPerkTag: ErmeHitPerk
+  triggersExtraTurn: 0
   multipliesTotalDamage: 0
   sumsPreviousHits: 0

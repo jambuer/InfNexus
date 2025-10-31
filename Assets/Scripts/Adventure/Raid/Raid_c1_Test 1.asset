@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 809812e8beb98074286e7df0f1957538, type: 3}
-  m_Name: Raid_c1_Test 1
+  m_Name: 87cd3472-5666-4e3c-80e4-6e258983eba2
   m_EditorClassIdentifier: 
   enemyID: 87cd3472-5666-4e3c-80e4-6e258983eba2
   useLargeLayout: 0

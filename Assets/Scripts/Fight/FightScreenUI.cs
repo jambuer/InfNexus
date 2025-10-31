@@ -211,6 +211,8 @@ public class FightScreenUI : MonoBehaviour
         return _selectedDifficulty;
     }
 
+    
+
    
      
 }

@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b958bd18b6932244c81821fd9be96972, type: 3}
-  m_Name: Scream Hit
+  m_Name: ScreamHit
   m_EditorClassIdentifier: 
   effectType: 2
   triggerChance: 0.08
@@ -23,7 +23,7 @@ MonoBehaviour:
   resourceMultiplier: 0
   defenseIgnorePercent: 0
   temporaryDefenseReductionPercent: 0
-  extraHits: 0
-  triggersNextAttack: 0
+  requiredPerkTag: ScreamHitPerk
+  triggersExtraTurn: 0
   multipliesTotalDamage: 0
   sumsPreviousHits: 0

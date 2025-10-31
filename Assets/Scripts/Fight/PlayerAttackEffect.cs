@@ -80,6 +80,10 @@ namespace PlayerFightMechanics // Kodları gruplamak için namespace kullanabili
         [Range(0f, 1f)]
         public float temporaryDefenseReductionPercent = 0f; // Breaking Defense için
 
+        [Tooltip("Bu saldırı efektinin kilidini açmak için gereken Perk'in adı/tag'i. Boş bırakılırsa, efekt başlangıçtan itibaren açıktır (temel efektler hariç).")]
+        public string requiredPerkTag = ""; // Başlangıçta boş = perk gerektirmez
+
+
         // Formülü daha açık hale getirmek için enum eklenebilir (opsiyonel)
         // public DamageFormulaType formulaType;
         // public enum DamageFormulaType { Standard, HalfAttack, ThirdAttack, AddDefense, AddHealthOverTwo ... }

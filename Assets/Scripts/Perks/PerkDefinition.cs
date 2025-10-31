@@ -54,7 +54,36 @@ public enum PerkName
 
     //Main:
     Nexus,
-    Raid
+    Raid,
+
+
+
+
+
+    // Player Attack Efektler için
+
+    BreakingDefensePerk,
+    BoldHitPerk,
+    BreakingHitPerk,
+    CrushingHitPerk,
+    DestroyedHitPerk,
+    ExecutionPerk,
+    MutlakDelmePerk,
+    ChaosHitPerk,
+    DefenseHitPerk,
+    ErmeHitPerk,
+    ExtraLuckyHitPerk,
+    LuckyHitPerk,
+    ManaCutPerk,
+    PerfectHitPerk,
+    PanicHitPerk,
+    ResonancePerk,
+    ShardHitPerk,
+    SlashHitPerk,
+    ScreamHitPerk,
+    TenacityPerk,
+    ReflexHitPerk
+
 
 
 
