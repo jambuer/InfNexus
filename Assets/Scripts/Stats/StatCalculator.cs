@@ -28,6 +28,16 @@ public class StatCalculator : MonoBehaviour
         {
             StatManager.Instance.OnStatChanged += (statName, newValue) => RecalculateAllStats();
         }
+
+        if (PerkManager.Instance != null)
+        {
+            PerkManager.Instance.OnPerkUpdated += RecalculateAllStats;
+        }
+        else
+        {
+            Debug.LogWarning("[StatCalculator] PerkManager bulunamadı, perk güncellemeleri dinlenemiyor!");
+        }
+        
         RecalculateAllStats();
     }
     
@@ -185,6 +195,47 @@ public class StatCalculator : MonoBehaviour
         allStatsBonusFromThresholds += Math.Floor(social / 10000) * 100;
         flatPrestigePoints += Math.Floor(social / 10000) * 10;
         // Premium coin ekleme buradan kaldırıldı
+
+        // =================================================================
+        // YENİ EKLENECEK BÖLÜM: PERK BONUSLARI
+        // =================================================================
+        if (PerkManager.Instance != null)
+        {
+            // --- Mevcut Kod (Altın ve XP) ---
+            float perkGoldBonus = PerkManager.Instance.GetBonusFromPerks(PerkEffectType.AddGoldBonus);
+            newStats.GoldBonus += (double)(perkGoldBonus / 100.0f);
+
+            float perkXPBonus = PerkManager.Instance.GetBonusFromPerks(PerkEffectType.AddXPBonus);
+            newStats.ExpBonus += (double)(perkXPBonus / 100.0f);
+
+            // --- YENİ EKLENECEK KODLAR (ÖRNEK) ---
+
+            // Kritik Şans ekle (Perk'teki 'effectValue' 10 ise %10 varsayıyoruz)
+            float perkCritChance = PerkManager.Instance.GetBonusFromPerks(PerkEffectType.AddCriticalChance);
+            newStats.CritRate += (double)(perkCritChance / 100.0f); // %10'u 0.1'e çevir
+
+            // Kritik Hasar ekle
+            float perkCritDamage = PerkManager.Instance.GetBonusFromPerks(PerkEffectType.AddCriticalDamage);
+            newStats.CritDamage += (double)(perkCritDamage / 100.0f); // %15'i 0.15'e çevir
+
+            // Cooldown Azaltma ekle (Yüzdesel)
+            float perkCDR = PerkManager.Instance.GetBonusFromPerks(PerkEffectType.AddCooldownReduction);
+            newStats.PercentCooldownReduction += (double)(perkCDR / 100.0f);
+
+            // Kaynak Maliyeti Azaltma ekle
+            float perkCostReduction = PerkManager.Instance.GetBonusFromPerks(PerkEffectType.AddResourceCostReduction);
+            newStats.ResourceCostReduction += (double)(perkCostReduction / 100.0f);
+
+
+
+            // Diğer tüm pasif perk statlarını bu şekilde eklemeye devam edin...
+            // Örn: newStats.TotalDefense += (double)PerkManager.Instance.GetBonusFromPerks(PerkEffectType.ReduceEnemyDamage);
+        }
+        else
+        {
+            Debug.LogWarning("[StatCalculator] PerkManager bulunamadı, perk bonusları hesaplanamadı.");
+        }
+        // =======
 
         // --- FİNAL HESAPLAMALAR ---
         newStats.TotalAttack = (flatAttack + allStatsBonusFromThresholds) * (1 + percentAttack);

@@ -139,6 +139,22 @@ public class PerkManager : MonoBehaviour, IGameDataSaveable<PerkSaveData> // IGa
         }
     }
 
+    /// <summary>
+    /// Kazanılmış tüm perk'lerin ve seviyelerinin (stack) bir kopyasını döndürür.
+    /// UI script'lerinin listeyi okuması için kullanılır.
+    /// </summary>
+    /// <returns>Perk ID'leri ve seviyelerini içeren yeni bir sözlük.</returns>
+    public Dictionary<string, int> GetPerkCounts()
+    {
+        // Dışarıya sözlüğün kendisini değil, bir kopyasını veriyoruz.
+        // Böylece UI script'leri yanlışlıkla sözlüğü değiştiremez.
+        if (_perkCounts == null)
+        {
+            _perkCounts = new Dictionary<string, int>();
+        }
+        return new Dictionary<string, int>(_perkCounts);
+    }
+
 
 
     /// <summary>

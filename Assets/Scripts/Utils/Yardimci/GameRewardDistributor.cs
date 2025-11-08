@@ -86,23 +86,43 @@ public class GameRewardDistributor : Singleton<GameRewardDistributor>
     /// <summary>
     /// Oyuncuya Altın verir.
     /// </summary>
-    public void AwardGold(double amount, bool logToConsole = true)
+    public void AwardGold(int baseGoldAmount)
     {
-        if (amount <= 0) return;
-        if (CurrencyManager.Instance == null)
+        if (baseGoldAmount <= 0) return;
+
+        double totalBonusPercentage = 0;
+
+        // 1. StatCalculator'dan toplam bonusu sorgula
+        // Bu değer artık perk'leri ve stat'ları içeriyor.
+        if (StatCalculator.Instance != null)
         {
-            Debug.LogError("GameRewardDistributor: CurrencyManager bulunamadı!");
-            return;
+            // currentStats.GoldBonus'un 0.1 = %10 olduğunu varsayıyoruz (çünkü StatCalculator'da 100'e böldük)
+            totalBonusPercentage = StatCalculator.Instance.currentStats.GoldBonus;
         }
 
-        // KULLANICI NOTU DÜZELTMESİ: 'ModifyGold' yerine 'AddGold' kullanılıyor.
-        CurrencyManager.Instance.AddGold(amount); 
+        // 2. Bonusu hesapla
+        float bonusMultiplier = 1.0f + (float)totalBonusPercentage;
+        int finalGoldAmount = Mathf.RoundToInt(baseGoldAmount * bonusMultiplier);
 
-        if (logToConsole)
+        // 3. Nihai (bonuslu) altını ver
+        if (CurrencyManager.Instance != null)
         {
-            LogReward($"+{amount:N0} Altın");
+            CurrencyManager.Instance.AddGold(finalGoldAmount);
+
+            // 4. (Opsiyonel) Konsola ne kadar bonus kazanıldığını yaz
+            if (GameConsole.Instance != null && totalBonusPercentage > 0)
+            {
+                int bonusAmount = finalGoldAmount - baseGoldAmount;
+                // totalBonusPercentage'i geri % olarak göstermek için 100 ile çarp
+                GameConsole.Instance.AddMessage($"<color=yellow>Altın Bonusu: +{bonusAmount} Altın (Toplam +%{totalBonusPercentage * 100:F0})</color>");
+            }
+        }
+        else
+        {
+            Debug.LogError("[GameRewardDistributor] CurrencyManager bulunamadı!");
         }
     }
+
 
     /// <summary>
     /// Oyuncuya NexusCoin verir.
