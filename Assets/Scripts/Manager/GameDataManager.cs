@@ -69,6 +69,10 @@ public class GameDataManager : Singleton<GameDataManager>
                 saveData.chapterData = chapterManager.GetSaveData();
             else if (manager is IGameDataSaveable<TimerSaveData> timerManager)
                 saveData.timerData = timerManager.GetSaveData();
+            else if (manager is IGameDataSaveable<LifeSkillSaveData> lifeSkillManager)
+                saveData.lifeSkillData = lifeSkillManager.GetSaveData();
+            else if (manager is IGameDataSaveable<JobSaveData> jobManager)
+                saveData.jobData = jobManager.GetSaveData();
     
         }
 
@@ -104,6 +108,8 @@ public class GameDataManager : Singleton<GameDataManager>
         LoadManagerData<PerkSaveData>(saveData.perkData);
         LoadManagerData<ExplorerSaveData>(saveData.explorerData);
         LoadManagerData<ChapterSaveData>(saveData.chapterData);
+        LoadManagerData<LifeSkillSaveData>(saveData.lifeSkillData);
+        LoadManagerData<JobSaveData>(saveData.jobData);
         
         // Kaynaklar en son
         LoadManagerData<ResourceSaveData>(saveData.resourceData);

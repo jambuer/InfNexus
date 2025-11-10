@@ -51,7 +51,7 @@ public class GameValidator : Singleton<GameValidator> // Kullandığın Singleto
         {
             case PlayerAttackEffectType.NormalHit:
             case PlayerAttackEffectType.CriticalHit:
-            
+
                 return true; // Bu efektler her zaman açık kabul edilir.
         }
 
@@ -64,8 +64,8 @@ public class GameValidator : Singleton<GameValidator> // Kullandığın Singleto
         }
         else
         {
-             Debug.LogError($"GameValidator: FightManager veya PlayerAttackEffectDatabase bulunamadı! Efekt kontrolü yapılamıyor: {effectType}");
-             return false; // Veritabanına ulaşılamıyorsa kilitli varsay
+            Debug.LogError($"GameValidator: FightManager veya PlayerAttackEffectDatabase bulunamadı! Efekt kontrolü yapılamıyor: {effectType}");
+            return false; // Veritabanına ulaşılamıyorsa kilitli varsay
         }
 
         // Veritabanında efekt yoksa (ve temel değilse) kilitlidir.
@@ -135,15 +135,15 @@ public class GameValidator : Singleton<GameValidator> // Kullandığın Singleto
         return Inventory.Instance.GetItemCount(itemData) >= requiredAmount;
     }
 
-     /// <summary>
+    /// <summary>
     /// Oyuncunun envanterinde belirtilen ItemData asset'inden yeterli miktarda olup olmadığını kontrol eder.
     /// </summary>
     public bool HasItem(ItemData itemData, int requiredAmount = 1)
     {
-         if (itemData == null) { Debug.LogWarning("GameValidator: HasItem(ItemData) null itemData ile çağrıldı."); return false; }
-         if (Inventory.Instance == null) { Debug.LogError("GameValidator: Inventory bulunamadı!"); return false; }
-         // Doğrudan ItemData ile envanteri kontrol et
-         return Inventory.Instance.GetItemCount(itemData) >= requiredAmount;
+        if (itemData == null) { Debug.LogWarning("GameValidator: HasItem(ItemData) null itemData ile çağrıldı."); return false; }
+        if (Inventory.Instance == null) { Debug.LogError("GameValidator: Inventory bulunamadı!"); return false; }
+        // Doğrudan ItemData ile envanteri kontrol et
+        return Inventory.Instance.GetItemCount(itemData) >= requiredAmount;
     }
 
 
@@ -167,23 +167,23 @@ public class GameValidator : Singleton<GameValidator> // Kullandığın Singleto
         return LevelManager.Instance.currentLevel >= requiredLevel;
     }
 
-     /// <summary>
+    /// <summary>
     /// Oyuncunun belirli bir kaynağının (Can, Enerji, Mana) gereken minimum miktarda olup olmadığını kontrol eder.
     /// </summary>
     public bool CheckResourceRequirement(PlayerFightMechanics.ResourceType resourceType, float requiredValue)
     {
-         if (ResourceManager.Instance == null) { Debug.LogError("GameValidator: ResourceManager bulunamadı!"); return false; }
-         switch(resourceType)
-         {
-             case PlayerFightMechanics.ResourceType.Health: return ResourceManager.Instance.currentHealth >= requiredValue;
-             case PlayerFightMechanics.ResourceType.Energy: return ResourceManager.Instance.currentEnergy >= requiredValue;
-             case PlayerFightMechanics.ResourceType.Mana: return ResourceManager.Instance.currentMana >= requiredValue;
-             case PlayerFightMechanics.ResourceType.None: return true;
-             default: Debug.LogWarning($"GameValidator: Bilinmeyen kaynak türü: {resourceType}"); return false;
-         }
+        if (ResourceManager.Instance == null) { Debug.LogError("GameValidator: ResourceManager bulunamadı!"); return false; }
+        switch (resourceType)
+        {
+            case PlayerFightMechanics.ResourceType.Health: return ResourceManager.Instance.currentHealth >= requiredValue;
+            case PlayerFightMechanics.ResourceType.Energy: return ResourceManager.Instance.currentEnergy >= requiredValue;
+            case PlayerFightMechanics.ResourceType.Mana: return ResourceManager.Instance.currentMana >= requiredValue;
+            case PlayerFightMechanics.ResourceType.None: return true;
+            default: Debug.LogWarning($"GameValidator: Bilinmeyen kaynak türü: {resourceType}"); return false;
+        }
     }
 
-     /// <summary>
+    /// <summary>
     /// Oyuncunun belirli bir para biriminden (Gold, NexusCoin, People) gereken minimum miktarda olup olmadığını kontrol eder.
     /// </summary>
     public bool CheckCurrencyRequirement(string currencyType, double requiredValue)
@@ -197,6 +197,113 @@ public class GameValidator : Singleton<GameValidator> // Kullandığın Singleto
             default: Debug.LogWarning($"GameValidator: CheckCurrencyRequirement için bilinmeyen para birimi türü: {currencyType}"); return false;
         }
     }
+
+    /*
+    // ===================================================================
+    // === GATHERING SİSTEMİ İÇİN YENİ (BOZMAYAN) KONTROL FONKSİYONLARI ===
+    // === Bu fonksiyonlar RequirementType.cs'teki YENİ struct'ı kullanır ===
+    // ===================================================================
+
+    /// <summary>
+    /// [YENİ] RequirementType.cs'teki 'Requirement' yapısını kullanan listeyi kontrol eder.
+    /// </summary>
+    public bool CheckRequirements(List<Requirement> requirements)
+    {
+        if (requirements == null || requirements.Count == 0) return true;
+
+        foreach (var req in requirements)
+        {
+            if (!CheckRequirement(req))
+                return false; // Bir tanesi bile sağlanmazsa false dön
+        }
+        return true; // Hepsi sağlandıysa true dön
+    }*/
+
+    /*
+    /// <summary>
+    /// [YENİ] RequirementType.cs'teki 'Requirement' yapısını kullanan tekil gereksinimi kontrol eder.
+    /// </summary>
+    public bool CheckRequirement(Requirement req)
+    {
+        // YENİ struct'ın alan adlarını kullan (requirementType, amount, stringParameter)
+        switch (req.requirementType)
+        {
+            case RequirementType.None:
+                return true;
+
+            case RequirementType.Level:
+                if (LevelManager.Instance == null) return false;
+                return LevelManager.Instance.currentLevel >= (int)req.amount;
+
+            case RequirementType.Quest:
+                if (QuestManager.Instance == null) return false;
+                // GameValidator'daki mevcut fonksiyonu kullan
+                return IsQuestCompleted(req.stringParameter); 
+
+            case RequirementType.Item:
+                if (Inventory.Instance == null) return false;
+                ItemData item = req.itemData;
+                if (item == null && !string.IsNullOrEmpty(req.stringParameter) && ItemManager.Instance != null)
+                {
+                    item = ItemManager.Instance.GetItemByName(req.stringParameter);
+                }
+                if (item == null) return false;
+                return Inventory.Instance.GetItemCount(item) >= (int)req.amount;
+
+            case RequirementType.Gold:
+                if (CurrencyManager.Instance == null) return false;
+                // GameValidator'daki mevcut fonksiyonu kullan
+                return CheckCurrencyRequirement("gold", req.amount); 
+
+            case RequirementType.NexusCoin:
+                if (CurrencyManager.Instance == null) return false;
+                return CheckCurrencyRequirement("nexuscoin", req.amount);
+
+            case RequirementType.People:
+                if (CurrencyManager.Instance == null) return false;
+                return CheckCurrencyRequirement("people", req.amount);
+
+           
+
+            case RequirementType.Stat:
+                if (StatManager.Instance == null) return false;
+                // GameValidator'daki mevcut fonksiyonu kullan
+                return CheckStatRequirement(req.stringParameter, req.amount);
+
+            case RequirementType.Perk:
+                if (PerkManager.Instance == null) return false;
+                // GameValidator'daki mevcut fonksiyonu kullan
+                return HasPerk(req.stringParameter);
+
+            
+
+            case RequirementType.Energy:
+                if (ResourceManager.Instance == null) return false;
+                // GameValidator'daki mevcut fonksiyonu kullan
+                return CheckResourceRequirement(PlayerFightMechanics.ResourceType.Energy, (float)req.amount);
+
+            case RequirementType.Health:
+                if (ResourceManager.Instance == null) return false;
+                return CheckResourceRequirement(PlayerFightMechanics.ResourceType.Health, (float)req.amount);
+
+            case RequirementType.Mana:
+                if (ResourceManager.Instance == null) return false;
+                return CheckResourceRequirement(PlayerFightMechanics.ResourceType.Mana, (float)req.amount);
+
+            // === YENİ EKLEDİĞİMİZ KONTROLLER ===
+            case RequirementType.LifeSkillLevel:
+                if (LifeSkillManager.Instance == null) return false;
+                return LifeSkillManager.Instance.GetLevel(req.lifeSkill) >= (int)req.amount;
+
+            case RequirementType.JobLevel:
+                if (JobsManager.Instance == null) return false;
+                return JobsManager.Instance.GetLevel(req.job) >= (int)req.amount;
+            
+            default:
+                Debug.LogWarning($"[GameValidator] CheckRequirement (Yeni): Bilinmeyen RequirementType '{req.requirementType}'.");
+                return false;
+        }
+    } */
 
 
     // --- Genel Gereksinim Listesi Kontrolü ---
@@ -230,25 +337,35 @@ public class GameValidator : Singleton<GameValidator> // Kullandığın Singleto
                 case RequirementType.Gold:
                     requirementMet = CheckCurrencyRequirement("Gold", req.requiredValue); // 'double' dönüşümü varsayılıyor
                     break;
-                 case RequirementType.NexusCoin:
-                     requirementMet = CheckCurrencyRequirement("NexusCoin", req.requiredValue);
-                     break;
-                 case RequirementType.People:
-                     requirementMet = CheckCurrencyRequirement("People", req.requiredValue);
-                     break;
-                 case RequirementType.Health:
-                     requirementMet = CheckResourceRequirement(PlayerFightMechanics.ResourceType.Health, (float)req.requiredValue); // float dönüşümü
-                     break;
-                 case RequirementType.Energy:
-                     requirementMet = CheckResourceRequirement(PlayerFightMechanics.ResourceType.Energy, (float)req.requiredValue);
-                     break;
-                 case RequirementType.Mana:
-                     requirementMet = CheckResourceRequirement(PlayerFightMechanics.ResourceType.Mana, (float)req.requiredValue);
-                     break;
-                 case RequirementType.Perk:
-                     // requirementName'in Perk adı/tag'i olduğunu varsayıyoruz
-                     requirementMet = HasPerk(req.requirementName);
-                     break;
+                case RequirementType.NexusCoin:
+                    requirementMet = CheckCurrencyRequirement("NexusCoin", req.requiredValue);
+                    break;
+                case RequirementType.People:
+                    requirementMet = CheckCurrencyRequirement("People", req.requiredValue);
+                    break;
+                case RequirementType.Health:
+                    requirementMet = CheckResourceRequirement(PlayerFightMechanics.ResourceType.Health, (float)req.requiredValue); // float dönüşümü
+                    break;
+                case RequirementType.Energy:
+                    requirementMet = CheckResourceRequirement(PlayerFightMechanics.ResourceType.Energy, (float)req.requiredValue);
+                    break;
+                case RequirementType.Mana:
+                    requirementMet = CheckResourceRequirement(PlayerFightMechanics.ResourceType.Mana, (float)req.requiredValue);
+                    break;
+                case RequirementType.Perk:
+                    // requirementName'in Perk adı/tag'i olduğunu varsayıyoruz
+                    requirementMet = HasPerk(req.requirementName);
+                    break;
+                case RequirementType.ExplorerQuest:
+                    // ExplorerQuest kontrolü eklenecek (AdventureManager gerekli)
+                    Debug.LogWarning("GameValidator: AreRequirementsMet içinde ExplorerQuest kontrolü henüz uygulanmadı.");
+                    requirementMet = false;
+                    break;
+                case RequirementType.ExplorerTime:
+                    // ExplorerTime kontrolü eklenecek (AdventureManager gerekli)
+                    Debug.LogWarning("GameValidator: AreRequirementsMet içinde ExplorerTime kontrolü henüz uygulanmadı.");
+                    requirementMet = false;
+                    break;
                 // case RequirementType.ExplorerQuest: // AdventureManager varsa eklenecek
                 //     break;
                 default:
@@ -262,3 +379,5 @@ public class GameValidator : Singleton<GameValidator> // Kullandığın Singleto
         return true; // Hepsi sağlandıysa true dön
     }
 }
+
+

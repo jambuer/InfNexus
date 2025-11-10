@@ -25,7 +25,30 @@ public class GameSaveData
     public ExplorerSaveData explorerData;
     public ChapterSaveData chapterData;
     public TimerSaveData timerData;
+    public LifeSkillSaveData lifeSkillData;
+    public JobSaveData jobData;
+
+    public GameSaveData()
+    {
+        saveTime = DateTime.Now;
+        statData = new StatSaveData();
+        levelData = new LevelSaveData();
+        currencyData = new CurrencySaveData();
+        resourceData = new ResourceSaveData();
+        questData = new QuestSaveData();
+        masteryData = new MasterySaveData();
+        perkData = new PerkSaveData();
+        explorerData = new ExplorerSaveData();
+        chapterData = new ChapterSaveData();
+        timerData = new TimerSaveData();
+        lifeSkillData = new LifeSkillSaveData();
+        jobData = new JobSaveData();
+    }
 }
+
+
+
+
 
 [System.Serializable]
 public class StatSaveData
@@ -84,4 +107,18 @@ public class ExplorerSaveData
 public class ChapterSaveData
 {
     public List<int> unlockedChapterIndices;
+}
+
+[System.Serializable]
+public class LifeSkillSaveData
+{
+    public Dictionary<LifeSkill, double> skillXP;
+    public Dictionary<LifeSkill, int> skillLevels;
+}
+
+[System.Serializable]
+public class JobSaveData
+{
+    public Dictionary<Job, double> jobXP;
+    public Dictionary<Job, int> jobLevels;
 }
