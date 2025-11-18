@@ -18,18 +18,10 @@ MonoBehaviour:
   requirements:
   - reqType: 10
     requirementName: Energy
+    displayName: 
     requiredValue: 80
   baseCompletionTime: 30
   completionLimit: 1
-  rewardsPerCompletion:
-  - rewardDescription: Ilk boss
-    statRewards: []
-    itemRewards:
-    - itemToDrop: {fileID: 11400000, guid: 726615f8e9e262a448c99ba1e9227188, type: 2}
-      dropChance: 1
-      minQuantity: 1
-      maxQuantity: 1
-      amount: 1
-    perkRewards: []
+  rewardsPerCompletion: []
   unlocksQuestID: EXPLORER_QUEST_4
   isTimerBased: 0

@@ -641,64 +641,9 @@ public class FightManager : Singleton<FightManager> // Singleton yaptık
         fightConsole?.AddMessage($"<color=green>{currentEnemyData.enemyName} yenildi!</color>");
         //if (attackButton != null) attackButton.interactable = false;
 
-        // Ödülleri Dağıt
-        // XP
-        double finalExp = currentEnemyData.experienceReward; // TODO: Zorluk çarpanı eklenebilir
-        LevelManager.Instance?.AddXP(finalExp);
-        fightConsole?.AddMessage($"<color=green>+{finalExp:F0} XP</color> kazanıldı.");
 
-        // Altın
-        if (currentEnemyData.goldRewardTiers != null && currentEnemyData.goldRewardTiers.Count > 0)
-        {
-            double baseGold = GetWeightedReward(currentEnemyData.goldRewardTiers);
-            double finalGold = baseGold; // TODO: Zorluk ve oyuncu bonusları eklenebilir
-            if (finalGold > 0) CurrencyManager.Instance?.AddGold(finalGold);
-            fightConsole?.AddMessage($"<color=yellow>+{finalGold:F0} Altın</color> kazanıldı.");
-        }
-        // Nexus Coin
-        if (currentEnemyData.nexusCoinRewardTiers != null && currentEnemyData.nexusCoinRewardTiers.Count > 0)
-        {
-            double baseNexusCoin = GetWeightedReward(currentEnemyData.nexusCoinRewardTiers);
-            double finalNexusCoin = baseNexusCoin; // TODO: Zorluk ve oyuncu bonusları eklenebilir
-            if (finalNexusCoin > 0) CurrencyManager.Instance?.AddNexusCoin(finalNexusCoin);
-            fightConsole?.AddMessage($"<color=yellow>+{finalNexusCoin:F0} Nexus Coin</color> kazanıldı.");
-        }
-
-
-        // Eşyalar
-        if (currentEnemyData.itemDrops != null && Inventory.Instance != null && StatCalculator.Instance != null) // StatCalculator kontrolü eklendi
-        {
-            ComputedStats playerStats = StatCalculator.Instance.currentStats;
-            foreach (var dropInfo in currentEnemyData.itemDrops)
-            {
-                if (dropInfo.itemToDrop == null) continue;
-
-                float actualDropChance = dropInfo.baseDropChance;
-                // Eşik kontrolü
-                if (playerStats.DropRate < dropInfo.dropRateThreshold)
-                {
-                    actualDropChance *= dropInfo.chanceMultiplierBelowThreshold;
-                }
-                // Oyuncu bonusunu ekle (doğrudan eklemek yerine çarpan olarak daha mantıklı olabilir)
-                actualDropChance *= (1.0f + (float)playerStats.DropRate); // Veya sadece playerStats.DropRate eklenebilir? Tasarıma bağlı. Şimdilik çarpıyoruz.
-                actualDropChance = Mathf.Clamp01(actualDropChance); // %100'ü geçmesin
-
-                if (random.NextDouble() <= actualDropChance)
-                {
-                    int quantity = 1;
-                    if (dropInfo.quantityScalesWithDropRate && dropInfo.dropRateThreshold > 0)
-                    {
-                        quantity = (int)Math.Floor(playerStats.DropRate / dropInfo.dropRateThreshold);
-                        quantity = Math.Max(1, quantity); // En az 1 düşsün
-                    }
-
-                    // TODO: Maksimum düşme sayısını (maxDrops) kontrol et (kayıt sistemi gerektirir)
-
-                    Inventory.Instance.AddItem(dropInfo.itemToDrop, quantity);
-                    fightConsole?.AddMessage($"<color=orange>+{quantity} {dropInfo.itemToDrop.itemName}</color> düştü!");
-                }
-            }
-        }
+        // Merkezi GameRewardDistributor'a başvur
+        GameRewardDistributor.Instance.DistributeEnemyRewards(currentEnemyData);
 
         // Düşman yenildi, zorluk dropdown'ını tekrar aç
         enemyDisplayInstance?.EnableDifficultyDropdown();
@@ -970,27 +915,6 @@ public class FightManager : Singleton<FightManager> // Singleton yaptık
     {
         return currentDifficulty;
     }
-
-
-
-    // RewardTier listesinden ağırlıklı rastgele ödül seçen yardımcı fonksiyon (QuestManager'dan kopyalandı)
-    private double GetWeightedReward(List<RewardTier> tiers)
-    {
-        if (tiers == null || tiers.Count == 0) return 0;
-        float totalWeight = tiers.Sum(t => t.probabilityWeight);
-        if (totalWeight <= 0) return tiers.LastOrDefault()?.GetRandomAmount() ?? 0;
-        float randomPoint = UnityEngine.Random.Range(0, totalWeight);
-        foreach (var tier in tiers)
-        {
-            if (randomPoint < tier.probabilityWeight) return tier.GetRandomAmount();
-            randomPoint -= tier.probabilityWeight;
-        }
-        return tiers.Last().GetRandomAmount(); // Hata durumunda sonuncuyu ver
-    }
-
-
-
-
     
     /// <summary>
     /// Otomatik Saldırı butonuna basıldığında çağrılır. Sadece bayrağı değiştirir.

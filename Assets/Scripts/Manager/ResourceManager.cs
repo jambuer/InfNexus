@@ -32,6 +32,8 @@ public class ResourceManager : MonoBehaviour, IGameDataSaveable<ResourceSaveData
 
     // Diğer sistemlerin kaynak değişikliklerini dinleyebilmesi için event
     public event Action OnValuesChanged;
+    
+    
 
     void Awake()
     {
@@ -78,32 +80,48 @@ public class ResourceManager : MonoBehaviour, IGameDataSaveable<ResourceSaveData
 
     void Update()
     {
+        // Önce yenilenmenin aktif olup olmadığını kontrol et
         if (!recoveryActive) return;
+        
+        // StatCalculator'a erişmeden ÖNCE null olup olmadığını kontrol et
+        if (StatCalculator.Instance == null || StatCalculator.Instance.currentStats == null)
+        {
+            return; 
+        }
 
+        // [DEĞİŞTİ] 'recoveryTimer' ve 'while' döngüsü kaldırıldı.
+        // Yenilenme artık her frame 'Time.deltaTime' (geçen süre) kadar yapılacak.
 
-        // Rejenerasyonları uygula
+        // Rejenerasyon oranlarını al (Saniyedeki miktar)
         float healthRegenRate = (float)StatCalculator.Instance.currentStats.HealthRecovery;
         float energyRegenRate = (float)StatCalculator.Instance.currentStats.EnergyRecovery;
         float manaRegenRate = (float)StatCalculator.Instance.currentStats.ManaRecovery;
 
-        if (StatCalculator.Instance == null) return;
+        // Hiç yenilenme yoksa (tüm oranlar 0 veya altı) bu frame'i atla
+        if (healthRegenRate <= 0 && energyRegenRate <= 0 && manaRegenRate <= 0)
+        {
+            return; 
+        }
 
-
+        // Eski değerleri kaydet
         float oldHealth = currentHealth;
         float oldEnergy = currentEnergy;
         float oldMana = currentMana;
 
-        currentHealth = Mathf.Clamp(currentHealth + healthRegenRate * Time.deltaTime, 0, maxHealth);
-        currentEnergy = Mathf.Clamp(currentEnergy + energyRegenRate * Time.deltaTime, 0, maxEnergy);
-        currentMana = Mathf.Clamp(currentMana + manaRegenRate * Time.deltaTime, 0, maxMana);
+        // Değerleri 'Time.deltaTime' (bu frame geçen süre) ile çarp
+        // Saniyelik oranı (örn: 10) alıp, bu frame'lik dilime (örn: 10 * 0.016 = 0.16) düşürüyoruz.
+        currentHealth = Mathf.Clamp(currentHealth + (healthRegenRate * Time.deltaTime), 0, maxHealth);
+        currentEnergy = Mathf.Clamp(currentEnergy + (energyRegenRate * Time.deltaTime), 0, maxEnergy);
+        currentMana = Mathf.Clamp(currentMana + (manaRegenRate * Time.deltaTime), 0, maxMana);
 
         // Sadece değerler gerçekten değiştiyse UI güncellemesi yap
         if (oldHealth != currentHealth || oldEnergy != currentEnergy || oldMana != currentMana)
         {
             UpdateAllBars();
-            OnValuesChanged?.Invoke(); // Değerler değiştiyse haber ver
+            OnValuesChanged?.Invoke(); // [KORUNDU] Değerler değiştiyse haber ver
         }
     }
+    
 
     /// <summary>
     /// LevelManager'dan gelen 'OnPlayerLeveledUp' event'ini (duyurusunu) yakalar
@@ -244,8 +262,9 @@ public class ResourceManager : MonoBehaviour, IGameDataSaveable<ResourceSaveData
         if (currentMana > maxMana) currentMana = maxMana;
         OnValuesChanged?.Invoke();
     }
-    
+
     private bool recoveryActive = true; // Yenilenmenin aktif olup olmadığını takip eder
+    
 
     public void StopRecovery()
     {

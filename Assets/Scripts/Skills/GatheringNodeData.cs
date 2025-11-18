@@ -32,13 +32,21 @@ public class GatheringNodeData : ScriptableObject
     [Tooltip("Eylem tamamlandığında 'associatedSkill'e verilecek temel XP")]
     public double baseSkillXP;
 
+    // [YENİ EKLENDİ] (Adım 15 Öncesi - Efficiency Mantığı)
+    [Tooltip("Bu eylem için gereken 'Efficiency' eşiği (örn: 300). Başarı şansı ve ek miktar bu değere göre hesaplanır.")]
+    public double efficiencyThreshold;
+
     [Header("Gereksinimler ve Ödüller")]
     [Tooltip("Bu eylemi yapabilmek için gerekenler (örn: Seviye 5 WoodCutter, 10 Enerji)")]
-    public List<Requirement> costToPerform; // RequirementType.cs'den
+    public List<GameRequirement> costToPerform; // RequirementType.cs'den
 
     [Tooltip("Bu eylemi yapabilmek için kilidini açma gereksinimleri (eğer kilitliyse)")]
-    public List<Requirement> unlockRequirements; // RequirementType.cs'den
+    public List<GameRequirement> requirementsToUnlock; // RequirementType.cs'den
 
     [Tooltip("Tamamlandığında verilecek ödüller (Item, Gold vb.)")]
     public List<GameReward> rewards; // RewardData.cs'den
+
+    [Header("Şansa Bağlı Ganimetler (Loot)")]
+    [Tooltip("Bu eylemden düşebilecek (DropRate'e bağlı) eşyaların listesi.")]
+    public List<EnemyItemDrop> itemLootTable; // EnemyItemDrop.cs'den
 }

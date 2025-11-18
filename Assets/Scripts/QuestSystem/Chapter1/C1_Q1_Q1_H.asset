@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9a7feed0eadc0aa4890709c750d291d5, type: 3}
   m_Name: C1_Q1_Q1_H
   m_EditorClassIdentifier: 
+  questArea: 0
   questID: 3f17f788-60b4-4cee-943a-6448d422005e
   questName: SIRADAN BIR IS GUNU DAHA
   description: "S\u0131radan bir g\xFCn. Kiralar\u0131n icin ise gidip cal\u0131sman
@@ -23,42 +24,75 @@ MonoBehaviour:
   completionLimit: 0
   masteryID: woodcutting_mastery
   requirements:
-    requiredLevel: 10
-    requiredHealth: 10
-    requiredEnergy: 30
-    requiredMana: 10
-    requiredGold: 0
-    requiredNexusCoin: 0
-    baseCompletionTimeCost: 0
-    requiredPhysical: 0
-    requiredMental: 0
-    requiredPerception: 0
-    requiredSpiritual: 0
-    requiredLuck: 0
-    requiredSocial: 0
-  experienceReward: 50
-  goldRewardTiers:
-  - minAmount: 35
-    maxAmount: 50
-    probabilityWeight: 5
-  nexusCoinRewardTiers: []
-  itemRewards: []
-  statRewards: []
+  - reqType: 1
+    requirementName: 5
+    displayName: 
+    requiredValue: 0
+  - reqType: 0
+    requirementName: 
+    displayName: 
+    requiredValue: 0
+  rewards:
+  - rewardType: 0
+    amount: 1000
+    stringParameter: 
+    itemData: {fileID: 0}
+    lifeSkill: 0
+    job: 0
   automationData:
-    canBeAutomated: 0
+    canBeAutomated: 1
     unlockRequirements:
-      requiredLevel: 1
-      requiredHealth: 0
-      requiredEnergy: 0
-      requiredMana: 0
-      requiredGold: 0
-      requiredNexusCoin: 0
-      baseCompletionTimeCost: 0
-      requiredPhysical: 0
-      requiredMental: 0
-      requiredPerception: 0
-      requiredSpiritual: 0
-      requiredLuck: 0
-      requiredSocial: 0
+    - reqType: 0
+      requirementName: 
+      displayName: 
+      requiredValue: 0
+    - reqType: 0
+      requirementName: 
+      displayName: 
+      requiredValue: 0
+    - reqType: 0
+      requirementName: 
+      displayName: 
+      requiredValue: 0
+    - reqType: 0
+      requirementName: 
+      displayName: 
+      requiredValue: 0
+    - reqType: 0
+      requirementName: 
+      displayName: 
+      requiredValue: 0
+    - reqType: 0
+      requirementName: 
+      displayName: 
+      requiredValue: 0
+    - reqType: 0
+      requirementName: 
+      displayName: 
+      requiredValue: 0
+    - reqType: 0
+      requirementName: 
+      displayName: 
+      requiredValue: 0
+    - reqType: 0
+      requirementName: 
+      displayName: 
+      requiredValue: 0
+    - reqType: 0
+      requirementName: 
+      displayName: 
+      requiredValue: 0
+    - reqType: 0
+      requirementName: 
+      displayName: 
+      requiredValue: 0
+    - reqType: 0
+      requirementName: 
+      displayName: 
+      requiredValue: 0
+    - reqType: 0
+      requirementName: 
+      displayName: 
+      requiredValue: 0
     totalCompletionsToUnlock: 0
     automationTiers: []

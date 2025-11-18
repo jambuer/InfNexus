@@ -21,7 +21,7 @@ MonoBehaviour:
   backgroundSprite: {fileID: 5063164910255406974, guid: 73fcb9416b6da60439f1b3d608d6c841, type: 3}
   primaryTag: 1
   secondaryTag: 5
-  hitRate: 95000
+  hitRate: 1
   attack: 100
   defense: 50
   critRate: 0.05

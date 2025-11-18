@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b68a7c2b4e20f27459397be035e845ba, type: 3}
+  m_Name: GatheringNode_
+  m_EditorClassIdentifier: 
+  nodeID: node1
+  displayName: node1
+  description: node1
+  icon: {fileID: 21300000, guid: e52ea25af699fd445b7046374f81a5b9, type: 3}
+  associatedSkill: 1
+  baseTimeInSeconds: 1
+  baseSkillXP: 100
+  efficiencyThreshold: 10
+  costToPerform:
+  - requirementType: 10
+    stringParameter: 
+    amount: 100
+  requirementsToUnlock: []
+  rewards:
+  - rewardType: 5
+    amount: 1
+    stringParameter: 
+    itemData: {fileID: 11400000, guid: 114f4e6640320324f9ed3e1f0b48bc1b, type: 2}
+    lifeSkill: 0
+    job: 0
+  itemLootTable: []

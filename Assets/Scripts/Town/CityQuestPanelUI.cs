@@ -215,19 +215,15 @@ public class CityQuestPanelUI : MonoBehaviour
         return isValid;
     }
 
-     /// <summary>
-     /// (Opsiyonel) Bir görevin genel gereksinimlerinin karşılanıp karşılanmadığını kontrol eder.
-     /// </summary>
-     private bool CheckGenericRequirements(QuestRequirements requirements)
-     {
-        // Bu fonksiyonun içeriği önceki cevapta verilenle aynı kalabilir.
-        // LevelManager, StatManager gibi yerlerden kontrolleri yapar.
-        if (requirements == null) return true;
-        if (LevelManager.Instance != null && LevelManager.Instance.currentLevel < requirements.requiredLevel) return false;
-        if (StatManager.Instance != null) { /* Stat kontrolleri */ }
-        // ... Diğer kontroller ...
-        return true;
-     }
+    /// <summary>
+    /// (Opsiyonel) Bir görevin genel gereksinimlerinin karşılanıp karşılanmadığını kontrol eder.
+    /// </summary>
+    private bool CheckGenericRequirements(List<Requirement> requirements)
+    {
+        // [YENİ] Artık bu işi panel değil, merkezi GameValidator yapıyor.
+        return GameValidator.Instance.AreRequirementsMet(requirements);
+    }
+
 
      /// <summary>
      /// (Opsiyonel) Görev listesini istenen kritere göre sıralar.

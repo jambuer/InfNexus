@@ -6,8 +6,7 @@ using System.Linq;
 
 /// <summary>
 /// Chapter'ları (Bölüm) yönetir, kilitlerini kontrol eder ve UI'da gösterir.
-/// GameDataManager ile uyumlu "pasif" modda çalışır.
-/// (Kritik gereksinim kontrol hatası düzeltildi)
+/// [YENİ] Artık merkezi GameValidator ve Requirement sistemini kullanır.
 /// </summary>
 public class ChapterManager : MonoBehaviour, IGameDataSaveable<ChapterSaveData>
 {
@@ -23,23 +22,11 @@ public class ChapterManager : MonoBehaviour, IGameDataSaveable<ChapterSaveData>
 
     private int currentChapterIndex = 0;
 
-    [System.Serializable]
-    public class ChapterRequirement
-    {
-        public int requiredLevel = 0;
-        public double requiredGold = 0;
-        public double requiredNexusCoin = 0;
-        public double requiredHealth = 0;
-        public double requiredMana = 0;
-        public double requiredEnergy = 0;
-        public double requiredPhysical = 0;
-        public double requiredMental = 0;
-        public double requiredPerception = 0;
-        public double requiredSpiritual = 0;
-        public double requiredLuck = 0;
-        public double requiredSocial = 0;
-        public List<QuestData> requiredQuests;
-    }
+    // ========================================================================
+    // REFACTORING 1: 'ChapterRequirement' sınıfı silindi.
+    // ========================================================================
+    // [System.Serializable]
+    // public class ChapterRequirement { ... } // Bu sınıf SİLİNDİ.
 
     [System.Serializable]
     public class ChapterContent
@@ -49,7 +36,10 @@ public class ChapterManager : MonoBehaviour, IGameDataSaveable<ChapterSaveData>
         public GameObject lockPanel;
         public TextMeshProUGUI lockRequirementsText;
         public bool isUnlocked = false;
-        public ChapterRequirement requirements;
+
+        // [YENİ] Artık merkezi List<Requirement> yapısını kullanıyor
+        [Tooltip("Bölümün kilidini açmak için gereken merkezi gereksinim listesi.")]
+        public List<Requirement> requirements; 
     }
 
     void Awake()
@@ -74,7 +64,6 @@ public class ChapterManager : MonoBehaviour, IGameDataSaveable<ChapterSaveData>
         previousButton.onClick.AddListener(GoToPreviousChapter);
         nextButton.onClick.AddListener(GoToNextChapter);
         
-        // LoadFromData çağrılmadıysa bile (yeni oyun) UI'ı ilk kez ayarla
         UpdateChapterDisplay();
     }
 
@@ -95,9 +84,6 @@ public class ChapterManager : MonoBehaviour, IGameDataSaveable<ChapterSaveData>
         } 
     }
 
-    /// <summary>
-    /// Aktif chapter'ı gösterir, kilit durumunu kontrol eder ve UI'ı günceller.
-    /// </summary>
     void UpdateChapterDisplay()
     {
         if (chapterNumberText == null || previousButton == null || nextButton == null) return;
@@ -105,21 +91,34 @@ public class ChapterManager : MonoBehaviour, IGameDataSaveable<ChapterSaveData>
         chapterNumberText.text = $"{currentChapterIndex + 1} / {chapters.Count}";
         previousButton.interactable = currentChapterIndex > 0;
         nextButton.interactable = currentChapterIndex < chapters.Count - 1;
-        
+
         for (int i = 0; i < chapters.Count; i++)
         {
             bool isActiveChapter = i == currentChapterIndex;
             if (chapters[i].contentPanel != null)
                 chapters[i].contentPanel.SetActive(isActiveChapter);
-            
-            if (isActiveChapter) 
+
+            if (isActiveChapter)
                 CheckChapterLock(chapters[i]);
         }
     }
-
+    
     /// <summary>
-    /// Belirtilen chapter'ın kilidini kontrol eder ve gerekiyorsa açar.
+    /// [YENİ] Belirtilen chapter index'inin kilidinin açık olup olmadığını döndürür.
+    /// GameValidator tarafından kullanılır.
     /// </summary>
+    public bool IsChapterUnlocked(int chapterIndex)
+    {
+        if (chapterIndex < 0 || chapterIndex >= chapters.Count)
+        {
+            Debug.LogWarning($"IsChapterUnlocked: Geçersiz chapter index: {chapterIndex}");
+            return false;
+        }
+        // Not: Bu, 'CheckChapterLock' fonksiyonunu tetiklemez, sadece mevcut durumu okur.
+        // Kilitlerin açılması 'UpdateChapterDisplay' çağrıldığında kontrol edilir.
+        return chapters[chapterIndex].isUnlocked;
+    }
+
     void CheckChapterLock(ChapterContent chapter)
     {
         if (chapter.isUnlocked) 
@@ -129,12 +128,10 @@ public class ChapterManager : MonoBehaviour, IGameDataSaveable<ChapterSaveData>
             return; 
         }
         
+        // [YENİ] Refactor edilmiş 'AreRequirementsMet' fonksiyonunu çağırır
         if (AreRequirementsMet(chapter.requirements))
         {
             chapter.isUnlocked = true;
-            // Kayıt işlemi artık GameDataManager tarafından toplu yapılacak.
-            // 'SaveChapterUnlocks()' burada ÇAĞRILMAZ.
-            
             if(chapter.lockPanel != null) 
                 chapter.lockPanel.SetActive(false);
                 
@@ -145,92 +142,44 @@ public class ChapterManager : MonoBehaviour, IGameDataSaveable<ChapterSaveData>
             if (chapter.lockPanel != null) 
             {
                 chapter.lockPanel.SetActive(true);
+                // [YENİ] Refactor edilmiş 'GetRequirementsText' fonksiyonunu çağırır
                 if (chapter.lockRequirementsText != null) 
                     chapter.lockRequirementsText.text = GetRequirementsText(chapter.requirements);
             }
         }
     }
 
+    // ========================================================================
+    // REFACTORING 2: 'AreRequirementsMet' fonksiyonu refactor edildi.
+    // ========================================================================
+
     /// <summary>
-    /// Gerekli tüm stat, kaynak ve görevlerin tamamlanıp tamamlanmadığını KONTROL EDER.
-    /// (TÜM GEREKSİNİMLER EKLENDİ - HATA DÜZELTİLDİ)
+    /// [YENİ] Gerekli tüm gereksinimlerin karşılanıp karşılanmadığını merkezi GameValidator'a sorar.
     /// </summary>
-    bool AreRequirementsMet(ChapterRequirement req)
+    bool AreRequirementsMet(List<Requirement> reqs)
     {
-        if (LevelManager.Instance.currentLevel < req.requiredLevel) return false;
-        
-        // Para birimleri
-        if (CurrencyManager.Instance.gold < req.requiredGold) return false;
-        if (CurrencyManager.Instance.nexusCoin < req.requiredNexusCoin) return false;
-
-        // Kaynaklar
-        if (ResourceManager.Instance.currentHealth < req.requiredHealth) return false;
-        if (ResourceManager.Instance.currentMana < req.requiredMana) return false;
-        if (ResourceManager.Instance.currentEnergy < req.requiredEnergy) return false;
-
-        // Stat'lar
-        if (StatManager.Instance.GetTotalPhysical() < req.requiredPhysical) return false;
-        if (StatManager.Instance.GetTotalMental() < req.requiredMental) return false;
-        if (StatManager.Instance.GetTotalPerception() < req.requiredPerception) return false;
-        if (StatManager.Instance.GetTotalSpiritual() < req.requiredSpiritual) return false;
-        if (StatManager.Instance.GetTotalLuck() < req.requiredLuck) return false;
-        if (StatManager.Instance.GetTotalSocial() < req.requiredSocial) return false;
-
-        // Görevler
-        if (req.requiredQuests != null) 
-        { 
-            foreach (var quest in req.requiredQuests) 
-            { 
-                if (QuestManager.Instance.GetCompletionCount(quest.questID) <= 0) 
-                    return false; 
-            } 
-        }
-        
-        return true;
+        // Tüm "spagetti" 'if' blokları silindi.
+        return GameValidator.Instance.AreRequirementsMet(reqs);
     }
 
+    // ========================================================================
+    // REFACTORING 3: 'GetRequirementsText' fonksiyonu refactor edildi.
+    // ========================================================================
+
     /// <summary>
-    /// Gereksinim metnini oyuncuya GÖSTERMEK için oluşturur.
-    /// (TÜM GEREKSİNİMLER EKLENDİ - "ESKİ KOD"DAN ALINDI)
+    /// [YENİ] Gereksinim metnini merkezi RequirementTooltipFormatter'dan alır.
     /// </summary>
-    string GetRequirementsText(ChapterRequirement req)
+    string GetRequirementsText(List<Requirement> reqs)
     {
-        string text = "Kilitli! Gereksinimler:\n\n";
-        if (req.requiredLevel > 0) text += $"- Seviye: {req.requiredLevel}\n";
-        
-        if (req.requiredGold > 0) text += $"- Altın: {req.requiredGold}\n";
-        if (req.requiredNexusCoin > 0) text += $"- Nexus Coin: {req.requiredNexusCoin}\n";
-        
-        if (req.requiredHealth > 0) text += $"- Health: {req.requiredHealth}\n";
-        if (req.requiredMana > 0) text += $"- Mana: {req.requiredMana}\n";
-        if (req.requiredEnergy > 0) text += $"- Energy: {req.requiredEnergy}\n";
-        
-        if (req.requiredPhysical > 0) text += $"- Physical Stat: {req.requiredPhysical}\n";
-        if (req.requiredMental > 0) text += $"- Mental Stat: {req.requiredMental}\n";
-        if (req.requiredPerception > 0) text += $"- Perception Stat: {req.requiredPerception}\n";
-        if (req.requiredSpiritual > 0) text += $"- Spiritual Stat: {req.requiredSpiritual}\n";
-        if (req.requiredLuck > 0) text += $"- Luck Stat: {req.requiredLuck}\n";
-        if (req.requiredSocial > 0) text += $"- Social Stat: {req.requiredSocial}\n";
-        
-        if (req.requiredQuests != null && req.requiredQuests.Count > 0)
-        {
-            text += "- Görevleri Tamamla:\n";
-            foreach (var quest in req.requiredQuests) 
-            { 
-                if (quest != null)
-                    text += $"  • {quest.questName}\n"; 
-            }
-        }
-        return text;
+        // Tüm "spagetti" string birleştirme kodları silindi.
+        // Orijinal başlığı ("Kilitli! Gereksinimler:\n\n") koruyoruz.
+        return RequirementTooltipFormatter.GetFormattedRequirementText(reqs, "Kilitli! Gereksinimler:\n\n");
     }
 
     // ====================================================================================================
-    // KAYIT SİSTEMİ (GameDataManager UYUMLU)
+    // KAYIT SİSTEMİ (Bu kısım değişmedi)
     // ====================================================================================================
 
-    /// <summary>
-    /// GameDataManager'a kaydedilecek verileri toplar ve döndürür.
-    /// </summary>
     public ChapterSaveData GetSaveData()
     {
         List<int> unlockedIndices = new List<int>();
@@ -240,13 +189,10 @@ public class ChapterManager : MonoBehaviour, IGameDataSaveable<ChapterSaveData>
                 unlockedIndices.Add(i);
         }
         
-        Debug.Log("ChapterManager: Kayıt verisi oluşturuluyor."); // Eski koddan Debug log eklendi
+        Debug.Log("ChapterManager: Kayıt verisi oluşturuluyor.");
         return new ChapterSaveData { unlockedChapterIndices = unlockedIndices };
     }
 
-    /// <summary>
-    /// GameDataManager'dan gelen verileri bu yöneticiye yükler.
-    /// </summary>
     public void LoadFromData(ChapterSaveData data)
     {
         if (data?.unlockedChapterIndices == null) 
@@ -255,13 +201,11 @@ public class ChapterManager : MonoBehaviour, IGameDataSaveable<ChapterSaveData>
             return;
         }
 
-        // Kilitleri sıfırla (ilk chapter hariç)
         for (int i = 1; i < chapters.Count; i++) 
         { 
             chapters[i].isUnlocked = false; 
         }
 
-        // Kayıttan gelen kilitleri aç
         foreach (int index in data.unlockedChapterIndices) 
         { 
             if (index < chapters.Count) 
@@ -269,6 +213,6 @@ public class ChapterManager : MonoBehaviour, IGameDataSaveable<ChapterSaveData>
         }
         
         UpdateChapterDisplay();
-        Debug.Log($"ChapterManager verisi yüklendi. {data.unlockedChapterIndices.Count} kilit açık."); // Eski koddan Debug log eklendi
+        Debug.Log($"ChapterManager verisi yüklendi. {data.unlockedChapterIndices.Count} kilit açık.");
     }
 }

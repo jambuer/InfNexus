@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cd0d82c7474c23e459adb1837e866066, type: 3}
   m_Name: Boss1ExplorerItem
   m_EditorClassIdentifier: 
-  itemName: Boss1item
+  itemName: Boss1ExplorerItem
   description: "Bosstan d\xFC\u015Fecek item"
   icon: {fileID: -4218568329292045701, guid: cfbd6c66955b29541b65ad2d107356bd, type: 3}
   tags: 01000000

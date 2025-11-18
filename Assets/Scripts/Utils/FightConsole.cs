@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Text;
 
 // GameConsole.cs'in kopyası, Savaş Paneli için uyarlandı
-public class FightConsole : MonoBehaviour
+public class FightConsole : Singleton<FightConsole>
 {
     // Singleton OLMASIN, FightManager referans verecek
 
@@ -19,6 +19,12 @@ public class FightConsole : MonoBehaviour
 
     // Mesajları hafızada tutan liste
     private List<string> messages = new List<string>();
+
+    protected override void Awake()
+    {
+        // Singleton değil, bu yüzden base.Awake() çağrılmıyor
+        base.Awake();
+    }
 
     private void Start()
     {

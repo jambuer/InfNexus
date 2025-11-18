@@ -34,4 +34,32 @@ public class ComputedStats
     public double NexusCoinBonus;
     public double ResourceCostReduction; // Yüzde olarak
     public double LuckyInvestmentChance; // Yüzde olarak
+
+    // =================================================================
+    // BECERİ VERİMLİLİĞİ (SKILL EFFICIENCY) STATLARI (Adım 15 Öncesi)
+    // =================================================================
+
+    // Life Skills
+    public double WoodCutterEfficiency;
+    public double ForagingEfficiency;
+    public double MiningEfficiency;
+    public double HuntingEfficiency;
+    public double FishingEfficiency;
+    public double ScavengerEfficiency;
+
+    // Jobs
+    public double AlchemistEfficiency;
+    public double TradingEfficiency;
+    public double ChefEfficiency;
+    public double FarmingEfficiency;
+    public double BlacksmithEfficiency;
+    public double CarpenterEfficiency;
+    public double TailorEfficiency;
+    public double TannerEfficiency;
+    public double TamerEfficiency;
+    public double JewelerEfficiency;
+    public double EngineerEfficiency;
+
+    // Global Yüzdesel Bonus
+    public double SkillEfficiency; // (Örn: 0.15 = +%15)
 }

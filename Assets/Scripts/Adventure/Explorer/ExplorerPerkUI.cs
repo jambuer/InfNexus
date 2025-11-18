@@ -126,7 +126,7 @@ public class ExplorerPerkUI : MonoBehaviour
                 priceRewardSection.SetActive(false);
 
                 // Kontrolü Manager'a sor
-                requirementsMetForButton = ExplorerManager.Instance != null && ExplorerManager.Instance.CheckRequirementsMet(_perkData.unlockRequirements);
+                requirementsMetForButton = GameValidator.Instance != null && GameValidator.Instance.AreRequirementsMet(_perkData.unlockRequirements);
                 requirementsText.text = BuildFormattedRequirementsString(_perkData.unlockRequirements, false, "<b>Kilidi Açmak İçin:</b>");
 
                 actionButton.gameObject.SetActive(true);
@@ -155,7 +155,7 @@ public class ExplorerPerkUI : MonoBehaviour
 
 
                 // Buton için maliyet kontrolünü Manager'a sor
-                requirementsMetForButton = ExplorerManager.Instance != null && ExplorerManager.Instance.CheckRequirementsMet(_perkData.purchasePrice);
+                requirementsMetForButton = GameValidator.Instance != null && GameValidator.Instance.AreRequirementsMet(_perkData.purchasePrice);
 
                 actionButton.gameObject.SetActive(true);
                 actionButtonText.text = _isTimerTask ? "START" : "PAY";
@@ -177,11 +177,13 @@ public class ExplorerPerkUI : MonoBehaviour
         {
             case PerkState.Unlockable:
                 // Kontrolü Manager'a sor
-                if (ExplorerManager.Instance.CheckRequirementsMet(_perkData.unlockRequirements))
+                //
+                if (GameValidator.Instance.AreRequirementsMet(_perkData.unlockRequirements))
                 {
                     // Sadece UI durumunu değiştir, Manager'a gitmeye gerek yok
                     SetState(PerkState.Payable);
                 }
+            
                 break;
 
             case PerkState.Payable:
@@ -210,7 +212,9 @@ public class ExplorerPerkUI : MonoBehaviour
         if (_currentState == PerkState.Payable && actionButton != null && ExplorerManager.Instance != null)
         {
             // Buton durumunu tekrar Manager'a sorarak güncelle
-            actionButton.interactable = ExplorerManager.Instance.CheckRequirementsMet(_perkData.purchasePrice);
+            //
+            actionButton.interactable = GameValidator.Instance.AreRequirementsMet(_perkData.purchasePrice);
+
         }
     }
 
@@ -279,41 +283,31 @@ public class ExplorerPerkUI : MonoBehaviour
     {
         if (subscribe)
         {
-            if (_isSubscribed) return; // Zaten aboneyse çık
-
-            // Statik event'lere abone ol
+            if (_isSubscribed) return;
             LevelManager.OnPlayerLeveledUp += OnPlayerStatsChanged;
-            Inventory.OnInventoryChanged_Static += OnPlayerStatsChanged; // Statik event
-
-            // Instance'ı olan event'lere abone ol
-            if (ResourceManager.Instance != null) ResourceManager.Instance.OnValuesChanged += OnPlayerStatsChanged;
-            if (CurrencyManager.Instance != null) CurrencyManager.Instance.OnCurrencyChanged += OnCurrencyChanged;
-            if (StatManager.Instance != null) StatManager.Instance.OnStatChanged += OnStatManagerChanged;
-            if (QuestManager.Instance != null) QuestManager.Instance.OnQuestProgress += OnQuestProgressChanged; // Eski kodda vardı
-
-             _isSubscribed = true;
-             //Debug.Log($"[{_perkData.name}] Event'lere abone olundu.");
+            if (QuestManager.Instance != null) QuestManager.Instance.OnQuestProgress += OnQuestProgressChanged;
+            // YÜKSEK FREKANSLI (Kasma Sebebi) - YORUMA AL:
+            // Inventory.OnInventoryChanged_Static += OnPlayerStatsChanged;
+            // if (ResourceManager.Instance != null) ResourceManager.Instance.OnValuesChanged += OnPlayerStatsChanged;
+            // if (CurrencyManager.Instance != null) CurrencyManager.Instance.OnCurrencyChanged += OnCurrencyChanged;
+            // if (StatManager.Instance != null) StatManager.Instance.OnStatChanged += OnStatManagerChanged;
+            _isSubscribed = true;
         }
         else
         {
-            if (!_isSubscribed) return; // Abone değilse çık
-
-            // Statik event aboneliklerini iptal et
+            if (!_isSubscribed) return;
             LevelManager.OnPlayerLeveledUp -= OnPlayerStatsChanged;
-            Inventory.OnInventoryChanged_Static -= OnPlayerStatsChanged;
-
-            // Instance aboneliklerini iptal et (try-catch ile)
+            if (QuestManager.Instance != null) QuestManager.Instance.OnQuestProgress -= OnQuestProgressChanged;
+            // YÜKSEK FREKANSLI (Kasma Sebebi) - YORUMA AL:
+            // Inventory.OnInventoryChanged_Static -= OnPlayerStatsChanged;
             try
             {
-                 if (ResourceManager.Instance != null) ResourceManager.Instance.OnValuesChanged -= OnPlayerStatsChanged;
-                 if (CurrencyManager.Instance != null) CurrencyManager.Instance.OnCurrencyChanged -= OnCurrencyChanged;
-                 if (StatManager.Instance != null) StatManager.Instance.OnStatChanged -= OnStatManagerChanged;
-                 if (QuestManager.Instance != null) QuestManager.Instance.OnQuestProgress -= OnQuestProgressChanged;
+                // if (ResourceManager.Instance != null) ResourceManager.Instance.OnValuesChanged -= OnPlayerStatsChanged;
+                // if (CurrencyManager.Instance != null) CurrencyManager.Instance.OnCurrencyChanged -= OnCurrencyChanged;
+                // if (StatManager.Instance != null) StatManager.Instance.OnStatChanged -= OnStatManagerChanged;
             }
             catch (Exception ex) { Debug.LogWarning($"[{_perkData?.name ?? "Bilinmeyen Perk"}] Event aboneliği kaldırılırken hata: {ex.Message}"); }
-
             _isSubscribed = false;
-            //Debug.Log($"[{_perkData.name}] Event abonelikleri iptal edildi.");
         }
     }
 
@@ -338,7 +332,9 @@ public class ExplorerPerkUI : MonoBehaviour
             if (isPurchased) _currentState = PerkState.Purchased; // Bu UI zaten görünmemeli
             else
             {
-                bool canUnlock = ExplorerManager.Instance.CheckRequirementsMet(_perkData.unlockRequirements);
+                //
+                bool canUnlock = GameValidator.Instance.AreRequirementsMet(_perkData.unlockRequirements);
+
                 _currentState = canUnlock ? PerkState.Payable : PerkState.Unlockable;
             }
         }
@@ -347,7 +343,9 @@ public class ExplorerPerkUI : MonoBehaviour
         // Sadece 'Kilitli Değil' durumlarını güncelle
         if (_currentState == PerkState.Unlockable)
         {
-            bool unlockRequirementsMet = ExplorerManager.Instance.CheckRequirementsMet(_perkData.unlockRequirements);
+            //
+            bool unlockRequirementsMet = GameValidator.Instance.AreRequirementsMet(_perkData.unlockRequirements);
+
             if (requirementsText != null) requirementsText.text = BuildFormattedRequirementsString(_perkData.unlockRequirements, false, "<b>Kilidi Açmak İçin:</b>");
             if (actionButton != null) actionButton.interactable = unlockRequirementsMet;
 
@@ -359,7 +357,9 @@ public class ExplorerPerkUI : MonoBehaviour
         }
         else if (_currentState == PerkState.Payable)
         {
-            bool purchaseRequirementsMet = ExplorerManager.Instance.CheckRequirementsMet(_perkData.purchasePrice);
+            //
+            bool purchaseRequirementsMet = GameValidator.Instance.AreRequirementsMet(_perkData.purchasePrice);
+
             // Fiyat metnini yeniden oluştur ve butonu güncelle
             if (requirementsText != null)
             {
@@ -377,32 +377,10 @@ public class ExplorerPerkUI : MonoBehaviour
 
     private string BuildFormattedRequirementsString(List<Requirement> requirements, bool forceMetColor, string header)
     {
-        if (requirements == null || requirements.Count == 0)
-        {
-            if (header.Contains("Maliyet")) return "<b>Maliyet:</b> Yok";
-            if (header.Contains("Kilit")) return "<b>Gereksinim:</b> Yok";
-            return "";
-        }
-
-        StringBuilder sb = new StringBuilder();
-        if (!string.IsNullOrEmpty(header))
-        {
-            sb.AppendLine(header);
-        }
-
-        // Manager'a her bir gereksinim için sormak üzere döngü kur
-        if (ExplorerManager.Instance != null)
-        {
-            foreach (Requirement req in requirements)
-            {
-                sb.AppendLine(ExplorerManager.Instance.GetFormattedRequirementString(req, forceMetColor));
-            }
-        }
-        else
-        {
-            sb.AppendLine("<color=red>(Yönetici bekleniyor...)</color>");
-        }
-        return sb.ToString().TrimEnd();
+        // [YENİ] Artık ExplorerManager'a sormak yerine,
+        // merkezi RequirementTooltipFormatter'a soruyoruz.
+        return RequirementTooltipFormatter.GetFormattedRequirementText(requirements, header);
+    
     }
 
 

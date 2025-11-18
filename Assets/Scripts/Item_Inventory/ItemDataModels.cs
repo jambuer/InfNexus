@@ -33,6 +33,9 @@ public struct Requirement
     [Tooltip("Gereksinimle ilgili ek bilgi (Eşya adı, Stat adı, Görev ID'si vb.)")]
     public string requirementName; // Bu alan aynı kalıyor
 
+    [Tooltip("Gereksinim UI'da nasıl görünecek (Boşsa, requirementName kullanılır)")]
+    public string displayName;
+
     // DİKKAT: Orijinal kodunuzda int idi. Float mı olmalıydı?
     // Şimdilik int bırakıyorum, eğer float gerekiyorsa float yapın.
     [Tooltip("Gereken değer (Seviye, Eşya miktarı, Stat değeri vb.)")]

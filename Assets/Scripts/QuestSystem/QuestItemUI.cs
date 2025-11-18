@@ -48,9 +48,7 @@ public class QuestItemUI : MonoBehaviour
         questNameText.text = _questData.questName;
         tagsText.text = $"[{_questData.mainTag}] - [{_questData.subTag}]";
         descriptionText.text = _questData.description;
-        goldRewardText.text = FormatGoldReward();
-        itemRewardsText.text = FormatItemRewards();
-        xpRewardText.text = $"{_questData.experienceReward:F0} XP";
+        PopulateRewardFields();
 
         // requirementsText.text = FormatRequirements(); satırı UpdateRequirementsText() ile değiştirildi
         UpdateRequirementsText();
@@ -84,21 +82,24 @@ public class QuestItemUI : MonoBehaviour
     // --- YENİ EKLENENLER (Event Dinleme) ---
     private void OnEnable()
     {
-        // Gerekli yöneticiler varsa, onların değişikliklerini dinlemeye başla.
         if (LevelManager.Instance != null) LevelManager.Instance.OnLevelUp += OnPlayerStatsChanged;
-        if (ResourceManager.Instance != null) ResourceManager.Instance.OnValuesChanged += OnPlayerStatsChanged;
-        if (CurrencyManager.Instance != null) CurrencyManager.Instance.OnCurrencyChanged += OnPlayerStatsChanged;
-        // İlk açılışta da bir kez güncelle
-        UpdateRequirementsText();
+        // YÜKSEK FREKANSLI (Kasma Sebebi) - YORUMA AL:
+        // if (ResourceManager.Instance != null) ResourceManager.Instance.OnValuesChanged += OnPlayerStatsChanged;
+        // if (CurrencyManager.Instance != null) CurrencyManager.Instance.OnCurrencyChanged += OnPlayerStatsChanged;
+
+        UpdateRequirementsText(); // Sayfa açıldığında günceller (İSTEĞİN 2)
     }
 
+
+    //
     private void OnDisable()
     {
-        // Dinlemeyi bırak ki hata olmasın.
         if (LevelManager.Instance != null) LevelManager.Instance.OnLevelUp -= OnPlayerStatsChanged;
-        if (ResourceManager.Instance != null) ResourceManager.Instance.OnValuesChanged -= OnPlayerStatsChanged;
-        if (CurrencyManager.Instance != null) CurrencyManager.Instance.OnCurrencyChanged -= OnPlayerStatsChanged;
+        // YÜKSEK FREKANSLI (Kasma Sebebi) - YORUMA AL:
+        // if (ResourceManager.Instance != null) ResourceManager.Instance.OnValuesChanged -= OnPlayerStatsChanged;
+        // if (CurrencyManager.Instance != null) CurrencyManager.Instance.OnCurrencyChanged -= OnPlayerStatsChanged;
     }
+
     
     // Gelen herhangi bir değişiklik anonsunda, gereksinim metnini yeniden çiz.
     private void OnPlayerStatsChanged(int level, int statPoints) => UpdateRequirementsText();
@@ -122,125 +123,73 @@ public class QuestItemUI : MonoBehaviour
 
     private string FormatRequirements()
     {
-        // Bu metodun içeriği, senin çalışan kodundakiyle neredeyse aynı,
-        // Sadece renk ekleme mantığı eklendi.
-        QuestRequirements req = _questData.requirements;
-        StringBuilder sb = new StringBuilder();
-        bool hasRequirements = false;
-
-        if (req.requiredLevel > 1)
-        {
-            bool isMet = LevelManager.Instance.currentLevel >= req.requiredLevel;
-            sb.AppendLine($"<color=#{ (isMet ? _metColorHex : _notMetColorHex) }>- LVL {req.requiredLevel}</color>");
-            hasRequirements = true;
-        }
-        if (req.requiredHealth > 0)
-        {
-            bool isMet = ResourceManager.Instance.currentHealth >= req.requiredHealth;
-            sb.AppendLine($"<color=#{ (isMet ? _metColorHex : _notMetColorHex) }>- Health {req.requiredHealth:F0}</color>");
-            hasRequirements = true;
-        }
-        if (req.requiredEnergy > 0)
-        {
-            bool isMet = ResourceManager.Instance.currentEnergy >= req.requiredEnergy;
-            sb.AppendLine($"<color=#{ (isMet ? _metColorHex : _notMetColorHex) }>- Energy {req.requiredEnergy:F0}</color>");
-            hasRequirements = true;
-        }
-        if (req.requiredGold > 0)
-        {
-            bool isMet = CurrencyManager.Instance.gold >= req.requiredGold;
-            sb.AppendLine($"<color=#{(isMet ? _metColorHex : _notMetColorHex)}>- Gold {req.requiredGold:F0}</color>");
-            hasRequirements = true;
-        }
-
-        if (req.requiredMana > 0)
-        {
-            bool isMet = ResourceManager.Instance.currentMana >= req.requiredMana;
-            sb.AppendLine($"<color=#{(isMet ? _metColorHex : _notMetColorHex)}>- Mana {req.requiredMana:F0}</color>");
-            hasRequirements = true;
-        }
-
-        if (req.requiredNexusCoin > 0)
-        {
-            bool isMet = CurrencyManager.Instance.nexusCoin >= req.requiredNexusCoin;
-            sb.AppendLine($"<color=#{(isMet ? _metColorHex : _notMetColorHex)}>- Nexus Coin {req.requiredNexusCoin:F0}</color>");
-            hasRequirements = true;
-        }
+        // [YENİ] Artık _questData.requirements bir 'List<Requirement>'.
+        // Bu listeyi doğrudan merkezi formatlayıcımıza gönderiyoruz.
+        // Not: RequirementTooltipFormatter.GetFormattedRequirementText fonksiyonunun
+        // ikinci parametresinin 'string' olduğundan bir önceki adımda emin olmuştuk.
         
-        if (req.requiredPhysical > 0)
-        {
-            bool isMet = StatManager.Instance.GetTotalPhysical() >= req.requiredPhysical;
-            sb.AppendLine($"<color=#{ (isMet ? _metColorHex : _notMetColorHex) }>- Physical: {req.requiredPhysical:F0}</color>");
-            hasRequirements = true;
-        }
-        if (req.requiredMental > 0)
-        {
-            bool isMet = StatManager.Instance.GetTotalMental() >= req.requiredMental;
-            sb.AppendLine($"<color=#{ (isMet ? _metColorHex : _notMetColorHex) }>- Mental: {req.requiredMental:F0}</color>");
-            hasRequirements = true;
-        }
-        if (req.requiredSpiritual > 0)
-        {
-            bool isMet = StatManager.Instance.GetTotalSpiritual() >= req.requiredSpiritual;
-            sb.AppendLine($"<color=#{ (isMet ? _metColorHex : _notMetColorHex) }>- Spiritual: {req.requiredSpiritual:F0}</color>");
-            hasRequirements = true;
-        }
-        if (req.requiredPerception > 0)
-        {
-            bool isMet = StatManager.Instance.GetTotalPerception() >= req.requiredPerception;
-            sb.AppendLine($"<color=#{ (isMet ? _metColorHex : _notMetColorHex) }>- Perception: {req.requiredPerception:F0}</color>");
-            hasRequirements = true;
-        }
-        if (req.requiredLuck > 0)
-        {
-            bool isMet = StatManager.Instance.GetTotalLuck() >= req.requiredLuck;
-            sb.AppendLine($"<color=#{ (isMet ? _metColorHex : _notMetColorHex) }>- Luck: {req.requiredLuck:F0}</color>");
-            hasRequirements = true;
-        }
-        if (req.requiredSocial > 0)
-        {
-            bool isMet = StatManager.Instance.GetTotalSocial() >= req.requiredSocial;
-            sb.AppendLine($"<color=#{ (isMet ? _metColorHex : _notMetColorHex) }>- Social: {req.requiredSocial:F0}</color>");
-            hasRequirements = true;
-        }
-
-
-        if (hasRequirements)
-        {
-            sb.Insert(0, "\n"); 
-            return sb.ToString();
-        }
-        
-        return "";
+        // (Eğer başlık istemiyorsan ikinci parametreyi "" yapabilirsin)
+        return RequirementTooltipFormatter.GetFormattedRequirementText(_questData.requirements, "Gereksinimler:");
     }
-    
+
     // --- Kalan Fonksiyonların Aynı ---
-    
-    private string FormatGoldReward()
-    {
-        if (_questData.goldRewardTiers == null || _questData.goldRewardTiers.Count == 0) return "Ödül: Yok";
-        double minGold = double.MaxValue, maxGold = double.MinValue;
-        foreach (var tier in _questData.goldRewardTiers)
-        {
-            if (tier.minAmount < minGold) minGold = tier.minAmount;
-            if (tier.maxAmount > maxGold) maxGold = tier.maxAmount;
-        }
-        return minGold >= maxGold ? $"{minGold:F0}" : $"Gold: {minGold:F0} - {maxGold:F0}";
-    }
 
-    private string FormatItemRewards()
+    /// <summary>
+    /// [YENİ] _questData.rewards listesini okur ve ilgili tüm UI metin alanlarını doldurur.
+    /// </summary>
+    // --- YENİ FONKSİYON 1 ---
+// (QuestItemUI.cs'e eklenecek)
+
+    /// <summary>
+    /// [YENİ] _questData.rewards listesini okur ve ilgili tüm UI metin alanlarını doldurur.
+    /// </summary>
+    private void PopulateRewardFields()
     {
-        if (_questData.itemRewards == null || _questData.itemRewards.Count == 0) return "";
-        StringBuilder sb = new StringBuilder("Olası Eşyalar:\n");
-        foreach (var itemDrop in _questData.itemRewards)
+        // Metinleri sıfırla
+        if (xpRewardText != null) xpRewardText.text = "";
+        if (goldRewardText != null) goldRewardText.text = "";
+        if (itemRewardsText != null) itemRewardsText.text = "";
+
+        if (_questData.rewards == null || _questData.rewards.Count == 0)
         {
-            if (itemDrop.itemToDrop != null)
+            if (itemRewardsText != null) itemRewardsText.text = "Ödül Yok";
+            return;
+        }
+
+        StringBuilder xpSB = new StringBuilder();
+        StringBuilder goldSB = new StringBuilder();
+        StringBuilder itemSB = new StringBuilder();
+
+        bool hasItems = false;
+        bool hasGold = false;
+        bool hasXP = false;
+
+        foreach (GameReward reward in _questData.rewards)
+        {
+            switch (reward.rewardType)
             {
-                sb.AppendLine($"- {itemDrop.itemToDrop.itemName} (%{itemDrop.dropChance * 100})");
+                case RewardType.XP:
+                    xpSB.Append($"XP: {reward.amount:N0}");
+                    hasXP = true;
+                    break;
+                case RewardType.Gold:
+                    goldSB.Append($"Gold: {reward.amount:N0}");
+                    hasGold = true;
+                    break;
+                case RewardType.Item:
+                    string itemName = reward.itemData != null ? reward.itemData.itemName : reward.stringParameter;
+                    itemSB.AppendLine($"- {itemName} (x{reward.amount:N0})");
+                    hasItems = true;
+                    break;
+                // Diğer ödülleri de buraya ekleyebilirsin
             }
         }
-        return sb.ToString();
+
+        if (xpRewardText != null) xpRewardText.text = hasXP ? xpSB.ToString() : "";
+        if (goldRewardText != null) goldRewardText.text = hasGold ? goldSB.ToString() : "";
+        if (itemRewardsText != null) itemRewardsText.text = hasItems ? itemSB.ToString().TrimEnd() : "";
     }
+
     
     private void UpdateCompletionCount(QuestData updatedQuest, int newCount)
     {
@@ -292,4 +241,36 @@ public class QuestItemUI : MonoBehaviour
             QuestManager.Instance.OnQuestProgressUpdate -= UpdateProgressBar;
         }
     }
+
+    /// <summary>
+    /// Tek bir GameReward yapısını UI'da gösterilecek basit bir metne dönüştürür.
+    /// </summary>
+    private string FormatReward(GameReward reward)
+    {
+        //
+        switch (reward.rewardType)
+        {
+            case RewardType.XP:
+                return $"+{reward.amount:N0} XP";
+            case RewardType.Gold:
+                return $"+{reward.amount:N0} Altın";
+            case RewardType.NexusCoin:
+                return $"+{reward.amount:N0} Nexus Coin";
+            case RewardType.People:
+                return $"+{reward.amount:N0} Nüfus";
+            case RewardType.Item:
+                string itemName = reward.itemData != null ? reward.itemData.itemName : reward.stringParameter;
+                return $"+{reward.amount:N0} {itemName}";
+            case RewardType.Stat:
+                return $"+{reward.amount} {reward.stringParameter}";
+            case RewardType.Perk:
+                return $"Perk: {reward.stringParameter}";
+            default:
+                return $"+{reward.amount:N0} {reward.rewardType}";
+        }
+    }
+
+    
+    
+
 }

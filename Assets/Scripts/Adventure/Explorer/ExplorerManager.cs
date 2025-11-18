@@ -186,7 +186,7 @@ public class ExplorerManager : MonoBehaviour, IGameDataSaveable<ExplorerSaveData
                 if (i == _currentLeftPerkIndex) // Sıradaki aktif perk
                 {
                     // ÖNEMLİ: UI script'i yerine Manager'daki doğru kontrolü kullan
-                    stateToSet = CheckRequirementsMet(perkData.unlockRequirements) ? PerkState.Payable : PerkState.Unlockable;
+                    stateToSet = GameValidator.Instance.AreRequirementsMet(perkData.unlockRequirements) ? PerkState.Payable : PerkState.Unlockable;
                 }
                 else // Gelecek perk
                 {
@@ -211,12 +211,18 @@ public class ExplorerManager : MonoBehaviour, IGameDataSaveable<ExplorerSaveData
 
 
         // Maliyeti KONTROL ET ve TÜKET
-        if (!CheckAndConsumeRequirements(perkData.purchasePrice, true)) // true = harca
+        // 1. Önce Validator ile KONTROL ET
+        if (!GameValidator.Instance.AreRequirementsMet(perkData.purchasePrice))
         {
             GameConsole.Instance?.AddMessage("<color=red>Explorer görevi için kaynakların yetersiz!</color>");
             perkUI?.ResetButton();
             return;
         }
+
+
+        // 2. Şartlar tamsa, Consumer ile HARCA
+        GameCostConsumer.Instance.ConsumeRequirements(perkData.purchasePrice);
+
 
         // Süreyi hesapla
         float reduction = (PerkManager.Instance != null) ? PerkManager.Instance.GetBonusFromPerks(PerkEffectType.GetExplorerTimeReduction) : 0f;
@@ -250,14 +256,18 @@ public class ExplorerManager : MonoBehaviour, IGameDataSaveable<ExplorerSaveData
     public void PurchasePerk(ExplorerPerkData perkData)
     {
         // Maliyeti KONTROL ET ve TÜKET (Manager'daki doğru metot ile)
-        if (!CheckAndConsumeRequirements(perkData.purchasePrice, true)) // true = harca
+        if (!GameValidator.Instance.AreRequirementsMet(perkData.purchasePrice))
         {
-            GameConsole.Instance?.AddMessage("<color=red>Satın almak için kaynakların yetersiz!</color>"); // Eski koddan
-            // UI'ı bulup sıfırlama (bu biraz karmaşık, UI eventi dinlese daha iyi olurdu)
+            GameConsole.Instance?.AddMessage("<color=red>Satın almak için kaynakların yetersiz!</color>");
             ExplorerPerkUI perkUI = _instantiatedPerkItems.Find(ui => ui._perkData == perkData);
             perkUI?.ResetButton();
             return;
         }
+
+
+        // 2. Şartlar tamsa, Consumer ile HARCA
+        GameCostConsumer.Instance.ConsumeRequirements(perkData.purchasePrice);
+
         CompletePerk(perkData);
     }
 
@@ -397,11 +407,18 @@ public class ExplorerManager : MonoBehaviour, IGameDataSaveable<ExplorerSaveData
             return;
         }
 
-        if (!CheckAndConsumeRequirements(questData.requirements, true))
+        // 1. Önce Validator ile KONTROL ET
+        if (!GameValidator.Instance.AreRequirementsMet(questData.requirements))
         {
             GameConsole.Instance?.AddMessage($"<color=red>{questData.questID} için kaynaklar yetersiz!</color>");
             return;
         }
+
+
+        // 2. Şartlar tamsa, Consumer ile HARCA
+        // (Not: Explorer görevlerinde Mastery indirimi olmadığı için 'context' null gönderiyoruz)
+        GameCostConsumer.Instance.ConsumeRequirements(questData.requirements);
+
 
         // --- Süre Hesabı ---
         float finalDuration;
@@ -470,62 +487,38 @@ public class ExplorerManager : MonoBehaviour, IGameDataSaveable<ExplorerSaveData
         UpdateSunakButtonVisibility(); // Sunak butonunu kontrol et
         CheckArea2Unlock(); // Alan kilidini kontrol et
     }
-    
+
 
     // Eski kodun mantığı korundu
     private void DistributeExplorerRewards(ExplorerQuestData quest, int newCompletionCount)
     {
-        int rewardIndex = newCompletionCount - 1;
+        int rewardIndex = newCompletionCount - 1; // 1. tamamlama index 0'dır
 
+        // Ödül listesinde bu tamamlama sayısı için tanımlanmış bir ödül var mı?
         if (quest.rewardsPerCompletion == null || quest.rewardsPerCompletion.Count <= rewardIndex)
         {
             Debug.LogWarning($"Explorer Görevi ({quest.questID}) için {newCompletionCount}. tamamlamada ödül tanımlanmamış.");
             return;
         }
 
-        ExplorerReward reward = quest.rewardsPerCompletion[rewardIndex];
-        if (reward == null) return;
+        // [YENİ] Artık 'ExplorerReward' değil, 'GameRewardList' wrapper'ını alıyoruz.
+        GameRewardList rewardListWrapper = quest.rewardsPerCompletion[rewardIndex];
 
-        // Stat Ödülleri
-        if (reward.statRewards != null)
+        // Wrapper'ın veya içindeki listenin boş olup olmadığını kontrol et
+        if (rewardListWrapper == null || rewardListWrapper.rewards == null || rewardListWrapper.rewards.Count == 0)
         {
-            foreach (var statReward in reward.statRewards)
-            {
-                if (StatManager.Instance != null) StatManager.Instance.AddStat(statReward.statToReward.ToString(), statReward.amount);
-                GameConsole.Instance?.AddMessage($"<color=cyan>+{statReward.amount} {statReward.statToReward}</color> kazanıldı ({quest.questID}).");
-            }
+            Debug.LogWarning($"Explorer Görevi ({quest.questID}) için {newCompletionCount}. tamamlamada ödül listesi boş.");
+            return;
         }
 
-        // Eşya Ödülleri
-        if (reward.itemRewards != null)
-        {
-            foreach (var itemDrop in reward.itemRewards)
-            {
-                if (Inventory.Instance != null && itemDrop.itemToDrop != null) Inventory.Instance.AddItem(itemDrop.itemToDrop, itemDrop.amount);
-                GameConsole.Instance?.AddMessage($"<color=orange>+{itemDrop.amount} {itemDrop.itemToDrop?.itemName ?? "Bilinmeyen Eşya"}</color> elde edildi ({quest.questID}).");
-            }
-        }
+        // [YENİ] Tüm ödül listesini (XP, Altın, Eşya, Stat hepsi bir arada)
+        // doğrudan GameRewardDistributor'a gönder.
+        // O bizim için hepsini tek seferde dağıtacak.
+        GameRewardDistributor.Instance.DistributeRewards(rewardListWrapper.rewards);
 
-        // Perk Ödülleri
-        if (reward.perkRewards != null)
-        {
-            foreach (var perkReward in reward.perkRewards) // perkReward'ın türü ExplorerQuestData.ExplorerReward içindeki List<PerkReward>'dan geliyor
-            {
-                // Null kontrolleri
-                if (PerkManager.Instance != null && perkReward?.perkToGrant != null && perkReward.amount > 0)
-                {
-                    // PerkManager'ın doğru AddPerk metodunu çağır (PerkDefinition ve int ile)
-                    PerkManager.Instance.AddPerk(perkReward.perkToGrant, perkReward.amount); // Düzeltilmiş çağrı
-                                                                                             // PerkManager zaten konsola yazdırıyor, buradaki log'a gerek yok.
-                }
-                else
-                {
-                    Debug.LogWarning($"[{quest.questID}] Geçersiz PerkReward veya PerkManager bulunamadı.");
-                }
-            }
-        }
-    
+        // --- ESKİ 'foreach' ve 'switch-case' mantığının tamamı buradan silindi ---
     }
+    
 
     // Eski koddaki UI güncelleme metotları
     public void UpdateExplorerQuestProgress(string questID, float progress)
@@ -554,313 +547,15 @@ public class ExplorerManager : MonoBehaviour, IGameDataSaveable<ExplorerSaveData
 
     #region Genel Yardımcı Fonksiyonlar (Gereksinim Kontrolü - ESKİ KODDAN ALINDI)
 
-    /// <summary>
-    /// Verilen gereksinim listesinin tamamının karşılanıp karşılanmadığını KONTROL EDER (HARCAMA YAPMAZ).
-    /// </summary>
-    public bool CheckRequirementsMet(List<Requirement> requirements)
+    public bool AreRequirementsMet(List<Requirement> requirements)
     {
-        if (requirements == null || requirements.Count == 0) return true;
-        foreach (Requirement req in requirements)
-        {
-            if (!IsRequirementMet(req)) return false;
-        }
-        return true;
+        return GameValidator.Instance.AreRequirementsMet(requirements);
     }
+    
 
-    /// <summary>
-    /// Tek bir gereksinimin karşılanıp karşılanmadığını KONTROL EDER (HARCAMA YAPMAZ).
-    /// </summary>
-    private bool IsRequirementMet(Requirement req)
-    {
+    
 
-        switch (req.reqType)
-        {
-            case RequirementType.Level:
-                return LevelManager.Instance != null && LevelManager.Instance.currentLevel >= req.requiredValue;
-            case RequirementType.Quest: // Ana görev sistemindeki görevler
-                return QuestManager.Instance != null && QuestManager.Instance.GetCompletionCount(req.requirementName) > 0;
-            case RequirementType.Item:
-                ItemData item = ItemManager.Instance?.GetItemByName(req.requirementName);
-                return item != null && Inventory.Instance != null && Inventory.Instance.HasItem(item, req.requiredValue);
-            case RequirementType.Stat:
-                return StatManager.Instance != null && StatManager.Instance.GetTotalStat(req.requirementName) >= req.requiredValue;
-            case RequirementType.Gold:
-                return CurrencyManager.Instance != null && CurrencyManager.Instance.gold >= req.requiredValue;
-            case RequirementType.NexusCoin:
-                return CurrencyManager.Instance != null && CurrencyManager.Instance.nexusCoin >= req.requiredValue;
-            case RequirementType.People:
-                return CurrencyManager.Instance != null && CurrencyManager.Instance.people >= req.requiredValue;
-            case RequirementType.Health: // Gereksinim olarak can (örn: kilidi açmak için >50 can)
-                return ResourceManager.Instance != null && ResourceManager.Instance.currentHealth >= req.requiredValue;
-            case RequirementType.Energy: // Gereksinim olarak enerji
-                return ResourceManager.Instance != null && ResourceManager.Instance.currentEnergy >= req.requiredValue;
-            case RequirementType.Mana: // Gereksinim olarak mana
-                return ResourceManager.Instance != null && ResourceManager.Instance.currentMana >= req.requiredValue;
-
-            // Maksimum değer GEREKSİNİMLERİ (örn: kilidi açmak için max health > 100)
-            case RequirementType.MaxHealth:
-                 return ResourceManager.Instance != null && ResourceManager.Instance.maxHealth >= req.requiredValue;
-            case RequirementType.MaxEnergy:
-                 return ResourceManager.Instance != null && ResourceManager.Instance.maxEnergy >= req.requiredValue;
-            case RequirementType.MaxMana:
-                 return ResourceManager.Instance != null && ResourceManager.Instance.maxMana >= req.requiredValue;
-
-             // Özel Explorer Görev Tamamlama Gereksinimi
-            case RequirementType.ExplorerQuest: // Başka bir explorer görevinin tamamlanmış olması
-                return GetExplorerQuestCompletionCount(req.requirementName) > 0; // Kendi içindeki sayaca bak
-            case RequirementType.ExplorerTime:
-
-                return true;
-
-             // Özel Perk Satın Alma Gereksinimi
-             case RequirementType.Perk:
-                // requirementName alanına yazılan string'i PerkName enum'una çevirmeyi dene
-                if (Enum.TryParse<PerkName>(req.requirementName, true, out PerkName requiredPerkEnum)) // true: büyük/küçük harf duyarsız
-                {
-                    // PerkManager'daki yeni GetPerkCount(PerkName) metodunu çağır
-                    return PerkManager.Instance != null && PerkManager.Instance.GetPerkCount(requiredPerkEnum) > 0;
-                }
-                else
-                {
-                    // Eğer requirementName geçerli bir PerkName enum değeri değilse uyar ve false dön
-                    Debug.LogWarning($"IsRequirementMet: Geçersiz Perk adı '{req.requirementName}' requirementName olarak belirtilmiş.");
-                    return false;
-                }
-       
-            default:
-                Debug.LogWarning($"Bilinmeyen gereksinim tipi (IsRequirementMet): {req.reqType}");
-                return false;
-        }
-    }
-
-    /// <summary>
-    /// Verilen gereksinim listesini KONTROL EDER ve 'consume' true ise HARCAR.
-    /// </summary>
-    public bool CheckAndConsumeRequirements(List<Requirement> requirements, bool consume)
-    {
-        if (requirements == null || requirements.Count == 0) return true;
-
-        // 1. Adım: Önce Hepsini KONTROL ET
-        foreach (Requirement req in requirements)
-        {
-
-            switch (req.reqType)
-            {
-                case RequirementType.Item:
-                    ItemData item = ItemManager.Instance?.GetItemByName(req.requirementName);
-                    if (item == null || Inventory.Instance == null || !Inventory.Instance.HasItem(item, req.requiredValue)) return false;
-                    break;
-                case RequirementType.Gold:
-                    if (CurrencyManager.Instance == null || CurrencyManager.Instance.gold < req.requiredValue) return false;
-                    break;
-                case RequirementType.NexusCoin:
-                    if (CurrencyManager.Instance == null || CurrencyManager.Instance.nexusCoin < req.requiredValue) return false;
-                    break;
-                case RequirementType.Health: // Maliyet olarak can
-                    if (ResourceManager.Instance == null || ResourceManager.Instance.currentHealth <= req.requiredValue) return false; // Eşitse ölür
-                    break;
-                case RequirementType.Energy: // Maliyet olarak enerji
-                    if (ResourceManager.Instance == null || ResourceManager.Instance.currentEnergy < req.requiredValue) return false;
-                    break;
-                case RequirementType.Mana: // Maliyet olarak mana
-                    if (ResourceManager.Instance == null || ResourceManager.Instance.currentMana < req.requiredValue) return false;
-                    break;
-                case RequirementType.People: // Maliyet olarak nüfus
-                    if (CurrencyManager.Instance == null || CurrencyManager.Instance.people < req.requiredValue) return false;
-                    break;
-                // Max değerleri HARCAMA (Negatif etki)
-                case RequirementType.MaxHealth:
-                    if (req.requiredValue < 0 && (ResourceManager.Instance == null || (ResourceManager.Instance.maxHealth + req.requiredValue) < 1)) return false;
-                    break;
-                case RequirementType.MaxEnergy:
-                    if (req.requiredValue < 0 && (ResourceManager.Instance == null || (ResourceManager.Instance.maxEnergy + req.requiredValue) < 1)) return false;
-                    break;
-                case RequirementType.ExplorerTime:
-                    if (!IsRequirementMet(req)) return false; // Zaman bazlı görevler için kontrol
-                    break;
-                case RequirementType.MaxMana:
-                    if (req.requiredValue < 0 && (ResourceManager.Instance == null || (ResourceManager.Instance.maxMana + req.requiredValue) < 1)) return false;
-                    break;
-                // Stat, Level, Quest gibi şeyler harcanamaz, sadece kontrol edilir (IsRequirementMet içinde)
-                case RequirementType.Stat:
-                case RequirementType.Level:
-                case RequirementType.Quest:
-                case RequirementType.ExplorerQuest:
-                case RequirementType.Perk:
-                    if (!IsRequirementMet(req)) return false; // Harcanmaz ama yine de kontrol edilmeli
-                    break;
-            }
-        }
-
-        // 2. Adım: Eğer 'consume' true ise, şimdi HARCA
-        if (consume)
-        {
-            foreach (Requirement req in requirements)
-            {
-
-                switch (req.reqType)
-                {
-                    case RequirementType.Item:
-                        ItemData item = ItemManager.Instance?.GetItemByName(req.requirementName);
-                        if (item != null && Inventory.Instance != null) Inventory.Instance.RemoveItem(item, req.requiredValue);
-                        GameConsole.Instance?.AddMessage($"<color=red>-{req.requiredValue} {item?.itemName ?? req.requirementName}</color> harcandı.");
-                        break;
-                    case RequirementType.Gold:
-                        if (CurrencyManager.Instance != null) CurrencyManager.Instance.SpendGold(req.requiredValue);
-                        GameConsole.Instance?.AddMessage($"<color=red>-{req.requiredValue} Altın</color> harcandı.");
-                        break;
-                    case RequirementType.NexusCoin:
-                        if (CurrencyManager.Instance != null) CurrencyManager.Instance.SpendNexusCoin(req.requiredValue);
-                        GameConsole.Instance?.AddMessage($"<color=red>-{req.requiredValue} Nexus Coin</color> harcandı.");
-                        break;
-                    case RequirementType.Health:
-                        if (ResourceManager.Instance != null) ResourceManager.Instance.ModifyHealth(-req.requiredValue);
-                        GameConsole.Instance?.AddMessage($"<color=red>-{req.requiredValue} Can</color> harcandı.");
-                        break;
-                    case RequirementType.Energy:
-                        if (ResourceManager.Instance != null) ResourceManager.Instance.ModifyEnergy(-req.requiredValue);
-                        GameConsole.Instance?.AddMessage($"<color=red>-{req.requiredValue} Enerji</color> harcandı.");
-                        break;
-                    case RequirementType.Mana:
-                        if (ResourceManager.Instance != null) ResourceManager.Instance.ModifyMana(-req.requiredValue);
-                        GameConsole.Instance?.AddMessage($"<color=red>-{req.requiredValue} Mana</color> harcandı.");
-                        break;
-                    case RequirementType.People:
-                        if (CurrencyManager.Instance != null) CurrencyManager.Instance.SpendPeople(req.requiredValue);
-                        GameConsole.Instance?.AddMessage($"<color=red>-{req.requiredValue} Nüfus</color> harcandı.");
-                        break;
-                    case RequirementType.MaxHealth: // Negatif etkiyi uygula
-                        if (ResourceManager.Instance != null) ResourceManager.Instance.ModifyMaxHealth(req.requiredValue);
-                        GameConsole.Instance?.AddMessage($"Maksimum Can {(req.requiredValue > 0 ? "+" : "")}{req.requiredValue} değişti.");
-                        break;
-                    case RequirementType.MaxEnergy:
-                        if (ResourceManager.Instance != null) ResourceManager.Instance.ModifyMaxEnergy(req.requiredValue);
-                        GameConsole.Instance?.AddMessage($"Maksimum Enerji {(req.requiredValue > 0 ? "+" : "")}{req.requiredValue} değişti.");
-                        break;
-                    case RequirementType.MaxMana:
-                        if (ResourceManager.Instance != null) ResourceManager.Instance.ModifyMaxMana(req.requiredValue);
-                        GameConsole.Instance?.AddMessage($"Maksimum Mana {(req.requiredValue > 0 ? "+" : "")}{req.requiredValue} değişti.");
-                        break;
-                    case RequirementType.ExplorerTime:
-
-                        break;
-                        // Stat, Level, Quest harcanmaz
-                }
-            }
-        }
-
-        return true; // Kontrol başarılı (ve gerekirse harcama yapıldı)
-    }
-
-    /// <summary>
-    /// Tek bir gereksinimi kontrol eder ve UI için formatlanmış, renkli bir string döndürür.
-    /// </summary>
-    /// <param name="req">Formatlanacak gereksinim.</param>
-    /// <param name="forceMetColor">Rengin her zaman 'karşılandı' olarak mı gösterileceği.</param>
-    /// <returns>Formatlanmış string (örn: "<color=#00FF00>- Seviye 5 (3)</color>")</returns>
-    public string GetFormattedRequirementString(Requirement req, bool forceMetColor = false)
-    {
-
-        // Gereksinimin karşılanıp karşılanmadığını kontrol et
-        bool isMet = forceMetColor || IsRequirementMet(req); // Kendi içindeki metodu kullan
-        string colorHex = isMet ? _metColorHex : _notMetColorHex;
-        string reqText = "";
-        string currentVal = "";
-
-        // Metin oluşturma (UI script'lerindeki switch-case mantığı buraya taşındı)
-        try
-        {
-            switch (req.reqType)
-            {
-                case RequirementType.Level:
-                    reqText = $"Seviye {req.requiredValue}";
-                    currentVal = $"({LevelManager.Instance?.currentLevel ?? 0})";
-                    break;
-                case RequirementType.Quest:
-                    reqText = $"Görevi tamamla: '{req.requirementName}'";
-                    break;
-                case RequirementType.MaxHealth:
-                    reqText = $"Keşif Görevini Tamamla: '{req.requirementName}'";
-                    // İsteğe bağlı: Tamamlanma sayısını gösterebiliriz
-                    // currentVal = $"({GetExplorerQuestCompletionCount(req.requirementName)}/1)";
-                    break;
-                case RequirementType.Item:
-                    ItemData item = ItemManager.Instance?.GetItemByName(req.requirementName);
-                    int currentAmount = (item != null && Inventory.Instance != null) ? Inventory.Instance.GetItemCount(item) : 0;
-                    reqText = $"{req.requiredValue} x {item?.itemName ?? req.requirementName}";
-                    currentVal = $"({currentAmount})";
-                    break;
-                case RequirementType.Stat:
-                    float currentStat = StatManager.Instance != null ? StatManager.Instance.GetTotalStat(req.requirementName) : 0;
-                    reqText = $"{req.requiredValue} {req.requirementName} Stat";
-                    currentVal = $"({currentStat:F0})";
-                    break;
-                case RequirementType.Gold:
-                    reqText = $"{req.requiredValue:F0} Altın";
-                    currentVal = $"({CurrencyManager.Instance?.gold ?? 0:F0})";
-                    break;
-                case RequirementType.NexusCoin:
-                    reqText = $"{req.requiredValue:F0} Nexus Coin";
-                    currentVal = $"({CurrencyManager.Instance?.nexusCoin ?? 0:F0})";
-                    break;
-                case RequirementType.People:
-                    reqText = $"{req.requiredValue:F0} Nüfus";
-                    currentVal = $"({CurrencyManager.Instance?.people ?? 0:F0})";
-                    break;
-                case RequirementType.Health: // Hem gereksinim hem maliyet olabilir
-                    reqText = $"{req.requiredValue:F0} Can";
-                    currentVal = $"({ResourceManager.Instance?.currentHealth ?? 0:F0})";
-                    break;
-                case RequirementType.Energy:
-                    reqText = $"{req.requiredValue:F0} Enerji";
-                    currentVal = $"({ResourceManager.Instance?.currentEnergy ?? 0:F0})";
-                    break;
-                case RequirementType.Mana:
-                    reqText = $"{req.requiredValue:F0} Mana";
-                    currentVal = $"({ResourceManager.Instance?.currentMana ?? 0:F0})";
-                    break;
-                //* case RequirementType.MaxHealth:
-                //    reqText = $"{(req.requiredValue > 0 ? "Maks. Can >= " : "")}{req.requiredValue:F0} Maks. Can"; // Maliyetse sadece değeri yaz
-                 //   if (req.requiredValue > 0) currentVal = $"({ResourceManager.Instance?.maxHealth ?? 0:F0})"; // Sadece gereksinimse mevcut max'ı göster
-                 //   isMet = forceMetColor || IsRequirementMet(req); // Rengi tekrar kontrol et (özellikle negatif maliyet için)
-                //    break;//
-                case RequirementType.MaxEnergy:
-                    reqText = $"{(req.requiredValue > 0 ? "Maks. Enerji >= " : "")}{req.requiredValue:F0} Maks. Enerji";
-                    if (req.requiredValue > 0) currentVal = $"({ResourceManager.Instance?.maxEnergy ?? 0:F0})";
-                    isMet = forceMetColor || IsRequirementMet(req);
-                    break;
-                case RequirementType.MaxMana:
-                    reqText = $"{(req.requiredValue > 0 ? "Maks. Mana >= " : "")}{req.requiredValue:F0} Maks. Mana";
-                    if (req.requiredValue > 0) currentVal = $"({ResourceManager.Instance?.maxMana ?? 0:F0})";
-                    isMet = forceMetColor || IsRequirementMet(req);
-                    break;
-                case RequirementType.Perk:
-                    reqText = $"Perk'e Sahip Ol: '{req.requirementName}'";
-                    // İsteğe bağlı: Enum'a çevirip kontrol edip (Var)/(Yok) yazdırılabilir
-                    // bool hasPerk = false;
-                    // if (Enum.TryParse<PerkName>(req.requirementName, true, out PerkName perkEnum)) {
-                    //     hasPerk = PerkManager.Instance != null && PerkManager.Instance.GetPerkCount(perkEnum) > 0;
-                    // }
-                    // currentVal = hasPerk ? "(Var)" : "(Yok)";
-                    break;
-       
-                case RequirementType.ExplorerTime:
-                    reqText = $"Keşif Süresi Görevi";
-                    break;
-                default:
-                    reqText = $"{req.requiredValue} {req.requirementName}";
-                    break;
-            }
-        }
-        catch (Exception ex)
-        {
-            Debug.LogError($"GetFormattedRequirementString hatası ({req.reqType}): {ex.Message}");
-            reqText = $"HATA: {req.reqType}";
-            isMet = false;
-        }
-
-        return $"<color=#{colorHex}>- {reqText} {currentVal}</color>";
-    }
+    
 
 
 

@@ -61,6 +61,9 @@ public class QuestManager : MonoBehaviour, IGameDataSaveable<QuestSaveData>
     /// <summary>
     /// Gerekli kontrolleri (maliyet, seviye, stat) yaptıktan sonra bir görevi başlatır.
     /// </summary>
+    // --- YENİ VE REFACTOR EDİLMİŞ StartQuest FONKSİYONU ---
+    // (Eskisinin tamamını silip bunu yapıştırın)
+
     public void StartQuest(QuestData quest)
     {
         if (quest == null) { Debug.LogError("Başlatılmaya çalışılan quest verisi null!"); return; }
@@ -73,36 +76,42 @@ public class QuestManager : MonoBehaviour, IGameDataSaveable<QuestSaveData>
             return; 
         }
 
-        // --- Bonus ve Stat Hesaplamaları ---
+        // ========================================================================
+        // GEREKSİNİM KONTROLÜ (REFACTOR EDİLDİ)
+        // ========================================================================
+        
+        // [YENİ] Artık 20 satırlık 'if' bloğu yerine,
+        // merkezi GameValidator'a "şartlar uygun mu?" diye soruyoruz.
+        if (!GameValidator.Instance.AreRequirementsMet(quest.requirements))
+        {
+            // GameValidator zaten konsola detaylı hata log'u basıyor olabilir,
+            // veya biz buradan genel bir mesaj verebiliriz.
+            Debug.Log($"Görev '{quest.questName}' başlatılamadı. Gereksinimler karşılanmıyor.");
+            return;
+        }
+
+        // ========================================================================
+        // MALİYETLERİ DÜŞ (REFACTOR EDİLDİ)
+        // ========================================================================
+
+        // [YENİ] Artık 5+ satırlık 'ModifyEnergy', 'SpendGold' vb. kodları yerine,
+        // merkezi GameCostConsumer'a "maliyetleri harca" diyoruz.
+        // GameCostConsumer akıllıca davranıp sadece harcanabilir
+        // şeyleri (Gold, Item, Energy) harcayacak, Level veya Stat gibi
+        // şartları es geçecektir.
+        //
+        // [YENİ] Enerji indirimi için görev bağlamını oluştur ve gönder
+        CostContext questContext = new CostContext { masteryID = quest.masteryID };
+        GameCostConsumer.Instance.ConsumeRequirements(quest.requirements, questContext);
+
+        // --- ESKİ 'finalEnergyCost' HESAPLAMASI VE DİĞER KONTROLLER SİLİNDİ ---
+
+        // ========================================================================
+
+        // --- Süre Hesabı (Bu kısım aynı kalabilir, ancak 'requirements'a değil, 'quest'e bağlı) ---
         ComputedStats stats = StatCalculator.Instance.currentStats;
-        float masteryCostBonus = MasteryManager.Instance?.GetTotalBonusFor(quest.masteryID, MasteryRewardType.ReduceActionCostPercent) ?? 0f;
         float masteryTimeBonus = MasteryManager.Instance?.GetTotalBonusFor(quest.masteryID, MasteryRewardType.ReduceActionTimePercent) ?? 0f;
-
-        // --- Gereksinim Kontrolleri (Tümü) ---
-        double finalEnergyCost = quest.requirements.requiredEnergy * (1 - (stats.ResourceCostReduction + masteryCostBonus));
-        if (finalEnergyCost < 0) finalEnergyCost = 0;
-
-        if (ResourceManager.Instance.currentEnergy < finalEnergyCost) { Debug.Log($"Yetersiz Enerji! Gereken: {finalEnergyCost:F1}, Mevcut: {ResourceManager.Instance.currentEnergy:F0}"); return; }
-        if (LevelManager.Instance.currentLevel < quest.requirements.requiredLevel) { Debug.Log($"Yetersiz Seviye! Gereken: {quest.requirements.requiredLevel}, Mevcut: {LevelManager.Instance.currentLevel}"); return; }
-        if (ResourceManager.Instance.currentHealth < quest.requirements.requiredHealth) { Debug.Log($"Yetersiz Can! Gereken: {quest.requirements.requiredHealth}, Mevcut: {ResourceManager.Instance.currentHealth:F0}"); return; }
-        if (CurrencyManager.Instance.gold < quest.requirements.requiredGold) { Debug.Log($"Yetersiz Altın! Gereken: {quest.requirements.requiredGold}, Mevcut: {CurrencyManager.Instance.gold:F0}"); return; }
-        if (ResourceManager.Instance.currentMana < quest.requirements.requiredMana) { Debug.Log($"Yetersiz Mana! Gereken: {quest.requirements.requiredMana}, Mevcut: {ResourceManager.Instance.currentMana:F0}"); return; }
-        if (CurrencyManager.Instance.nexusCoin < quest.requirements.requiredNexusCoin) { Debug.Log($"Yetersiz Nexus Coin! Gereken: {quest.requirements.requiredNexusCoin}, Mevcut: {CurrencyManager.Instance.nexusCoin:F0}"); return; }
-        if (StatManager.Instance.GetTotalPhysical() < quest.requirements.requiredPhysical) { Debug.Log($"Yetersiz Physical Stat! Gereken: {quest.requirements.requiredPhysical}, Mevcut: {StatManager.Instance.GetTotalPhysical():F0}"); return; }
-        if (StatManager.Instance.GetTotalMental() < quest.requirements.requiredMental) { Debug.Log($"Yetersiz Mental Stat! Gereken: {quest.requirements.requiredMental}, Mevcut: {StatManager.Instance.GetTotalMental():F0}"); return; }
-        if (StatManager.Instance.GetTotalSpiritual() < quest.requirements.requiredSpiritual) { Debug.Log($"Yetersiz Spiritual Stat! Gereken: {quest.requirements.requiredSpiritual}, Mevcut: {StatManager.Instance.GetTotalSpiritual():F0}"); return; }
-        if (StatManager.Instance.GetTotalPerception() < quest.requirements.requiredPerception) { Debug.Log($"Yetersiz Perception Stat! Gereken: {quest.requirements.requiredPerception}, Mevcut: {StatManager.Instance.GetTotalPerception():F0}"); return; }
-        if (StatManager.Instance.GetTotalLuck() < quest.requirements.requiredLuck) { Debug.Log($"Yetersiz Luck Stat! Gereken: {quest.requirements.requiredLuck}, Mevcut: {StatManager.Instance.GetTotalLuck():F0}"); return; }
-        if (StatManager.Instance.GetTotalSocial() < quest.requirements.requiredSocial) { Debug.Log($"Yetersiz Social Stat! Gereken: {quest.requirements.requiredSocial}, Mevcut: {StatManager.Instance.GetTotalSocial():F0}"); return; }
-
-        // --- Maliyetleri Düş ---
-        ResourceManager.Instance.ModifyEnergy(-(float)finalEnergyCost);
-        if (quest.requirements.requiredHealth > 0) { ResourceManager.Instance.ModifyHealth(-(float)quest.requirements.requiredHealth); }
-        if (quest.requirements.requiredGold > 0) { CurrencyManager.Instance.SpendGold(quest.requirements.requiredGold); }
-        if (quest.requirements.requiredMana > 0) { ResourceManager.Instance.ModifyMana(-(float)quest.requirements.requiredMana); }
-        if (quest.requirements.requiredNexusCoin > 0) { CurrencyManager.Instance.SpendNexusCoin(quest.requirements.requiredNexusCoin); }
-
-        // --- Süre Hesabı ---
+        
         float baseDuration = quest.baseCompletionTime;
         float totalPercentCooldown = (float)stats.PercentCooldownReduction + masteryTimeBonus;
         float flatCooldown = (float)stats.FlatCooldownReduction;
@@ -114,7 +123,7 @@ public class QuestManager : MonoBehaviour, IGameDataSaveable<QuestSaveData>
         // --- Görevi Başlat ---
         Coroutine questCoroutine = StartCoroutine(ProcessQuestCoroutine(quest, finalCompletionTime));
         _activeQuests.Add(quest.questID, questCoroutine);
-        Debug.Log($"Görev '{quest.questName}' başlatıldı. Süre: {finalCompletionTime:F1}s, Maliyet: {finalEnergyCost:F1} Enerji.");
+        Debug.Log($"Görev '{quest.questName}' başlatıldı. Süre: {finalCompletionTime:F1}s");
     }
 
     /// <summary>
@@ -190,105 +199,19 @@ public class QuestManager : MonoBehaviour, IGameDataSaveable<QuestSaveData>
         ComputedStats stats = StatCalculator.Instance.currentStats;
         float masteryYieldBonus = MasteryManager.Instance?.GetTotalBonusFor(quest.masteryID, MasteryRewardType.IncreaseYieldFlat) ?? 0f;
 
-        // --- Tecrübe Ödülü ---
-        if (quest.experienceReward > 0)
+        // [YENİ] Tüm ödül listesini (XP, Altın, Eşya, Stat hepsi bir arada)
+        // doğrudan GameRewardDistributor'a gönder.
+        // O bizim için hepsini tek seferde dağıtacak.
+        if (quest.rewards != null && quest.rewards.Count > 0)
         {
-            double finalExp = quest.experienceReward * (1 + stats.ExpBonus);
-            LevelManager.Instance.AddXP(finalExp);
-
-            if (GameConsole.Instance != null)
-            {
-                GameConsole.Instance.AddMessage($"<color=green>+{finalExp:F0} XP</color> kazanıldı ({quest.questName}).");
-            }
+            GameRewardDistributor.Instance.DistributeRewards(quest.rewards);
         }
-
-        // --- Altın Ödülü ---
-        if (quest.goldRewardTiers != null && quest.goldRewardTiers.Count > 0)
-        {
-            double baseGold = GetWeightedReward(quest.goldRewardTiers);
-            double finalGold = (baseGold + masteryYieldBonus) * (1 + stats.GoldBonus);
-            
-            if (finalGold > 0) // Güvenli kontrol
-                CurrencyManager.Instance.AddGold(finalGold);
-
-            if (GameConsole.Instance != null)
-            {
-                GameConsole.Instance.AddMessage($"<color=yellow>+{finalGold:F0} Altın</color> kazanıldı ({quest.questName}).");
-            }
-        }
-
-        // --- Nexus Coin Ödülü ---
-        if (quest.nexusCoinRewardTiers != null && quest.nexusCoinRewardTiers.Count > 0)
-        {
-            double baseNexus = GetWeightedReward(quest.nexusCoinRewardTiers);
-            double finalNexus = (baseNexus + masteryYieldBonus) * (1 + stats.NexusCoinBonus);
-            
-            if (finalNexus > 0) // Güvenli kontrol
-                CurrencyManager.Instance.AddNexusCoin(finalNexus);
-
-            if (GameConsole.Instance != null)
-            {
-                GameConsole.Instance.AddMessage($"<color=purple>+{finalNexus:F0} Nexus Coin</color> kazanıldı ({quest.questName}).");
-            }
-        }
-
-        // --- Eşya Ödülleri ---
-        if (quest.itemRewards != null)
-        {
-            foreach (var itemDrop in quest.itemRewards)
-            {
-                // Güvenli null kontrolü
-                if (itemDrop == null || itemDrop.itemToDrop == null) continue;
-
-                float finalDropChance = itemDrop.dropChance * (1 + (float)stats.DropRate); 
-
-                if (UnityEngine.Random.value <= finalDropChance)
-                {
-                    int amountToGive = itemDrop.amount; 
-                    Inventory.Instance.AddItem(itemDrop.itemToDrop, amountToGive);
-
-                    if (GameConsole.Instance != null)
-                    {
-                        GameConsole.Instance.AddMessage($"<color=orange>+{amountToGive} {itemDrop.itemToDrop.itemName}</color> elde edildi ({quest.questName}).");
-                    }
-                }
-            }
-        }
-
-        // --- Stat Ödülleri ---
-        if (quest.statRewards != null)
-        {
-            foreach (var statReward in quest.statRewards)
-            {
-                StatManager.Instance.AddStat(statReward.statToReward.ToString(), statReward.amount);
-
-                if (GameConsole.Instance != null)
-                {
-                    GameConsole.Instance.AddMessage($"<color=cyan>+{statReward.amount} {statReward.statToReward}</color> kalıcı stat kazanıldı ({quest.questName}).");
-                }
-            }
-        }
-    }
-
-
-    /// <summary>
-    /// Verilen ödül tier listesine göre ağırlıklı bir rastgele ödül miktarı seçer.
-    /// </summary>
-    private double GetWeightedReward(List<RewardTier> tiers)
-    {
-        if (tiers == null || tiers.Count == 0) return 0;
-
-        float totalWeight = tiers.Sum(t => t.probabilityWeight);
-        if (totalWeight <= 0) return tiers.LastOrDefault()?.GetRandomAmount() ?? 0;
+     
         
-        float randomPoint = UnityEngine.Random.Range(0, totalWeight);
-        foreach (var tier in tiers) 
-        { 
-            if (randomPoint < tier.probabilityWeight) return tier.GetRandomAmount(); 
-            randomPoint -= tier.probabilityWeight; 
-        }
-        return tiers.Last().GetRandomAmount(); // Hata durumunda sonuncuyu ver
     }
+
+
+   
 
     /// <summary>
     /// Bir görevin toplam tamamlanma sayısını döndürür.

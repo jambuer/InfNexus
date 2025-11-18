@@ -92,7 +92,7 @@ public class ExplorerQuestUI : MonoBehaviour
         if (_questData == null || _manager == null) return; // Manager kontrolü eklendi
 
         // 1. Gereksinimleri Manager'a sor ve Metni Formatla
-        bool requirementsMet = _manager.CheckRequirementsMet(_questData.requirements);
+        bool requirementsMet = GameValidator.Instance.AreRequirementsMet(_questData.requirements);
         if (requirementsText != null)
             requirementsText.text = BuildFormattedRequirementsString(_questData.requirements); // Sadece listeyi gönder
 
@@ -154,16 +154,36 @@ public class ExplorerQuestUI : MonoBehaviour
             return sb.Append("- Yok").ToString();
         }
 
+        // Her tamamlama seviyesi için döngü (T1, T2, T3...)
         for(int i = 0; i < _questData.rewardsPerCompletion.Count; i++)
         {
-            // Limit kontrolü eklendi (ödül listesi limitten uzun olabilir)
+            // Limit kontrolü
             if (_questData.completionLimit > 0 && i >= _questData.completionLimit) break;
 
+            // Ödülün alınıp alınmadığına göre rengi belirle
             string colorHex = (i < _currentCompletions) ? _metColorHex : _notMetColorHex;
-            string rewardDesc = _questData.rewardsPerCompletion[i]?.rewardDescription ?? "Tanımsız Ödül"; // Null kontrolü
-            if (string.IsNullOrEmpty(rewardDesc)) rewardDesc = "Ödül Yok";
+            sb.Append($"<color=#{colorHex}>- T{i + 1}: ");
 
-            sb.AppendLine($"<color=#{colorHex}>- T{i + 1}: {rewardDesc}</color>");
+            // [YENİ] Ödül listesini al (GameRewardList)
+            GameRewardList rewardListWrapper = _questData.rewardsPerCompletion[i];
+            
+            if (rewardListWrapper == null || rewardListWrapper.rewards == null || rewardListWrapper.rewards.Count == 0)
+            {
+                sb.AppendLine("Ödül Yok</color>");
+                continue;
+            }
+
+            // Ödül listesindeki her bir ödülü formatla
+            List<string> rewardStrings = new List<string>();
+            foreach (GameReward reward in rewardListWrapper.rewards) //
+            {
+                // FormatReward isimli yeni yardımcı fonksiyonumuzu kullan (Adım B'de eklenecek)
+                rewardStrings.Add(FormatReward(reward));
+            }
+
+            // Ödülleri virgülle birleştir (örn: "+50 XP, +10 Odun")
+            sb.Append(string.Join(", ", rewardStrings));
+            sb.AppendLine("</color>");
         }
         return sb.ToString().TrimEnd();
     }
@@ -181,7 +201,7 @@ public class ExplorerQuestUI : MonoBehaviour
         else // Görev aktif değilse başlatmayı dene
         {
              // Gereksinimleri TEKRAR Manager'a sor (buton aktif olsa bile arada değişmiş olabilir)
-            if (_manager.CheckRequirementsMet(_questData.requirements))
+            if (GameValidator.Instance.AreRequirementsMet(_questData.requirements))
             {
                 SetButtonState("Başlatılıyor...", false); // Geçici olarak kilitle
                 _manager.StartExplorerQuest(_questData); // Manager görevi başlatır (ve kaynakları harcar)
@@ -267,17 +287,10 @@ public class ExplorerQuestUI : MonoBehaviour
 
     private string BuildFormattedRequirementsString(List<Requirement> requirements)
     {
-        // Manager null ise veya liste boşsa başlık döndür
-        if (ExplorerManager.Instance == null) return "<b>Gereksinimler:</b>\n(Yönetici bekleniyor...)";
-        if (requirements == null || requirements.Count == 0) return "<b>Gereksinim:</b> Yok";
-
-        StringBuilder sb = new StringBuilder("<b>Gereksinimler:</b>\n");
-        foreach (Requirement req in requirements)
-        {
-            // Manager'dan formatlanmış string'i al (forceMetColor = false)
-            sb.AppendLine(ExplorerManager.Instance.GetFormattedRequirementString(req, false));
-        }
-        return sb.ToString().TrimEnd();
+        // [YENİ] Artık ExplorerManager'a sormak yerine,
+        // merkezi RequirementTooltipFormatter'a soruyoruz.
+        return RequirementTooltipFormatter.GetFormattedRequirementText(requirements, "<b>Gereksinimler:</b>");
+    
     }
 
     #endregion
@@ -310,43 +323,72 @@ public class ExplorerQuestUI : MonoBehaviour
 
     private void SubscribeToEvents(bool subscribe)
     {
-         // PerkUI'daki ile aynı mantık
         if (subscribe)
         {
             if (_isSubscribed) return;
-
             LevelManager.OnPlayerLeveledUp += OnPlayerStatsChanged;
-            Inventory.OnInventoryChanged_Static += OnPlayerStatsChanged; // Statik event
-
-            if (ResourceManager.Instance != null) ResourceManager.Instance.OnValuesChanged += OnPlayerStatsChanged;
-            if (CurrencyManager.Instance != null) CurrencyManager.Instance.OnCurrencyChanged += OnCurrencyChanged;
-            if (StatManager.Instance != null) StatManager.Instance.OnStatChanged += OnStatManagerChanged;
-            if (QuestManager.Instance != null) QuestManager.Instance.OnQuestProgress += OnQuestProgressChanged; // Ana görevler için
-             // ExplorerManager'ın kendi görev tamamlama event'ine de abone olunabilir (gerekirse)
-            // if (ExplorerManager.Instance != null) ExplorerManager.Instance.OnExplorerQuestCompleted += OnExplorerQuestCompleted;
-
+            if (QuestManager.Instance != null) QuestManager.Instance.OnQuestProgress += OnQuestProgressChanged;
+            // YÜKSEK FREKANSLI (Kasma Sebebi) - YORUMA AL:
+            // Inventory.OnInventoryChanged_Static += OnPlayerStatsChanged;
+            // if (ResourceManager.Instance != null) ResourceManager.Instance.OnValuesChanged += OnPlayerStatsChanged;
+            // if (CurrencyManager.Instance != null) CurrencyManager.Instance.OnCurrencyChanged += OnCurrencyChanged;
+            // if (StatManager.Instance != null) StatManager.Instance.OnStatChanged += OnStatManagerChanged;
             _isSubscribed = true;
         }
         else
         {
             if (!_isSubscribed) return;
-
             LevelManager.OnPlayerLeveledUp -= OnPlayerStatsChanged;
-            Inventory.OnInventoryChanged_Static -= OnPlayerStatsChanged;
-
+            if (QuestManager.Instance != null) QuestManager.Instance.OnQuestProgress -= OnQuestProgressChanged;
+            // YÜKSEK FREKANSLI (Kasma Sebebi) - YORUMA AL:
+            // Inventory.OnInventoryChanged_Static -= OnPlayerStatsChanged;
             try
             {
-                 if (ResourceManager.Instance != null) ResourceManager.Instance.OnValuesChanged -= OnPlayerStatsChanged;
-                 if (CurrencyManager.Instance != null) CurrencyManager.Instance.OnCurrencyChanged -= OnCurrencyChanged;
-                 if (StatManager.Instance != null) StatManager.Instance.OnStatChanged -= OnStatManagerChanged;
-                 if (QuestManager.Instance != null) QuestManager.Instance.OnQuestProgress -= OnQuestProgressChanged;
-                // if (ExplorerManager.Instance != null) ExplorerManager.Instance.OnExplorerQuestCompleted -= OnExplorerQuestCompleted;
+                // if (ResourceManager.Instance != null) ResourceManager.Instance.OnValuesChanged -= OnPlayerStatsChanged;
+                // if (CurrencyManager.Instance != null) CurrencyManager.Instance.OnCurrencyChanged -= OnCurrencyChanged;
+                // if (StatManager.Instance != null) StatManager.Instance.OnStatChanged -= OnStatManagerChanged;
             }
             catch (Exception ex) { Debug.LogWarning($"[{_questData?.questID ?? "Bilinmeyen Görev"}] Event aboneliği kaldırılırken hata: {ex.Message}"); }
-
             _isSubscribed = false;
         }
     }
+
+
+    /// <summary>
+    /// Tek bir GameReward yapısını UI'da gösterilecek basit bir metne dönüştürür.
+    /// </summary>
+    private string FormatReward(GameReward reward)
+    {
+        //
+        switch (reward.rewardType)
+        {
+            case RewardType.XP:
+                return $"+{reward.amount:N0} XP";
+            case RewardType.Gold:
+                return $"+{reward.amount:N0} Altın";
+            case RewardType.NexusCoin:
+                return $"+{reward.amount:N0} Nexus Coin";
+            case RewardType.People:
+                return $"+{reward.amount:N0} Nüfus";
+            case RewardType.Item:
+                // ItemData referansı varsa ismini kullan, yoksa string parametresini kullan
+                string itemName = reward.itemData != null ? reward.itemData.itemName : reward.stringParameter;
+                return $"+{reward.amount:N0} {itemName}";
+            case RewardType.Stat:
+                return $"+{reward.amount} {reward.stringParameter}"; // Örn: "+5 Physical"
+            case RewardType.Perk:
+                return $"Perk: {reward.stringParameter}";
+            // Henüz uygulanmayanları ekle (GameRewardDistributor'dakilerle aynı olmalı)
+            case RewardType.PremiumCoin:
+            case RewardType.LifeSkillXP:
+            case RewardType.JobXP:
+                return $"+{reward.amount:N0} {reward.rewardType}"; // Örn: "+50 LifeSkillXP"
+            default:
+                return "Bilinmeyen Ödül";
+        }
+    }
+    
+
 
     // Gelen herhangi bir değişiklik anonsunda, UI durumunu yenile.
     private void OnPlayerStatsChanged() => RefreshUI();
@@ -354,6 +396,8 @@ public class ExplorerQuestUI : MonoBehaviour
     private void OnCurrencyChanged(CurrencyType type, double amount) => RefreshUI();
     private void OnQuestProgressChanged(QuestData questData, int completionCount) => RefreshUI(); // Ana görevler değiştiğinde
     // private void OnExplorerQuestCompleted(ExplorerQuestData questData) => RefreshUI(); // Başka bir explorer görevi bittiğinde
+
+    
 
     #endregion
 }

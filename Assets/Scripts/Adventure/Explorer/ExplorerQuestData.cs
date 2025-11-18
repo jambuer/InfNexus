@@ -2,22 +2,31 @@ using UnityEngine;
 using System.Collections.Generic;
 using static ExplorerPerkData; // ExplorerTag enum'unu kullanabilmek için
 
-// Sağ panel görevleri için özel ödül yapısı
+// ========================================================================
+// REFACTORING BURADA BAŞLIYOR
+// ========================================================================
+
+// Artık 'ExplorerReward' sınıfına ihtiyacımız yok.
+// Onun yerine, merkezi GameReward listemizi tutacak basit bir wrapper kullanacağız.
+// Unity'nin Inspector'da List<List<GameReward>> gösterememesi (serialize edememesi)
+// nedeniyle bu wrapper sınıfa ihtiyacımız var.
+
 [System.Serializable]
-public class ExplorerReward
+public class GameRewardList
 {
-    [Tooltip("UI'da gösterilecek ödül açıklaması (örn: '+3 Physical Stat')")]
-    public string rewardDescription; // "+3 Physical Stat"
-
-    [Tooltip("Bu tamamlamada verilecek stat ödülleri")]
-    public List<StatReward> statRewards; // Mevcut StatReward yapısını kullanıyoruz
-
-    [Tooltip("Bu tamamlamada verilecek eşya ödülleri")]
-    public List<ItemDrop> itemRewards; // Mevcut ItemDrop yapısını kullanıyoruz
-
-    [Tooltip("Bu tamamlamada verilecek Perk (Ustalık) ödülleri")]
-    public List<PerkReward> perkRewards; // Sol paneldeki PerkReward yapısını kullanıyoruz
+    [Tooltip("Bu tamamlama seviyesi için verilecek ödüller (XP, Altın, Eşya, Stat vb.)")]
+    public List<GameReward> rewards; // RewardData.cs'deki merkezi struct
 }
+
+// --- ESKİ YAPI SİLİNDİ ---
+// [System.Serializable]
+// public class ExplorerReward 
+// { ... } // Bu sınıf (StatReward içeren) tamamen silindi.
+
+// ========================================================================
+// REFACTORING BURADA BİTİYOR
+// ========================================================================
+
 
 [CreateAssetMenu(fileName = "NewExplorerQuest", menuName = "Adventure/Explorer Quest (Sağ Panel)")]
 public class ExplorerQuestData : ScriptableObject
@@ -34,7 +43,7 @@ public class ExplorerQuestData : ScriptableObject
 
     [Header("Gereksinimler")]
     [Tooltip("Görevi başlatmak için gereken şartlar (enerji, eşya vb.)")]
-    public List<Requirement> requirements; // Mevcut Requirement yapısını kullanıyoruz
+    public List<Requirement> requirements; // RequirementType.cs'deki merkezi struct
 
     [Tooltip("Görevin temel tamamlanma süresi (saniye)")]
     public float baseCompletionTime = 60f;
@@ -42,9 +51,10 @@ public class ExplorerQuestData : ScriptableObject
     [Tooltip("Görevin kaç kez tamamlanabileceği")]
     public int completionLimit = 3;
 
-    [Header("Ödüller")]
+    [Header("Ödüller (Yeni Merkezi Sistem)")]
     [Tooltip("Her bir tamamlama için sırayla verilecek ödüller listesi. (Liste boyutu Completion Limit ile eşleşmeli)")]
-    public List<ExplorerReward> rewardsPerCompletion;
+    // [YENİ] Artık ExplorerReward yerine GameRewardList kullanıyor.
+    public List<GameRewardList> rewardsPerCompletion;
 
     [Header("İlerleme")]
     [Tooltip("Bu görev tamamlandığında hangi Explorer Quest'inin kilidini açar (ID'si)")]
@@ -63,5 +73,4 @@ public class ExplorerQuestData : ScriptableObject
             questID = System.Guid.NewGuid().ToString();
         }
     }
-    // Not: StatReward, ItemDrop ve Requirement sınıflarının başka dosyalarda tanımlı olduğunu varsayıyoruz.
 }

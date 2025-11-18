@@ -7,7 +7,7 @@ using System; // Serializable sınıflar için
 /// Unity Editor'dan yeni görevler oluşturmak için kullanılır.
 /// </summary>
 /// 
- public enum QuestArea {
+public enum QuestArea {
     Global, // Genel görevler
     City,   // Şehir görevleri
     Adventure, // Macera bölgesi görevleri
@@ -17,9 +17,9 @@ using System; // Serializable sınıflar için
 [CreateAssetMenu(fileName = "NewQuest", menuName = "Quest System/Quest Data")]
 public class QuestData : ScriptableObject
 {
-     
+    
     [Header("Bölge Bilgisi")]
-public QuestArea questArea = QuestArea.Global; // Varsayılan olarak Global olsun
+    public QuestArea questArea = QuestArea.Global; // Varsayılan olarak Global olsun
 
     [Header("Temel Bilgiler")]
     /// <summary>Görevin benzersiz kimliği.</summary>
@@ -46,19 +46,31 @@ public QuestArea questArea = QuestArea.Global; // Varsayılan olarak Global olsu
 
     [Header("Gereksinimler")]
     /// <summary>Görevi başlatmak için gerekenleri içeren sınıf.</summary>
-    public QuestRequirements requirements;
+    public List<Requirement> requirements; // [YENİ] Merkezi gereksinim listesi
 
-    [Header("Ödüller")]
-    /// <summary>Görevin tamamlanmasıyla kazanılacak temel tecrübe puanı.</summary>
-    public double experienceReward;
-    /// <summary>Görevin tamamlanmasıyla kazanılacak altın ödülü dilimleri.</summary>
-    public List<RewardTier> goldRewardTiers;
-    /// <summary>Görevin tamamlanmasıyla kazanılacak Nexus Coin ödülü dilimleri.</summary>
-    public List<RewardTier> nexusCoinRewardTiers;
-    /// <summary>Görevin tamamlanmasıyla düşebilecek eşya ödülleri.</summary>
-    public List<ItemDrop> itemRewards; // ItemData referansı burada kullanılacak
-    /// <summary>Görevin tamamlanmasıyla kazanılacak kalıcı stat ödülleri.</summary>
-    public List<StatReward> statRewards;
+    // ========================================================================
+    // REFACTORING BURADA BAŞLIYOR
+    // ========================================================================
+
+    [Header("Ödüller (Yeni Merkezi Sistem)")]
+    /// <summary>
+    /// [YENİ] Görev tamamlandığında verilecek tüm ödüllerin listesi.
+    /// Bu liste, GameRewardDistributor tarafından işlenecektir.
+    /// </summary>
+    public List<GameReward> rewards; // RewardData.cs içindeki struct
+
+    
+    // --- ESKİ ÖDÜL SİSTEMİ KALDIRILDI ---
+    // public double experienceReward; // KALDIRILDI (Artık 'rewards' listesinde)
+    // public List<RewardTier> goldRewardTiers; // KALDIRILDI (Artık 'rewards' listesinde)
+    // public List<RewardTier> nexusCoinRewardTiers; // KALDIRILDI (Artık 'rewards' listesinde)
+    // public List<ItemDrop> itemRewards; // KALDIRILDI (Artık 'rewards' listesinde)
+    // public List<StatReward> statRewards; // KALDIRILDI (Artık 'rewards' listesinde)
+    //
+    // ========================================================================
+    // REFACTORING BURADA BİTİYOR
+    // ========================================================================
+
 
     [Header("Otomasyon")]
     /// <summary>Görevin otomasyonuyla ilgili tüm verileri içeren sınıf.</summary>

@@ -197,6 +197,97 @@ public class StatCalculator : MonoBehaviour
         // Premium coin ekleme buradan kaldırıldı
 
         // =================================================================
+        // YENİ EKLENECEK BÖLÜM: BECERİ VERİMLİLİĞİ (Adım 15 Öncesi)
+        // =================================================================
+
+       // 1. Düz (Flat) Verimlilikleri Hesapla (Temel Stat + Özel Perk Bonusu)
+        float perkWoodcutterEff = PerkManager.Instance.GetBonusFromPerks(PerkEffectType.AddWoodCutterEfficiency);
+        newStats.WoodCutterEfficiency = (physical * 3) + perkWoodcutterEff;
+
+        float perkMiningEff = PerkManager.Instance.GetBonusFromPerks(PerkEffectType.AddMiningEfficiency);
+        newStats.MiningEfficiency = (physical * 3) + perkMiningEff;
+
+        float perkFarmingEff = PerkManager.Instance.GetBonusFromPerks(PerkEffectType.AddFarmingEfficiency);
+        newStats.FarmingEfficiency = (physical * 3) + perkFarmingEff;
+
+        float perkBlacksmithEff = PerkManager.Instance.GetBonusFromPerks(PerkEffectType.AddBlacksmithEfficiency);
+        newStats.BlacksmithEfficiency = (physical * 3) + perkBlacksmithEff;
+
+
+        float perkForagingEff = PerkManager.Instance.GetBonusFromPerks(PerkEffectType.AddForagingEfficiency);
+        newStats.ForagingEfficiency = (mental * 3) + perkForagingEff;
+
+        float perkAlchemistEff = PerkManager.Instance.GetBonusFromPerks(PerkEffectType.AddAlchemistEfficiency);
+        newStats.AlchemistEfficiency = (mental * 3) + perkAlchemistEff;
+
+        float perkEngineerEff = PerkManager.Instance.GetBonusFromPerks(PerkEffectType.AddEngineerEfficiency);
+        newStats.EngineerEfficiency = (mental * 3) + perkEngineerEff;
+
+
+        float perkHuntingEff = PerkManager.Instance.GetBonusFromPerks(PerkEffectType.AddHuntingEfficiency);
+        newStats.HuntingEfficiency = (perception * 3) + perkHuntingEff;
+
+        float perkCarpenterEff = PerkManager.Instance.GetBonusFromPerks(PerkEffectType.AddCarpenterEfficiency);
+        newStats.CarpenterEfficiency = (perception * 3) + perkCarpenterEff;
+
+        float perkTailorEff = PerkManager.Instance.GetBonusFromPerks(PerkEffectType.AddTailorEfficiency);
+        newStats.TailorEfficiency = (perception * 3) + perkTailorEff;
+
+        float perkTannerEff = PerkManager.Instance.GetBonusFromPerks(PerkEffectType.AddTannerEfficiency);
+        newStats.TannerEfficiency = (perception * 3) + perkTannerEff;
+
+        float perkJewelerEff = PerkManager.Instance.GetBonusFromPerks(PerkEffectType.AddJewelerEfficiency);
+        newStats.JewelerEfficiency = (perception * 3) + perkJewelerEff;
+
+
+        float perkFishingEff = PerkManager.Instance.GetBonusFromPerks(PerkEffectType.AddFishingEfficiency);
+        newStats.FishingEfficiency = (spiritual * 3) + perkFishingEff;
+
+        float perkChefEff = PerkManager.Instance.GetBonusFromPerks(PerkEffectType.AddChefEfficiency);
+        newStats.ChefEfficiency = (spiritual * 3) + perkChefEff;
+
+        float perkTamerEff = PerkManager.Instance.GetBonusFromPerks(PerkEffectType.AddTamerEfficiency);
+        newStats.TamerEfficiency = (spiritual * 3) + perkTamerEff;
+
+
+        float perkScavengerEff = PerkManager.Instance.GetBonusFromPerks(PerkEffectType.AddScavengerEfficiency);
+        newStats.ScavengerEfficiency = (luck * 3) + perkScavengerEff;
+        
+        float perkTradingEff = PerkManager.Instance.GetBonusFromPerks(PerkEffectType.AddTradingEfficiency);
+        newStats.TradingEfficiency = (social * 3) + perkTradingEff;
+        
+        // 2. Global Yüzdesel Bonusu (SkillEfficiency) Perk'lerden al
+        // (Bu kod bloğu bir önceki adımdan zaten mevcut olmalı)
+        if (PerkManager.Instance != null)
+        {
+            float perkSkillEfficiency = PerkManager.Instance.GetBonusFromPerks(PerkEffectType.AddSkillEfficiency);
+            newStats.SkillEfficiency = (double)(perkSkillEfficiency / 100.0f);
+        }
+
+        // 3. Global Bonusu Tüm Düz (Flat) Verimliliklere Uygula
+        double efficiencyMultiplier = 1.0 + newStats.SkillEfficiency;
+        
+        newStats.WoodCutterEfficiency *= efficiencyMultiplier;
+        newStats.MiningEfficiency *= efficiencyMultiplier;
+        newStats.FarmingEfficiency *= efficiencyMultiplier;
+        newStats.BlacksmithEfficiency *= efficiencyMultiplier;
+        newStats.ForagingEfficiency *= efficiencyMultiplier;
+        newStats.AlchemistEfficiency *= efficiencyMultiplier;
+        newStats.EngineerEfficiency *= efficiencyMultiplier;
+        newStats.HuntingEfficiency *= efficiencyMultiplier;
+        newStats.CarpenterEfficiency *= efficiencyMultiplier;
+        newStats.TailorEfficiency *= efficiencyMultiplier;
+        newStats.TannerEfficiency *= efficiencyMultiplier;
+        newStats.JewelerEfficiency *= efficiencyMultiplier;
+        newStats.FishingEfficiency *= efficiencyMultiplier;
+        newStats.ChefEfficiency *= efficiencyMultiplier;
+        newStats.TamerEfficiency *= efficiencyMultiplier;
+        newStats.ScavengerEfficiency *= efficiencyMultiplier;
+        newStats.TradingEfficiency *= efficiencyMultiplier;
+
+        // ======= BECERİ VERİMLİLİĞİ BÖLÜMÜ SONU =======
+
+        // =================================================================
         // YENİ EKLENECEK BÖLÜM: PERK BONUSLARI
         // =================================================================
         if (PerkManager.Instance != null)

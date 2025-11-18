@@ -12,7 +12,33 @@ public enum PerkEffectType
     AddCriticalChance, AddCriticalDamage, AddDropRate, ReduceEnemyHealth,
     ReduceEnemyDamage, ReduceEnemyArmor, AddHitRate, AddProduction,
     AddCooldownReduction, AddResourceCostReduction, AddPrestigePoints,
-    AddPrestigeBonus, UnlockFeature, GrantItem, GetExplorerTimeReduction
+    AddPrestigeBonus, UnlockFeature, GrantItem, GetExplorerTimeReduction,
+
+    
+    AddSkillEfficiency, // (Bunu bir önceki adımda eklemiştik)
+
+    // [YENİ EKLENECEK KISIM]
+    // Life Skills
+    AddWoodCutterEfficiency,
+    AddForagingEfficiency,
+    AddMiningEfficiency,
+    AddHuntingEfficiency,
+    AddFishingEfficiency,
+    AddScavengerEfficiency,
+
+    // Jobs
+    AddAlchemistEfficiency,
+    AddTradingEfficiency,
+    AddChefEfficiency,
+    AddFarmingEfficiency,
+    AddBlacksmithEfficiency,
+    AddCarpenterEfficiency,
+    AddTailorEfficiency,
+    AddTannerEfficiency,
+    AddTamerEfficiency,
+    AddJewelerEfficiency,
+    AddEngineerEfficiency
+    // [YENİ EKLENECEK KISIM SONU]
 }
 
 // Efektin değerinin yüzde mi yoksa düz sayı mı olduğunu belirtmek için yeni enum
